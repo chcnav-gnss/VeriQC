@@ -1,0 +1,471 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_Console|x64">
+      <Configuration>Debug_Console</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Console|x64">
+      <Configuration>Release_Console</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A0DBABE5-8365-404A-AD78-AEE3C0E75A37}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>5.12.12_msvc2017_64</QtInstall>
+    <QtModules>core;network;gui;widgets;printsupport;gui-private</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'" Label="QtSettings">
+    <QtInstall>5.12.12_msvc2017_64</QtInstall>
+    <QtModules>core;network;gui;widgets;printsupport;gui-private</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>5.12.12_msvc2017_64</QtInstall>
+    <QtModules>core;network;gui;widgets;printsupport;gui-private</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'" Label="QtSettings">
+    <QtInstall>5.12.12_msvc2017_64</QtInstall>
+    <QtModules>core;network;gui;widgets;printsupport;gui-private</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
+    <OutDir>$(SolutionDir)bin\Debug\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
+    <TargetName>VeriQC_Console</TargetName>
+    <OutDir>$(SolutionDir)bin\Debug\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
+    <OutDir>$(SolutionDir)bin\Release\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
+    <TargetName>VeriQC_Console</TargetName>
+    <OutDir>$(SolutionDir)bin\Release\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>QT_DEPRECATED_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
+</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>QT_DEPRECATED_WARNINGS;CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
+</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>QT_DEPRECATED_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)exe\Debug64\VeriQC.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>QT_DEPRECATED_WARNINGS;CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)exe\Debug64\VeriQC.dll" "$(OutDir)" 
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\VeriQC\VeriQC.vcxproj">
+      <Project>{0af97359-d14e-4cd3-9b5d-be1a5b7c3923}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\VeriQC_UI\AboutDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\AppSettingsManagement.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\CommandLineProcessor.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyAlertMessageBox.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyComboBox.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyDateTimeEdit.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyHeaderView.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyMenu.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyMessageBox.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyNoWheelDoubleSpinBox.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyNoWheelSpinBox.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyProgressCustomPlot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyWaterProgressBar.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\ExpandButtonDelegate.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\ImportFileDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\main.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\MainWindow.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigurator.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObject.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObjectManager.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObjectTableModel.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProcessor.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProcessThread.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProgressDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCResultExporter.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCResultManager.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCustomplot\qcustomplot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxabstractooxmlfile.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxabstractsheet.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcell.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellformula.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcelllocation.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellrange.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellreference.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxchart.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxchartsheet.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcolor.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxconditionalformatting.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcontenttypes.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdatavalidation.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdatetype.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocpropsapp.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocpropscore.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocument.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdrawing.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdrawinganchor.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxformat.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxmediafile.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxnumformatparser.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxrelationships.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxrichstring.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxsharedstrings.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxsimpleooxmlfile.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxstyles.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxtheme.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxutility.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxworkbook.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxworksheet.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipreader.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipwriter.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeProcessor.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotPolarSatGraph.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotSatPolarAxisAngular.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SNRAndMPTimePlot.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\TimePlotGraph.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\HttpClient.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\UpgradeHelp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyAlertMessageBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyComboBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyDateTimeEdit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyHeaderView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyMenu.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyMessageBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyNoWheelDoubleSpinBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyNoWheelSpinBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyProgressCustomPlot.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyWaterProgressBar.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\VeriQC_UI\AppSettingsManagement.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCConfigurator.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCObject.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCObjectManager.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCProcessor.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCResultExporter.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCResultManager.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\resource.h" />
+    <ClInclude Include="resource.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\TimePlotGraph.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SNRAndMPTimePlot.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotSatPolarAxisAngular.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotPolarSatGraph.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlot.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlot.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeProcessor.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCProgressDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCProcessThread.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCObjectTableModel.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCConfigDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlot.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\MainWindow.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\ImportFileDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\ExpandButtonDelegate.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\CommandLineProcessor.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\AboutDialog.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\nlohmann\json.hpp" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractooxmlfile.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractooxmlfile_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractsheet.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractsheet_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcell.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellformula.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellformula_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcelllocation.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellrange.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellreference.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcell_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchart.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchartsheet.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchartsheet_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchart_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcolor_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxconditionalformatting.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxconditionalformatting_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcontenttypes_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatavalidation.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatavalidation_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatetype.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocpropsapp_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocpropscore_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocument_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdrawinganchor_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdrawing_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxformat.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxformat_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxglobal.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxmediafile_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxnumformatparser_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrelationships_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrichstring.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrichstring_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxsharedstrings_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxsimpleooxmlfile_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxstyles_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxtheme_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxutility_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworkbook.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworkbook_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworksheet.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworksheet_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxzipreader_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxzipwriter_p.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\upgrade\HttpClient.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\upgrade\UpgradeDTO.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\upgrade\UpgradeHelp.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocument.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCustomplot\qcustomplot.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="..\..\src\VeriQC_UI\AboutDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\ImportFileDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\MainWindow.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\QCConfigDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\QCProgressDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\RinexMergeDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\SkyPlotDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\..\src\VeriQC_UI\Resource.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="..\..\src\VeriQC_UI\VeriQC_UI_zh_CN.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\VeriQC_UI\VeriQC_UI_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\VeriQC_UI\Resources\Icons\VeriQC-LOGO.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

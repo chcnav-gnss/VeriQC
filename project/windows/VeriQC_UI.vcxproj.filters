@@ -1,0 +1,659 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{d222b91f-eb7d-4bb3-a9f0-a0e533a75381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nlohmann">
+      <UniqueIdentifier>{afbb00c9-e210-4108-a333-c15b217fdc5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCustomplot">
+      <UniqueIdentifier>{9a55604b-db40-4741-83bc-d43418d99e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QXlsx">
+      <UniqueIdentifier>{69105a67-b732-45e8-8f24-67da0c43d8ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="upgrade">
+      <UniqueIdentifier>{1a291b3b-98d1-4ffd-9a46-07f0bd90d24c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QXlsx\header">
+      <UniqueIdentifier>{abb50862-af8e-42c0-9fb2-1ede736e203c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QXlsx\source">
+      <UniqueIdentifier>{d6afa0e3-68c3-465e-96b4-bcca9937adb2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyAlertMessageBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyComboBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyDateTimeEdit.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyDialog.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyHeaderView.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyMenu.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyMessageBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyNoWheelDoubleSpinBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyNoWheelSpinBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyProgressCustomPlot.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\Components\MyWaterProgressBar.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCustomplot\qcustomplot.cpp">
+      <Filter>QCustomplot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxabstractooxmlfile.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxabstractsheet.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcell.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellformula.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcelllocation.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellrange.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcellreference.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxchart.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxchartsheet.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcolor.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxconditionalformatting.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxcontenttypes.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdatavalidation.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdatetype.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocpropsapp.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocpropscore.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdocument.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdrawing.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxdrawinganchor.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxformat.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxmediafile.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxnumformatparser.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxrelationships.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxrichstring.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxsharedstrings.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxsimpleooxmlfile.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxstyles.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxtheme.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxutility.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxworkbook.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxworksheet.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipreader.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipwriter.cpp">
+      <Filter>QXlsx\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.cpp">
+      <Filter>upgrade</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\HttpClient.cpp">
+      <Filter>upgrade</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\upgrade\UpgradeHelp.cpp">
+      <Filter>upgrade</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\AboutDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\AppSettingsManagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\CommandLineProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\ExpandButtonDelegate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\ImportFileDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObjectManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCObjectTableModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProcessThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCProgressDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCResultExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCResultManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotPolarSatGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SkyPlotSatPolarAxisAngular.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SNRAndMPTimePlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\TimePlotGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyAlertMessageBox.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyComboBox.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyDateTimeEdit.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyDialog.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyHeaderView.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyMenu.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyMessageBox.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyNoWheelDoubleSpinBox.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyNoWheelSpinBox.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyProgressCustomPlot.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\Components\MyWaterProgressBar.h">
+      <Filter>Components</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCustomplot\qcustomplot.h">
+      <Filter>QCustomplot</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocument.h">
+      <Filter>QXlsx\header</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.h">
+      <Filter>upgrade</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\upgrade\UpgradeHelp.h">
+      <Filter>upgrade</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\AboutDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\CommandLineProcessor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\ExpandButtonDelegate.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\ImportFileDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\MainWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCConfigDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCObjectTableModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCProcessThread.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCProgressDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeProcessor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotPolarSatGraph.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SkyPlotSatPolarAxisAngular.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SNRAndMPTimePlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\TimePlotGraph.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\VeriQC_UI\nlohmann\json.hpp">
+      <Filter>nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractooxmlfile.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractooxmlfile_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractsheet.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxabstractsheet_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcell.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcell_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellformula.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellformula_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcelllocation.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellrange.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcellreference.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchart.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchart_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchartsheet.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxchartsheet_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcolor_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxconditionalformatting.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxconditionalformatting_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxcontenttypes_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatavalidation.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatavalidation_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdatetype.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocpropsapp_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocpropscore_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdocument_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdrawing_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxdrawinganchor_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxformat.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxformat_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxglobal.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxmediafile_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxnumformatparser_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrelationships_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrichstring.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxrichstring_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxsharedstrings_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxsimpleooxmlfile_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxstyles_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxtheme_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxutility_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworkbook.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworkbook_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworksheet.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxworksheet_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxzipreader_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QXlsx\header\xlsxzipwriter_p.h">
+      <Filter>QXlsx\header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\upgrade\HttpClient.h">
+      <Filter>upgrade</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\upgrade\UpgradeDTO.h">
+      <Filter>upgrade</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\AppSettingsManagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCConfigurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCObjectManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCResultExporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCResultManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="..\..\src\VeriQC_UI\upgrade\CNewVersionDescDialog.ui">
+      <Filter>upgrade</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\AboutDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\ImportFileDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\MainWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\QCConfigDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\QCProgressDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\RinexMergeDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\SkyPlotColorBarWidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\SkyPlotDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\SNRAndMPTimePlotDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\StationAttributeInfoWidget.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\..\src\VeriQC_UI\Resource.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="..\..\src\VeriQC_UI\VeriQC_UI_zh_CN.ts">
+      <Filter>Translation Files</Filter>
+    </QtTranslation>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\VeriQC_UI\VeriQC_UI_resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\VeriQC_UI\Resources\Icons\VeriQC-LOGO.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
