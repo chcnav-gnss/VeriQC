@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1055</width>
+    <height>797</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VeriQC</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Resource.qrc">
+    <normaloff>:/icons/Resources/Icons/VeriQC-LOGO.png</normaloff>:/icons/Resources/Icons/VeriQC-LOGO.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="ImportPage">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>221</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>327</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="pixmap">
+             <pixmap resource="Resource.qrc">:/icons/Resources/Icons/ImportPage.png</pixmap>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="styleSheet">
+             <string notr="true">color: #666666;</string>
+            </property>
+            <property name="text">
+             <string>Please import OBS files</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="importButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="cursor">
+               <cursorShape>PointingHandCursor</cursorShape>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">width: 180px;
+height: 32px;
+background: #fa853a;
+border: 1px solid #ffa463;
+border-radius: 4px;
+color:white;</string>
+              </property>
+              <property name="text">
+               <string>Import</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="2">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>327</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>220</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="MainPage">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Obs File List</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="tableView">
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1055</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="MyMenu" name="menu">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionImport"/>
+    <addaction name="actionExportQCResult"/>
+    <addaction name="actionExportQCReport"/>
+   </widget>
+   <widget class="MyMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionQCSetting"/>
+    <addaction name="actionRinexConvertSetting"/>
+   </widget>
+   <widget class="MyMenu" name="menuFunction">
+    <property name="title">
+     <string>Function</string>
+    </property>
+    <addaction name="actionQC"/>
+    <addaction name="actionRinexConvert"/>
+    <addaction name="actionFileMerge"/>
+   </widget>
+   <widget class="MyMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionObsTimePlot"/>
+    <addaction name="actionSkyPlot"/>
+    <addaction name="actionSNRAndMPPlot"/>
+    <addaction name="actionSatNumAndDOPPlot"/>
+   </widget>
+   <widget class="MyMenu" name="menuLanguage">
+    <property name="title">
+     <string>Language</string>
+    </property>
+    <addaction name="actionChinese"/>
+    <addaction name="actionEnglish"/>
+   </widget>
+   <widget class="MyMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionUserManual"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menuSetting"/>
+   <addaction name="menuFunction"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuLanguage"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::NoToolBarArea</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionImport"/>
+   <addaction name="actionQC"/>
+   <addaction name="actionRinexConvert"/>
+   <addaction name="separator"/>
+   <addaction name="actionObsTimePlot"/>
+   <addaction name="actionSkyPlot"/>
+   <addaction name="actionSNRAndMPPlot"/>
+   <addaction name="actionSatNumAndDOPPlot"/>
+   <addaction name="separator"/>
+   <addaction name="actionExportQCResult"/>
+   <addaction name="actionExportQCReport"/>
+  </widget>
+  <action name="actionQCSetting">
+   <property name="text">
+    <string>QC Setting</string>
+   </property>
+  </action>
+  <action name="actionRinexConvertSetting">
+   <property name="text">
+    <string>Rinex Convert Setting</string>
+   </property>
+  </action>
+  <action name="actionQC">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/QC.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/QC_Disable.png</disabledoff>:/icons/Resources/Icons/QC.png</iconset>
+   </property>
+   <property name="text">
+    <string>QC</string>
+   </property>
+  </action>
+  <action name="actionRinexConvert">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/RinexConvert.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/RinexConvert_Disable.png</disabledoff>:/icons/Resources/Icons/RinexConvert.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rinex Convert</string>
+   </property>
+  </action>
+  <action name="actionFileMerge">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/FileMerge.png</normaloff>:/icons/Resources/Icons/FileMerge.png</iconset>
+   </property>
+   <property name="text">
+    <string>File Merge</string>
+   </property>
+  </action>
+  <action name="actionObsTimePlot">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/ObsPlot.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/ObsPlot_Disable.png</disabledoff>:/icons/Resources/Icons/ObsPlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Obs Time Plot</string>
+   </property>
+  </action>
+  <action name="actionSkyPlot">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/SkyPlot.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/SkyPlot_Disable.png</disabledoff>:/icons/Resources/Icons/SkyPlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sky Plot</string>
+   </property>
+  </action>
+  <action name="actionSNRAndMPPlot">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/SNRPlot.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/SNRPlot_Disable.png</disabledoff>:/icons/Resources/Icons/SNRPlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>SNR/Multipath Plot</string>
+   </property>
+   <property name="toolTip">
+    <string>SNR/Multipath Plot</string>
+   </property>
+  </action>
+  <action name="actionSatNumAndDOPPlot">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/SatNumPlot.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/SatNumPlot_Disable.png</disabledoff>:/icons/Resources/Icons/SatNumPlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>SatNum/DOP Plot</string>
+   </property>
+   <property name="toolTip">
+    <string>SatNum/DOP Plot</string>
+   </property>
+  </action>
+  <action name="actionChinese">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Chinese</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionUserManual">
+   <property name="text">
+    <string>User Manual</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/Import.png</normaloff>:/icons/Resources/Icons/Import.png</iconset>
+   </property>
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionExportQCResult">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/Export.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/Export_Disable.png</disabledoff>:/icons/Resources/Icons/Export.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export QC Result</string>
+   </property>
+  </action>
+  <action name="actionExportQCReport">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/Report.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/Report_Disable.png</disabledoff>:/icons/Resources/Icons/Report.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export QC Report</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyMenu</class>
+   <extends>QMenu</extends>
+   <header location="global">Components/MyMenu.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="Resource.qrc"/>
+  <include location="QuiCkResource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{0af97359-d14e-4cd3-9b5d-be1a5b7c3923}</ProjectGuid>
+    <RootNamespace>CHCQC20</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)exe\Debug32\</OutDir>
+    <IntDir>$(Configuration)32\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)exe\Release32\</OutDir>
+    <IntDir>$(Configuration)32\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)exe\Debug64\</OutDir>
+    <IntDir>$(Configuration)64\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)exe\Release64\</OutDir>
+    <IntDir>$(Configuration)64\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Debug32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;__64BIT__;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Release32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;__64BIT__;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Debug64\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PropMsgDecoder.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;__64BIT__;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Release64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Common\CommonFuncs.h" />
+    <ClInclude Include="src\Common\Coordinate.h" />
+    <ClInclude Include="src\Common\DataTypes.h" />
+    <ClInclude Include="src\Common\GNSSConstants.h" />
+    <ClInclude Include="src\Common\MatrixFuncs.h" />
+    <ClInclude Include="src\Common\Memory.h" />
+    <ClInclude Include="src\Common\TimeDefines.h" />
+    <ClInclude Include="src\Interface\MsgConvertTransQC.h" />
+    <ClInclude Include="src\Interface\PrintFunc.h" />
+    <ClInclude Include="src\Interface\QCCommon.h" />
+    <ClInclude Include="src\Interface\QCProcessor.h" />
+    <ClInclude Include="src\Interface\SPPSol.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\MsgDecodeDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\MSMDecoder.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common\SupportFuncs.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\CHCRawMsgBinary\CHCRawMsgBinaryDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\CHCRawMsgBinary\CHCRawMsgBinaryFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecodeDefinesEx.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgPort.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgAsciiDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgAsciiFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgDecodeIDDefines.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgBinary\RawMsgBinaryDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgBinary\RawMsgBinaryFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDecoder.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM2Filter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM3Filter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCMDecodeManage.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\UNRawMsgBinary\UNRawMsgBinaryDataTypes.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\UNRawMsgBinary\UNRawMsgBinaryFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXConvert.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXDefines.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXEncoder.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\GNSSPrint.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgCodec.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvert.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvertDataTypes.h" />
+    <ClInclude Include="src\QCSource\AlgorithmBase\CommonBase.h" />
+    <ClInclude Include="src\QCSource\Include\DataQC.h" />
+    <ClInclude Include="src\VeriQCSPP\Common\GNSSBase\GNSSBase.h" />
+    <ClInclude Include="src\VeriQCSPP\Common\Logs.h" />
+    <ClInclude Include="src\VeriQCSPP\Common\MemoryManager.h" />
+    <ClInclude Include="src\VeriQCSPP\Common\VeriQCSPP.h" />
+    <ClInclude Include="src\VeriQCSPP\Interface\ProcInterface.h" />
+    <ClInclude Include="src\VeriQCSPP\SPP\SPPBase.h" />
+    <ClInclude Include="src\VeriQC.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Common\Coordinate.c" />
+    <ClCompile Include="src\Common\MatrixFuncs.c" />
+    <ClCompile Include="src\Common\Memory.c" />
+    <ClCompile Include="src\Common\TimeFuncs.c" />
+    <ClCompile Include="src\Entrance.c" />
+    <ClCompile Include="src\Interface\MsgConvertTransQC.c" />
+    <ClCompile Include="src\Interface\PrintFunc.c" />
+    <ClCompile Include="src\Interface\QCCommon.c" />
+    <ClCompile Include="src\Interface\QCProcessor.c" />
+    <ClCompile Include="src\Interface\SPPSol.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\MSMDecoder.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCM2Decoder.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCM3Decoder.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCMSupportFunc.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common\SupportFuncs.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgPort.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDecoder.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexFilter.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM2Filter.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM3Filter.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCMDecodeManage.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXConvert.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXEncoder.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\GNSSPrint.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgCodec.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvert.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\ASCIICharFuncs.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\CheckSum\CRC24Q.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\CheckSum\CRC32.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\GNSSSignal.c" />
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\HAL\DriverCycleDataBuffer.c" />
+    <ClCompile Include="src\QCSource\AlgorithmBase\CommonBase.c" />
+    <ClCompile Include="src\QCSource\AlgorithmBase\QCVersion.c" />
+    <ClCompile Include="src\QCSource\GNSSQCProcess\GNSSQCProcess.c" />
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\Ephemeris.c" />
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\StructCopy.c" />
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\SystemMap.c" />
+    <ClCompile Include="src\VeriQCSPP\Common\Logs.c" />
+    <ClCompile Include="src\VeriQCSPP\Common\MemoryManager.c" />
+    <ClCompile Include="src\VeriQCSPP\Interface\OrbitProcessor.c" />
+    <ClCompile Include="src\VeriQCSPP\Interface\ProcInterface.c" />
+    <ClCompile Include="src\VeriQCSPP\Interface\SPPProcessor.c" />
+    <ClCompile Include="src\VeriQCSPP\SPP\SPPCmn.c" />
+    <ClCompile Include="src\VeriQCSPP\SPP\SPPPos.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

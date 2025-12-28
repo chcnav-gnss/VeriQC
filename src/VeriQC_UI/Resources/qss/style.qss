@@ -1,0 +1,217 @@
+QMainWindow, QDialog, .QWidget{
+    background-color: white;
+}
+
+* {
+    font-family: "Alibaba PuHuiTi 3.0 55 Regular";
+}
+
+QPushButton, QComboBox, 
+QLineEdit, QDateTimeEdit, QSpinBox, QDoubleSpinBox {
+    height: 2em;
+    border-radius: 0.25em;
+    padding: 0 0.75em;
+    border:0.06em solid #cccccc;
+}
+
+
+
+QRadioButton {
+    height: 2em;
+    padding: 0 0.75em;
+}
+
+QMenuBar::item {
+    background-color: white;
+}
+
+QMenuBar::item:hover, QMenuBar::item:selected {
+    color: #FA853A;
+}
+
+QToolButton {
+    height: 1.75em;
+    border-radius: 0.25em;
+    padding: 0 0em;
+    border:0.06em solid #cccccc;
+}
+
+QPushButton {
+    background-color: #e9ebec;
+}
+
+QPushButton:hover:enabled, QPushButton:focus:enabled, QPushButton:default:enabled {
+    background-color: #FA853A;
+    color: white;
+}
+
+
+QToolButton {
+    background-color: #e9ebec;
+}
+
+QToolButton:hover, QToolButton:focus, QToolButton:default {
+
+    background-color: #FA853A;
+    color: white;
+}
+
+QToolBar>QToolButton {
+    min-width: 5em;
+    min-height: 4em;
+    border-radius: 0.5em;
+    border:none;
+    background-color: white;
+}
+
+QToolBar>QToolButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0.8, y2:0.8,stop:0.01 white, stop:0.99 #ffe6d7);
+    color: black;
+}
+
+QToolBar>QToolButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0.8, y2:0.8,stop:0.01 white, stop:0.99 #ffc199);
+    color: black;
+}
+
+QToolBar>QToolButton:checked {
+    background: qlineargradient(x1:0, y1:0, x2:0.8, y2:0.8,stop:0.01 white, stop:0.99 #ffe6d7);
+    color: black;
+}
+
+QToolBar::separator {
+    width: 0.06em;
+    max-height: 2.5em;
+    background-color: rgba(216,216,216,0.50);
+}
+
+QComboBox::drop-down {
+    width: 2em;
+    border-left: none;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/Resources/Icons/DownArrow.png);
+    width: 1.5em;
+    height: 1.5em;
+}
+
+QComboBox QAbstractItemView, QMenu {
+    padding: 0.5em;
+    outline: 0px;
+    border: 0.06em solid #e9ebec;
+    border-radius: 0.25em;
+    background-color: white;
+}
+
+QComboBox QAbstractItemView::item {
+    height: 2em;
+    color: black;
+}
+
+QMenu::item {
+    padding: 0.5em;
+    min-width: 10em;
+}
+
+QMenu::item:checked,QMenu::item:unchecked {
+    padding-left: 1.5em;
+}
+
+
+QComboBox QAbstractItemView::item:hover, QMenu::item:hover {
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, 
+    stop:0 #fafbfc, stop:1 #f4f4f4);
+}
+
+QComboBox QAbstractItemView::item:selected, QMenu::item:selected {
+    background: qlineargradient(x1:1, y1:0, x2:0, y2:0, 
+    stop:0 #fafbfc, stop:1 #f4f4f4);
+}
+
+QDateTimeEdit {
+    min-width: 8em;
+}
+
+QDateTimeEdit::drop-down {
+    border:none;
+    width: 2em;
+}
+
+QDateTimeEdit::down-arrow {
+    image: url(:/icons/Resources/Icons/Calendar.png);
+    width: 1.5em;
+    height: 1.5em;
+}
+
+QCheckBox::indicator:checked, QTableView::indicator:checked{
+    border-image: url(:/icons/Resources/Icons/CheckboxChecked.png);
+}
+
+QCheckBox::indicator:unchecked, QTableView::indicator:unchecked{
+    border-image: url(:/icons/Resources/Icons/CheckboxUnchecked.png);
+}
+
+QCheckBox::indicator:checked:disabled, QTableView::indicator:checked:disabled{
+    border-image: url(:/icons/Resources/Icons/CheckboxChecked_Disable.png);
+}
+
+QCheckBox::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled{
+    border-image: url(:/icons/Resources/Icons/CheckboxUnchecked_Disable.png);
+}
+
+QTableView {
+    outline: 0px;
+    qproperty-showGrid:false;
+    alternate-background-color: #F7F7F9;
+    selection-background-color: #FFF5EF;
+    selection-color: black;
+}
+
+QHeaderView {
+    background-color: #F7F7F9;
+    color: black;
+    min-height: 3.13em;
+}
+
+
+QHeaderView::section {
+    border: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: #F7F7F9;
+}
+
+
+
+QRadioButton::indicator:checked {
+    border-image: url(:/icons/Resources/Icons/RadioCheck.png);
+}
+
+QRadioButton::indicator:unchecked {
+    border-image: url(:/icons/Resources/Icons/RadioNormal.png);
+}
+
+QRadioButton::indicator:checked:disabled {
+    border-image: url(:/icons/Resources/Icons/RadioCheck_Disable.png);
+}
+
+QRadioButton::indicator:unchecked:disabled {
+    border-image: url(:/icons/Resources/Icons/RadioNormal_Disable.png);
+}
+
+QScrollArea {
+    background-color: white;
+    border: none;
+}
+
+QProgressBar {
+    background-color: #F3F3F3;
+    text-align: right;
+    margin-right: 2em;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #FA853A, stop:1 #FF9418);
+}
+

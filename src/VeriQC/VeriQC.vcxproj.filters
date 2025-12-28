@@ -1,0 +1,371 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MsgConvert">
+      <UniqueIdentifier>{2ffc9fe0-0e5a-4da4-b38e-cc410bda7dd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\头文件">
+      <UniqueIdentifier>{4a0f02d7-4066-4e17-a199-08f125007e3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件">
+      <UniqueIdentifier>{5569fa82-bb72-4769-bd14-ba3186738ae1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code">
+      <UniqueIdentifier>{9350cae2-24a4-482c-8eb6-65d9c13837c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Common">
+      <UniqueIdentifier>{2705441d-2ffb-4299-a1c6-9dab5dbeab98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Decoder">
+      <UniqueIdentifier>{53c4f97a-42ff-4434-a4bf-c9904927adc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Decoder\RTCM">
+      <UniqueIdentifier>{e551e169-c812-4bbe-ab9c-932e60e13c06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Decoder\Rinex">
+      <UniqueIdentifier>{27d83029-09ad-4fb2-81bc-eeab19cca237}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Encoder">
+      <UniqueIdentifier>{8f2af43d-eca5-44d3-920c-d609d85cc05e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Encoder\RINEX">
+      <UniqueIdentifier>{a48d3e01-390d-4899-867c-9203a8051940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\HAL">
+      <UniqueIdentifier>{05e2d46e-bbd6-4f3e-a8ca-444332800b47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\BSW">
+      <UniqueIdentifier>{52c40724-d537-44bf-a502-fb93ea98ccd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\BSW\MsgDecoder">
+      <UniqueIdentifier>{8d3ce292-6cef-4286-b2aa-26a01cebca36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\BSW\MsgDecoder\RTCM">
+      <UniqueIdentifier>{48404f6f-bdd5-4b7d-8744-6526e3a9186c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VeriQCSPP">
+      <UniqueIdentifier>{35da9976-3416-4b71-9cf4-36afd5d7840a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VeriQCSPP\Interface">
+      <UniqueIdentifier>{f46a8037-36ae-4a8e-9bed-5054c1aa2653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VeriQCSPP\SPP">
+      <UniqueIdentifier>{57a9e2dc-2538-4a76-b864-c789b004c961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VeriQCSPP\Common">
+      <UniqueIdentifier>{d9617226-f813-48d8-aaa3-8157b99f3db6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VeriQCSPP\Common\GNSSBase">
+      <UniqueIdentifier>{b8e24742-e392-49b6-ae7d-0a9242758c77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{b2a80b43-37cf-4d26-8d35-399f94634155}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCSource">
+      <UniqueIdentifier>{ee66fa4f-cbe2-43b3-903f-a6501edf7eb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCSource\AlgorithmBase">
+      <UniqueIdentifier>{245e5780-3dff-49db-b7d1-937bbf6f0708}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCSource\Include">
+      <UniqueIdentifier>{57574964-b9b2-4e01-8a72-d4374d283180}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="QCSource\GNSSQCProcess">
+      <UniqueIdentifier>{5542451b-1691-49bc-8e18-1f05ec4e9a8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{ebc6153c-f3e9-43a0-ab16-29ed8b00b678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsgConvert\源文件\Code\Common\CheckSum">
+      <UniqueIdentifier>{b564b720-8069-4f97-861c-5ab5175cddeb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common\SupportFuncs.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgPort.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgAsciiDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgAsciiFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgAscii\RawMsgDecodeIDDefines.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgBinary\RawMsgBinaryDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RawMsgBinary\RawMsgBinaryFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDecoder.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM2Filter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM3Filter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCMDecodeManage.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXConvert.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXDefines.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXEncoder.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\GNSSPrint.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgCodec.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvert.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvertDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\MSMDecoder.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecodeDefinesEx.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\CHCRawMsgBinary\CHCRawMsgBinaryFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\CHCRawMsgBinary\CHCRawMsgBinaryDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\SPP\SPPBase.h">
+      <Filter>VeriQCSPP\SPP</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\Interface\ProcInterface.h">
+      <Filter>VeriQCSPP\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\Common\Logs.h">
+      <Filter>VeriQCSPP\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\Common\MemoryManager.h">
+      <Filter>VeriQCSPP\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\Common\VeriQCSPP.h">
+      <Filter>VeriQCSPP\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQCSPP\Common\GNSSBase\GNSSBase.h">
+      <Filter>VeriQCSPP\Common\GNSSBase</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VeriQC.h" />
+    <ClInclude Include="src\Interface\MsgConvertTransQC.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interface\PrintFunc.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interface\QCCommon.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interface\QCProcessor.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Interface\SPPSol.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\QCSource\AlgorithmBase\CommonBase.h">
+      <Filter>QCSource\AlgorithmBase</Filter>
+    </ClInclude>
+    <ClInclude Include="src\QCSource\Include\DataQC.h">
+      <Filter>QCSource\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\MatrixFuncs.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\CommonFuncs.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\Memory.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\TimeDefines.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\GNSSConstants.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\Coordinate.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\DataTypes.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\MsgDecodeDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\UNRawMsgBinary\UNRawMsgBinaryFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\UNRawMsgBinary\UNRawMsgBinaryDataTypes.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\GNSSPrint.c">
+      <Filter>MsgConvert\源文件\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgCodec.c">
+      <Filter>MsgConvert\源文件\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\MsgConvert.c">
+      <Filter>MsgConvert\源文件\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common\SupportFuncs.c">
+      <Filter>MsgConvert\源文件\Code\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.c">
+      <Filter>MsgConvert\源文件\Code\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgPort.c">
+      <Filter>MsgConvert\源文件\Code\Decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM2Filter.c">
+      <Filter>MsgConvert\源文件\Code\Decoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCM3Filter.c">
+      <Filter>MsgConvert\源文件\Code\Decoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\RTCM\RTCMDecodeManage.c">
+      <Filter>MsgConvert\源文件\Code\Decoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexDecoder.c">
+      <Filter>MsgConvert\源文件\Code\Decoder\Rinex</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\Rinex\RinexFilter.c">
+      <Filter>MsgConvert\源文件\Code\Decoder\Rinex</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXConvert.c">
+      <Filter>MsgConvert\源文件\Code\Encoder\RINEX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder\RINEX\RINEXEncoder.c">
+      <Filter>MsgConvert\源文件\Code\Encoder\RINEX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\HAL\DriverCycleDataBuffer.c">
+      <Filter>MsgConvert\源文件\Code\HAL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCM2Decoder.c">
+      <Filter>MsgConvert\源文件\Code\BSW\MsgDecoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCM3Decoder.c">
+      <Filter>MsgConvert\源文件\Code\BSW\MsgDecoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\RTCMSupportFunc.c">
+      <Filter>MsgConvert\源文件\Code\BSW\MsgDecoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\MSMDecoder.c">
+      <Filter>MsgConvert\源文件\Code\BSW\MsgDecoder\RTCM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\SPP\SPPCmn.c">
+      <Filter>VeriQCSPP\SPP</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\SPP\SPPPos.c">
+      <Filter>VeriQCSPP\SPP</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Interface\OrbitProcessor.c">
+      <Filter>VeriQCSPP\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Interface\ProcInterface.c">
+      <Filter>VeriQCSPP\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Interface\SPPProcessor.c">
+      <Filter>VeriQCSPP\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Common\Logs.c">
+      <Filter>VeriQCSPP\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Common\MemoryManager.c">
+      <Filter>VeriQCSPP\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\Ephemeris.c">
+      <Filter>VeriQCSPP\Common\GNSSBase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\StructCopy.c">
+      <Filter>VeriQCSPP\Common\GNSSBase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VeriQCSPP\Common\GNSSBase\SystemMap.c">
+      <Filter>VeriQCSPP\Common\GNSSBase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Interface\MsgConvertTransQC.c">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Interface\PrintFunc.c">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Interface\QCCommon.c">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Interface\QCProcessor.c">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Interface\SPPSol.c">
+      <Filter>Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entrance.c" />
+    <ClCompile Include="src\QCSource\AlgorithmBase\CommonBase.c">
+      <Filter>QCSource\AlgorithmBase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QCSource\AlgorithmBase\QCVersion.c">
+      <Filter>QCSource\AlgorithmBase</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QCSource\GNSSQCProcess\GNSSQCProcess.c">
+      <Filter>QCSource\GNSSQCProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Common\MatrixFuncs.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Common\Memory.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Common\TimeFuncs.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Common\Coordinate.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\CheckSum\CRC24Q.c">
+      <Filter>MsgConvert\源文件\Code\Common\CheckSum</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\GNSSSignal.c">
+      <Filter>MsgConvert\源文件\Code\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\ASCIICharFuncs.c">
+      <Filter>MsgConvert\源文件\Code\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MsgConvert\Source\Firmware\Code\Common\CheckSum\CRC32.c">
+      <Filter>MsgConvert\源文件\Code\Common\CheckSum</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

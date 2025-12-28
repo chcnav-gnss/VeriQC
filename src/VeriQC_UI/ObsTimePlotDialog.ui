@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ObsTimePlotDialog</class>
+ <widget class="QDialog" name="ObsTimePlotDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1045</width>
+    <height>463</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Obs Time Plot</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0,0,0,0,0,0,0" columnminimumwidth="0,0,0,0,0,0,0,0,0,0">
+       <item row="0" column="4">
+        <widget class="QLabel" name="legendIconLabel_3">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLabel" name="legnedLabel_3">
+         <property name="text">
+          <string>L5/E5B/B3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="legendIconLabel_1">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="legnedLabel_2">
+         <property name="text">
+          <string>L2/G2/E5A/B2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="legendIconLabel_2">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="legnedLabel_1">
+         <property name="text">
+          <string>L1/G1/E1/B1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="legendIconLabel_5">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="legnedLabel_5">
+         <property name="text">
+          <string>L2P/E6/L1S/B2a</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="legendIconLabel_6">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="legnedLabel_6">
+         <property name="text">
+          <string>L5S/B2b</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="legendIconLabel_7">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QLabel" name="legnedLabel_7">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLabel" name="legendIconLabel_4">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QLabel" name="cycleJumpLegendIconLabel">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QLabel" name="legnedLabel_4">
+         <property name="text">
+          <string>L1C/E5(A+B)/B1C</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QLabel" name="cycleJumpLegnendLabel">
+         <property name="text">
+          <string>Cycle Jump</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="bdsCheckBox">
+       <property name="text">
+        <string>BDS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/bds_20x20.png</normaloff>:/icons/Resources/Icons/bds_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="gpsCheckBox">
+       <property name="text">
+        <string>GPS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/gps_20x20.png</normaloff>:/icons/Resources/Icons/gps_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="gloCheckBox">
+       <property name="text">
+        <string>GLO</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/glo_20x20.png</normaloff>:/icons/Resources/Icons/glo_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="galCheckBox">
+       <property name="text">
+        <string>GAL</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/gal_20x20.png</normaloff>:/icons/Resources/Icons/gal_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="qzssCheckBox">
+       <property name="text">
+        <string>QZSS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/qzss_20x20.png</normaloff>:/icons/Resources/Icons/qzss_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1025</width>
+        <height>403</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="QuiCkResource.qrc"/>
+ </resources>
+ <connections/>
+</ui>

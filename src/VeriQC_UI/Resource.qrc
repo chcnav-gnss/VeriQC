@@ -1,0 +1,51 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>Resources/Icons/CHCLogo.png</file>
+        <file>Resources/Icons/Collapse.png</file>
+        <file>Resources/Icons/Expand.png</file>
+        <file>Resources/Icons/Export.png</file>
+        <file>Resources/Icons/Export_Disable.png</file>
+        <file>Resources/Icons/Import.png</file>
+        <file>Resources/Icons/ImportPage.png</file>
+        <file>Resources/Icons/Message.png</file>
+        <file>Resources/Icons/ObsPlot.png</file>
+        <file>Resources/Icons/ObsPlot_Disable.png</file>
+        <file>Resources/Icons/QC.png</file>
+        <file>Resources/Icons/QC_Disable.png</file>
+        <file>Resources/Icons/Report.png</file>
+        <file>Resources/Icons/Report_Disable.png</file>
+        <file>Resources/Icons/RinexConvert.png</file>
+        <file>Resources/Icons/RinexConvert_Disable.png</file>
+        <file>Resources/Icons/SatNumPlot.png</file>
+        <file>Resources/Icons/SatNumPlot_Disable.png</file>
+        <file>Resources/Icons/SNRPlot.png</file>
+        <file>Resources/Icons/SNRPlot_Disable.png</file>
+        <file>Resources/Icons/SkyPlot.png</file>
+        <file>Resources/Icons/SkyPlot_Disable.png</file>
+        <file>Resources/Icons/Calendar.png</file>
+        <file>Resources/Icons/DownArrow.png</file>
+        <file>Resources/Icons/RightArrow.png</file>
+        <file>Resources/Icons/CheckboxChecked.png</file>
+        <file>Resources/Icons/CheckboxChecked_Disable.png</file>
+        <file>Resources/Icons/CheckboxUnchecked.png</file>
+        <file>Resources/Icons/CheckboxUnchecked_Disable.png</file>
+        <file>Resources/Icons/RadioCheck.png</file>
+        <file>Resources/Icons/RadioCheck_Disable.png</file>
+        <file>Resources/Icons/RadioNormal.png</file>
+        <file>Resources/Icons/VeriQC-LOGO.png</file>
+        <file>Resources/Icons/RadioNormal_Disable.png</file>
+        <file>Resources/Icons/bds_20x20.png</file>
+        <file>Resources/Icons/gal_20x20.png</file>
+        <file>Resources/Icons/glo_20x20.png</file>
+        <file>Resources/Icons/gps_20x20.png</file>
+        <file>Resources/Icons/qzss_20x20.png</file>
+        <file>Resources/Icons/CheckedWhite.png</file>
+        <file>Resources/Icons/FileMerge.png</file>
+    </qresource>
+    <qresource prefix="/translators">
+        <file>VeriQC_UI_zh_CN.qm</file>
+    </qresource>
+    <qresource prefix="/qss">
+        <file>Resources/qss/style.qss</file>
+    </qresource>
+</RCC>

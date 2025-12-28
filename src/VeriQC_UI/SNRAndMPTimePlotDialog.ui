@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SNRAndMPTimePlotDialog</class>
+ <widget class="QDialog" name="SNRAndMPTimePlotDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>590</width>
+    <height>375</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="MyComboBox" name="freqComboBox"/>
+     </item>
+     <item>
+      <widget class="MyComboBox" name="satComboBox"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxBDS">
+       <property name="text">
+        <string>BDS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/bds_20x20.png</normaloff>:/icons/Resources/Icons/bds_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxGPS">
+       <property name="text">
+        <string>GPS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/gps_20x20.png</normaloff>:/icons/Resources/Icons/gps_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxGLO">
+       <property name="text">
+        <string>GLO</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/glo_20x20.png</normaloff>:/icons/Resources/Icons/glo_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxGAL">
+       <property name="text">
+        <string>GAL</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/gal_20x20.png</normaloff>:/icons/Resources/Icons/gal_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxQZSS">
+       <property name="text">
+        <string>QZSS</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/qzss_20x20.png</normaloff>:/icons/Resources/Icons/qzss_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="plotWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">Components/MyComboBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="QuiCkResource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
