@@ -1,0 +1,20 @@
+QPushButton
+{ 
+    border: 0px;  
+    qproperty-icon: url(:/CHCStarHubUpdatePlug/Image/titlebar_normal.png) off, url(:/CHCStarHubUpdatePlug/Image/titlebar_max.png) on;
+    font: normal  10pt "Microsoft YaHei";
+}
+QPushButton:disabled
+{ 
+     color:#666666;
+     opacity:0.5;
+} 
+QPushButton:pressed
+{
+     background-color:#C7CACF;
+} 
+ 
+QPushButton:hover
+{
+ background-color:#C7CACF;
+}

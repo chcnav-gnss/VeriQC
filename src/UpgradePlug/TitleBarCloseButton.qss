@@ -1,0 +1,19 @@
+QPushButton
+{  
+    border: 0px;
+	background-color:transparent;  
+}
+QPushButton:disabled
+{ 
+     color:#666666;
+     opacity:0.5;
+ }
+QPushButton:hover
+{     
+    background-color:#BE0B1A; 
+}
+QPushButton:pressed
+{ 
+    background-color:#BE0B1A; 
+}
+ 

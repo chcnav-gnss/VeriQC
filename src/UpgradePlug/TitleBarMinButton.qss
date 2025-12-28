@@ -1,0 +1,20 @@
+QPushButton
+{  
+   qproperty-icon:url(:/CHCStarHubUpdatePlug/Image/titlebar_min.png); 
+    background-color:transparent; 
+	border: 0px;  
+}
+QPushButton:disabled
+{ 
+     color:#666666;
+     opacity:0.5;
+ }
+QPushButton:hover
+{    
+     background-color:#C7CACF;
+}
+QPushButton:pressed
+{
+     background-color:#C7CACF;
+}
+ 

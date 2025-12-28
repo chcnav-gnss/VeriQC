@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/UpgradePlug">
+        <file>logo.ico</file>
+        <file>TitleBarNormalButton.qss</file>
+        <file>TitleBarMinButton.qss</file>
+        <file>TitleBarCloseButton.qss</file>
+        <file>Image/titlebar_closeHover.png</file>
+        <file>Image/titlebar_closeNomal.png</file>
+        <file>Image/titlebar_max.png</file>
+        <file>Image/titlebar_min.png</file>
+        <file>Image/titlebar_normal.png</file>
+        <file>Translation_Upgrade_zh.qm</file>
+    </qresource>
+</RCC>
