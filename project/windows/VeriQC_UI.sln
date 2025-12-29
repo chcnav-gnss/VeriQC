@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeriQC_UI", "VeriQC_UI.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoUpgradePlug", "AutoUpgradePlug.vcxproj", "{3AD2DD80-3B7C-32CB-B916-FF379EA2EE5D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeriQC", "..\..\..\VeriQC\VeriQC.vcxproj", "{0AF97359-D14E-4CD3-9B5D-BE1A5B7C3923}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VeriQC", "..\..\src\VeriQC\VeriQC.vcxproj", "{0AF97359-D14E-4CD3-9B5D-BE1A5B7C3923}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

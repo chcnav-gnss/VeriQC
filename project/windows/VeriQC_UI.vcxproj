@@ -92,14 +92,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
-    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
     <OutDir>$(SolutionDir)bin\Debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
-    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
     <TargetName>VeriQC_Console</TargetName>
@@ -107,14 +107,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
-    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
     <OutDir>$(SolutionDir)bin\Release\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Console|x64'">
     <LibraryPath>$(LibraryPath)</LibraryPath>
-    <IncludePath>..\..\..\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\src\VeriQC\src;$(SolutionDir)..\..\src\VeriQC_UI;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx;$(SolutionDir)..\..\src\VeriQC_UI\QXlsx\header;$(IncludePath)</IncludePath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <ExternalIncludePath>QXlsx;QXlsx\header;QXlsx\source;$(ExternalIncludePath)</ExternalIncludePath>
     <TargetName>VeriQC_Console</TargetName>
@@ -222,11 +222,6 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\VeriQC\VeriQC.vcxproj">
-      <Project>{0af97359-d14e-4cd3-9b5d-be1a5b7c3923}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\VeriQC_UI\AboutDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\AppSettingsManagement.cpp" />
@@ -461,6 +456,11 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\src\VeriQC_UI\Resources\Icons\VeriQC-LOGO.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VeriQC\VeriQC.vcxproj">
+      <Project>{0af97359-d14e-4cd3-9b5d-be1a5b7c3923}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

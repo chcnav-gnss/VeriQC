@@ -130,14 +130,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;__64BIT__;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\QCSource\Include;src\QCSource\GNSSQCProcess;src\QCSource\AlgorithmBase;src\Interface;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;src\MsgConvert\Source\Firmware\Code\Common;src\MsgConvert\Source\Firmware\Code;src\MsgConvert\Source\Firmware\Project\Code;src\;src\VeriQCSPP\Common\GNSSBase;src\VeriQCSPP\Common;src\VeriQCSPP\Interface;src\VeriQCSPP\SPP;src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Debug64\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>src\PropMsgDecoder\Lib\Windows\Debug64\</AdditionalLibraryDirectories>
       <AdditionalDependencies>PropMsgDecoder.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -149,7 +149,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_CONSOLE;__64BIT__;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_HW_CMODEL_;CONFIG_RTCMDECODETEST_ENABLE;CONFIG_HRCXDECODETEST_ENABLE;RTCM_DEBUG_INFO;HRCX_DEBUG_INFO;MSG_CONVERT;VERIQC_SURVEY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\proj\VeriQC\src\QCSource\Include;..\..\proj\VeriQC\src\QCSource\GNSSQCProcess;..\..\proj\VeriQC\src\QCSource\AlgorithmBase;..\..\proj\VeriQC\src\Interface;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code\Common;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Code;..\..\proj\VeriQC\src\MsgConvert\Source\Firmware\Project\Code;..\..\proj\VeriQC\src\;..\..\proj\VeriQC\src\VeriQCSPP\Common\GNSSBase;..\..\proj\VeriQC\src\VeriQCSPP\Common;..\..\proj\VeriQC\src\VeriQCSPP\Interface;..\..\proj\VeriQC\src\VeriQCSPP\SPP;..\..\proj\VeriQC\src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\QCSource\Include;src\QCSource\GNSSQCProcess;src\QCSource\AlgorithmBase;src\Interface;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Common;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Encoder;src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Version;src\MsgConvert\Source\Firmware\Baseband\Track\TrackLoop;src\MsgConvert\Source\Firmware\Code\Common;src\MsgConvert\Source\Firmware\Code;src\MsgConvert\Source\Firmware\Project\Code;src\;src\VeriQCSPP\Common\GNSSBase;src\VeriQCSPP\Common;src\VeriQCSPP\Interface;src\VeriQCSPP\SPP;src\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -157,7 +157,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Release64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>src\PropMsgDecoder\Lib\Windows\Release64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
