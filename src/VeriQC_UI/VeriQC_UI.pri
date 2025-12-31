@@ -1,5 +1,5 @@
 
-INCLUDEPATH += $$PWD/../../../VeriQC/src
+INCLUDEPATH += $$PWD/../VeriQC/src
 INCLUDEPATH += $$PWD
 
 SOURCES += \

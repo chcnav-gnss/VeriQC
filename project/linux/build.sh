@@ -1,5 +1,5 @@
 #!/bin/bash
-
+mkdir -p ./bin/Release/lib
 # build VeriQC library
 rm -rf build_VeriQC_Lib
 mkdir build_VeriQC_Lib
@@ -13,7 +13,7 @@ else
     exit 1
 fi
 cd ..
-cp build_VeriQC_Lib/libVeriQC.so ./bin/Release/
+cp build_VeriQC_Lib/libVeriQC.so ./bin/Release/lib/
 
 # build VeriQC UI
 mkdir build_VeriQC

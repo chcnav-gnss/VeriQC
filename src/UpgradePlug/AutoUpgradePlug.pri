@@ -3,11 +3,11 @@ HEADERS += \
     $$PWD/HttpClient.h \
     $$PWD/UpgradeMainWindow.h \
     $$PWD/ButtonHoverWatcher.h \
-    $$PWD/framelesswindow.h \
+    $$PWD/FramelessWindow.h \
     $$PWD/zip/CZipExtractor.h
 SOURCES += \
     $$PWD/ButtonHoverWatcher.cpp \
-    $$PWD/framelesswindow.cpp \
+    $$PWD/FramelessWindow.cpp \
     $$PWD/HttpClient.cpp \
     $$PWD/UpgradeMainWindow.cpp \
     $$PWD/main.cpp \

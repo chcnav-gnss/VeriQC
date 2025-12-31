@@ -1,0 +1,14 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/project/windows/.vs/VeriQC_UI/v16
+/project/windows/bin
+/project/windows/exe
+/project/windows/x64/Debug
+/project/windows/x64/Debug_Console
+/project/windows/x64/Release
+/project/windows/x64/Release_Console
+/src/VeriQC/Debug64
+/src/VeriQC/Release64
+/src/VeriQC/VeriQC.vcxproj.user

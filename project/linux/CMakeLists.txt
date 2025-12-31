@@ -5,10 +5,10 @@ project(VeriQC)
 
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O2 -std=gnu99 -g -fPIC -Wno-unused-variable -Wno-write-strings -D__linux -DMSG_CONVERT -D_HW_CMODEL_ -DVERIQC_SURVEY")
-set(PROP_MSG_DECODER_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../../proj/PropMsgDecoder/Lib/Linux/libPropMsgDecoder.a)
+set(PROP_MSG_DECODER_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../src/VeriQC/src/PropMsgDecoder/Lib/Linux/libPropMsgDecoder.a)
 
 
-set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../proj/VeriQC/src)
+set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src/VeriQC/src)
 set(COMMONDIR ${SRCDIR}/Common)
 set(INTERFACEDIR ${SRCDIR}/Interface)
 set(MSGCONVERTDIR ${SRCDIR}/MsgConvert/Source/Firmware/Code/BSW/MsgDecoder/RTCM)
