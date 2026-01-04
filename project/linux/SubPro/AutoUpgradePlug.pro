@@ -16,8 +16,8 @@ RCC_DIR += .
 include($$PWD/../../../src/UpgradePlug/AutoUpgradePlug.pri)
 
 CONFIG(debug,debug|release){
-DESTDIR = $$PWD/../bin/Debug/UpgradeFile
+DESTDIR = $$PWD/../bin/Debug
 }else{
-DESTDIR = $$PWD/../bin/Release/UpgradeFile
+DESTDIR = $$PWD/../bin/Release
 }
 

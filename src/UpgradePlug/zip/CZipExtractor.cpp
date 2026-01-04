@@ -6,7 +6,7 @@
 #ifdef _WIN32
 #include <QtGui/5.12.12/QtGui/private/qzipreader_p.h>
 #else
-#include <QtGui/5.12.8/QtGui/private/qzipreader_p.h>
+#include <QtGui/5.12.12/QtGui/private/qzipreader_p.h>
 #endif // _WIN32
 
 

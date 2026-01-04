@@ -10,7 +10,7 @@
 #include<QComboBox>
 #include<QWidget>
 #include<QTranslator>
-#include"framelesswindow.h"
+#include"FramelessWindow.h"
 class UpgradeMainWindow : public QMainWindow
 {
 	Q_OBJECT

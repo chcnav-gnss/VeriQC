@@ -1,2 +1,0 @@
-build VeriQC
-> ./build.sh

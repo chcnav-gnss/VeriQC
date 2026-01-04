@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=VeriQC_UI
+Exec=VeriQC_UI
+Icon=default
+Comment=VeriQC UI application
+Terminal=false

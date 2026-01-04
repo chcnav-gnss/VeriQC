@@ -63,7 +63,9 @@ int main(int argc, char *argv[])
 {
 #ifdef CONSOLE
         QCoreApplication a(argc, argv);
-        //a.setApplicationVersion(a.applicationVersion() + "." + getBuildDate());
+#ifdef APP_VERSION
+        a.setApplicationVersion(APP_VERSION);
+#endif // APP_VERSION
         SetExePath(a.applicationFilePath().toLocal8Bit().data());
         CommandLineProcessor processor;
         return processor.exec(a);
@@ -72,7 +74,9 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     //QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     QApplication a(argc, argv);
-    //a.setApplicationVersion(a.applicationVersion() + "." + getBuildDate());
+#ifdef APP_VERSION
+    a.setApplicationVersion(APP_VERSION);
+#endif // APP_VERSION
     SetExePath(a.applicationFilePath().toLocal8Bit().data());
     loadAppFont();
     copyUpgradeProc();
