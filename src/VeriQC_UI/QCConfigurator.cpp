@@ -301,7 +301,7 @@ QString QCConfigurator::getFileDataFormatName(RawFileDataFormatEnum format)
 QCConfigurator::QCConfigData QCConfigurator::initConfig()
 {
     QCConfigurator::QCConfigData config;
-    config.interval = 1.0;
+    config.interval = 0;
     config.eleDeg = 10;
     config.sysGPSEnable = true;
     config.sysBDSEnable = true;

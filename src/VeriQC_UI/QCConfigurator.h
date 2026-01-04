@@ -49,7 +49,7 @@ public:
 
     struct QCConfigData
     {
-        float interval = 1.0;
+        float interval = 0;
         unsigned int eleDeg = 10;
         bool sysGPSEnable = true;
         bool sysBDSEnable = true;

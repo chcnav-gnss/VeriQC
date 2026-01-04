@@ -6,7 +6,7 @@ static QCConfigurator::QCCheckConfigData s_defaultCheckConfigData = {
     95,95,95,95,95,
     400,
     {0.5,0.5,0.5,0.5,0.5,0.5},
-    {48,36,45,45,45,45}
+    {38,35,35,35,35,35}
 };
 
 AppSettingsManagement *AppSettingsManagement::getInstance()
