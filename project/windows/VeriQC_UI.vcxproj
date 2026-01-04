@@ -128,7 +128,8 @@
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
-</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\template.html" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"</Command>
     </PostBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -142,7 +143,8 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
-</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\template.html" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"</Command>
     </PostBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
