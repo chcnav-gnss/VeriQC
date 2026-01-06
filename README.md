@@ -4,14 +4,10 @@ VeriQC
 [![VeriQC Logo](https://github.com/chcnav-gnss/VeriQC/blob/main/src/VeriQC_UI/Resources/Icons/VeriQC-LOGO.ico)](#)
 
 [![Release][release-image]][releases]
-[![Downloads][downloads-image]][downloads]
 [![License][license-image]][license]
 
 [release-image]: https://img.shields.io/badge/release-0.1.12.11-green.svg?style=flat
 [releases]: https://github.com/chcnav-gnss/VeriQC/releases
-
-[downloads-image]: https://img.shields.io/github/downloads/chcnav-gnss/VeriQC/total?label=downloads
-[downloads]: https://github.com/chcnav-gnss/VeriQC/releases
 
 [license-image]: https://img.shields.io/badge/license-Apache2.0-green.svg?style=flat
 [license]: https://github.com/chcnav-gnss/VeriQC/blob/main/LICENSE
