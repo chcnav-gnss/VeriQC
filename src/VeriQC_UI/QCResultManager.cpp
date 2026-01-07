@@ -121,10 +121,19 @@ QCResultManager::QCSysStatisticResultData QCResultManager::getSysStatisticResult
 
         data.useRate = m_qcResult.UseRateSys[0][sysIndex] * 100;
         data.cycleJumpRatio = m_sysCycleJumpRatio[sysIndex];
-        for (int i = 0; i < UI_MP_MAX_FREQ_NUM; ++i)
+        for (int i = (int)QCResultManager::UiComplexMP1; i <= (int)QCResultManager::UiComplexMP8; ++i)
         {
-            data.MP[i] = m_qcResult.MPTotel[0][sysIndex][i];
-            data.SNR[i] = m_qcResult.SNR[0][sysIndex][i];
+            QVector<QCResultManager::FreqTypeEnum> freqs = getUIComplexFreqTypes((QCResultManager::UiComplexTypeEnum)i);
+            for (QCResultManager::FreqTypeEnum freq : freqs)
+            {
+                QCResultManager::GNSSSysFreqIndexInfoStruct freqInfo = getFreqIndexInfo(freq);
+                if (freqInfo.sysIndex == sysIndex)
+                {
+                    data.MP[i] = m_qcResult.MPTotel[0][sysIndex][freqInfo.freqIndex];
+                    data.SNR[i] = m_qcResult.SNR[0][sysIndex][freqInfo.freqIndex];
+                    break;
+                }
+            }
         }
     }
     return data;
