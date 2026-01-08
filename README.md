@@ -48,6 +48,43 @@ VeriQC depends on Qt5(Qt5.12.12). Please ensure you have it installed before pro
   ./deploy.sh
   ```
   
+  ## Project structure
+
+
+    ```mermaid
+    flowchart LR
+    CHC_VeriQC_Files --> project
+    project --> A:[Linux:Linux Startup Engineering]
+    project --> B:[windows:windows Startup Engineering]
+    CHC_VeriQC_Files --> src
+    src --> C[UpgradePlug:Software upgrade app code]
+    src --> VeriQC_UI
+    VeriQC_UI --> D[Components:GUI component widgets]
+    VeriQC_UI --> F[QCustomplot:Open-source C++ plotting library based on Qt]  
+    VeriQC_UI --> G[QXlsx:An open-source C++ library built on Qt to read and write Excel files]
+    VeriQC_UI --> H[Resources:Resources and docs for app]
+    VeriQC_UI --> I[nlohmann:An open-source C++ library called JSON for Modern C++]
+    VeriQC_UI --> J[upgrade:check app upgrade]
+    src --> VeriQC
+    VeriQC --> H:[Common: Provides fundamental operations and methods for all modules,\n including time handling, coordinate transformations, and matrix computations]
+    VeriQC --> I:[Interface: Invokes modules such as MsgConvert, QCSource, \n and SPP to perform quality control, RINEX conversion, and RINEX merging]
+    VeriQC --> J:[MsgConvert: Implements decoding of RINEX and RTCM files, \n as well as RINEX conversion]
+    VeriQC --> K:[PropMsgDecoder: Implements decoding of proprietary messages]
+    VeriQC --> L:[QCSource: Implements quality control tasks such as cycle slip detection,\n multipath calculation, and utilization statistics]
+    VeriQC --> M:[VeriQCSPP: Implements Single Point Positioning,  providing station coordinates, \n satellite elevation angles, and other information for quality control]
+    ```
+
+## Algorithm Framework
+
+*   General process
+  
+  [![General process](https://github.com/chcnav-gnss/VeriQC/blob/main/whole.png)](#)
+*   Multipath
+  
+  [![Multipath](https://github.com/chcnav-gnss/VeriQC/blob/main/Pseudorange_multipath.png)](#)
+*   Cycle slip
+  
+  [![Cycle slip](https://github.com/chcnav-gnss/VeriQC/blob/main/Cycle_slip_detection.png)](#)
 
 ## Feedback & Contribution：
 Feedback, bug reports, and contributions are welcome.
