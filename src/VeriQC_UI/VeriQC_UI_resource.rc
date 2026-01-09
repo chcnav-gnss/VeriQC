@@ -24,8 +24,8 @@ IDI_ICON1               ICON                    "Resources\\Icons\\VeriQC-LOGO.i
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,12,11
- PRODUCTVERSION 1,0,12,11
+ FILEVERSION 1,0,12,12
+ PRODUCTVERSION 1,0,12,12
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -41,11 +41,11 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "CHCNAV"
-            VALUE "FileVersion", "1.0.12.11"
+            VALUE "FileVersion", "1.0.12.12"
             VALUE "LegalCopyright", "Copyright:Shanghai Huace Navigation Technology Ltd. All right reserved."
             VALUE "OriginalFilename", "VeriQC_UI.exe"
             VALUE "ProductName", "VariQC"
-            VALUE "ProductVersion", "1.0.12.11"
+            VALUE "ProductVersion", "1.0.12.12"
         END
     END
     BLOCK "VarFileInfo"
