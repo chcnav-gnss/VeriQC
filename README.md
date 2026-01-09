@@ -6,10 +6,10 @@ VeriQC
 [![Release][release-image]][releases]
 [![License][license-image]][license]
 
-[release-image]: https://img.shields.io/badge/release-0.1.12.11-green.svg?style=flat
+[release-image]: https://img.shields.io/github/release/chcnav-gnss/VeriQC
 [releases]: https://github.com/chcnav-gnss/VeriQC/releases
 
-[license-image]: https://img.shields.io/badge/license-Apache2.0-green.svg?style=flat
+[license-image]: https://img.shields.io/github/license/chcnav-gnss/VeriQC.svg
 [license]: https://github.com/chcnav-gnss/VeriQC/blob/main/LICENSE
 
 VeriQC is a post‑processing quality inspection and analysis tool designed for GNSS observation data. This first public release provides a complete set of data‑quality evaluation capabilities, enabling users to efficiently assess key GNSS metrics and visualize results through rich analytical charts. VeriQC is intended for surveyors, researchers, system integrators, and anyone who needs reliable GNSS data quality assessment.
