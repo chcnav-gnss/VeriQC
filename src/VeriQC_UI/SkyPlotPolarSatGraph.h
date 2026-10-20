@@ -33,6 +33,7 @@ public:
     double t, key, value;
     QColor color;
     QString satName;
+    QCResultManager::QCSysTypeEnum sys = QCResultManager::QCSysComplex;
 };
 
 typedef QCPDataContainer<SkyGraphData> SkyGraphDataContainer;

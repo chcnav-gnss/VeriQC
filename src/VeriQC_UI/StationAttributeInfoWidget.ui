@@ -110,7 +110,7 @@
             </property>
             <property name="styleSheet">
              <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;
@@ -269,7 +269,7 @@ QToolButton::right-arrow{
             </property>
             <property name="styleSheet">
              <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;
@@ -416,7 +416,7 @@ QToolButton::right-arrow{
             </property>
             <property name="styleSheet">
              <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;
@@ -549,7 +549,7 @@ QToolButton::right-arrow{
             </property>
             <property name="styleSheet">
              <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;

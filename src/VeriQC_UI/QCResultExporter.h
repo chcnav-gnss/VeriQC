@@ -19,6 +19,9 @@ class QCResultExporter
 public:
     QCResultExporter();
     static bool exportToExcel(const QString& filePath, const QVector<int>& qcObjects);
+    /** Convert-mode batch manifest: one row per object (file name / status /
+     *  reason / output files from the OutDir snapshot diff). */
+    static bool exportConvertListToExcel(const QString& filePath, const QVector<int>& qcObjects);
 protected:
     static QString getDataStr(bool executedQC, double value, int prec, const QString &suffix = QString());
 };

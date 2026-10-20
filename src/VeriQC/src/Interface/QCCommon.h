@@ -29,9 +29,12 @@
 #define MAX_OBS_CODEC_BUF_SIZE     (50*1024)
 #define MAX_NAV_CODEC_BUF_SIZE     512
 #define STRFMT_NONE                -1
+#define STRFMT_TEMP                -2                /**< file stream format temp value, need detect format by Obs data */
 
 #define QC_SCAN_STATION_FUNC_INDEX  0
 #define QC_PRE_PROCESS_FUNC_INDEX   1
+
+#define QC_MAX_GAP_EPOCH            86400            /**< Max Epoch Loss, used for use rate calculate */
 
 /**---------------------------------struct for QC------------------------------------------*/
 

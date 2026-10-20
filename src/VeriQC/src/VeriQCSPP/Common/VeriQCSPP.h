@@ -32,7 +32,7 @@ extern "C"
 #define VERIQC_NSATGPS                              32
 #define VERIQC_NSATGLO                              28
 #define VERIQC_NSATGAL                              36
-#define VERIQC_NSATQZS                              7  //193-202
+#define VERIQC_NSATQZS                              10  //193-202
 #define VERIQC_NSATBDS                              64
 #define VERIQC_NSATSBS                              19
 #define VERIQC_MAXSAT                               (VERIQC_NSATGPS+VERIQC_NSATGLO+VERIQC_NSATGAL+VERIQC_NSATQZS+VERIQC_NSATBDS+VERIQC_NSATSBS)
@@ -95,18 +95,19 @@ enum VERIQC_SYS_IDX
     VERIQC_SYS_GAL = 0x08,
     VERIQC_SYS_QZS = 0x10,
     VERIQC_SYS_BDS = 0x20,
-    VERIQC_SYS_LEO = 0x40,
+    VERIQC_SYS_LEO = 0x80,
     VERIQC_SYS_ALL = 0xFF
 };
 
 typedef enum _VERIQC_SYSID_E
 {
-    VERIQC_GNSS_SYSID_GPS = 1, //GPS
-    VERIQC_GNSS_SYSID_SBAS,    //SBAS
-    VERIQC_GNSS_SYSID_GLN,     //GLONASS
-    VERIQC_GNSS_SYSID_GAL,     //Galileo
-    VERIQC_GNSS_SYSID_QZS,     //qzss
-    VERIQC_GNSS_SYSID_BDS      //BDS
+    VERIQC_GNSS_SYSID_GPS = 1, /**< GPS     */
+    VERIQC_GNSS_SYSID_SBAS,    /**< SBAS    */
+    VERIQC_GNSS_SYSID_GLN,     /**< GLONASS */
+    VERIQC_GNSS_SYSID_GAL,     /**< Galileo */
+    VERIQC_GNSS_SYSID_QZS,     /**< qzss    */
+    VERIQC_GNSS_SYSID_BDS,     /**< BDS     */
+    VERIQC_GNSS_SYSID_LEO      /**< XW LEO  */
 }VERIQC_SYSID_E;
 
 //where obs from
@@ -463,6 +464,7 @@ typedef int32_t(*VERIQC_ORBIT_GETOPT_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pOb
 typedef struct _CHC_NAV_T*(*VERIQC_GET_NAV_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj);
 typedef int32_t(*VERIQC_ORBIT_ADD_UNI_EPHEMERIS_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const struct _UNI_EPHEMERIS_T* pEph);
 typedef int32_t(*VERIQC_ORBIT_ADD_GLO_EPHEMERIS_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const struct _GLO_EPHEMERIS_T* pGEph);
+typedef int32_t(*VERIQC_ORBIT_ADD_LEO_EPHEMERIS_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const struct _XW_LEO_EPHEMERIS_T* pGEph);
 typedef int32_t(*VERIQC_ORBIT_FIT_RANGE_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const struct _RM_RANGE_LOG_T* pObs);
 typedef int32_t(*VERIQC_ORBIT_SATPOS_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const struct _CHC_OBS_T* pObs, 
     VERIQC_ORBIT_SOL_T* pSol, uint8_t IncrementUpdateMark);
@@ -471,6 +473,8 @@ typedef int32_t(*VERIQC_ORBIT_ONE_SAT_CALC_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_
     double* pSatPosVel, double* pSatClock);
 typedef int32_t(*VERIQC_ORBIT_SAT_CALC_BY_TOE_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T TransTime, const QC_TIME_T Time, VERIQC_SYSID_E SysId, unsigned int SatPrn, int Toe,
     double* pSatPosVel, double* pSatClock);
+typedef int32_t(*VERIQC_ORBIT_SAT_CALC_ONE_LEO_FUNC)(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T TransTime, const QC_TIME_T Time, VERIQC_SYSID_E SysId, unsigned int SatPrn,
+    double* pSatPosVel, double* pSatClock, int* pToe);
 
 //ORBIT processor interface
 typedef struct _VERIQC_ORBIT_IFX_T
@@ -482,11 +486,13 @@ typedef struct _VERIQC_ORBIT_IFX_T
     VERIQC_GET_NAV_FUNC GetNavFunc;                    //getnav
     VERIQC_ORBIT_ADD_UNI_EPHEMERIS_FUNC AddUniEphemerisFunc;
     VERIQC_ORBIT_ADD_GLO_EPHEMERIS_FUNC AddGLOEphemerisFunc;
+    VERIQC_ORBIT_ADD_LEO_EPHEMERIS_FUNC AddLEOEphemerisFunc;
     VERIQC_ORBIT_FIT_RANGE_FUNC OrbfitRangeFunc;
     VERIQC_ORBIT_SATPOS_FUNC SatPosFunc;               //cal sat position
     VERIQC_ORBIT_SET_SELEPHTIME_FUNC SetEphTimeFunc;      //set eph selection time
     VERIQC_ORBIT_ONE_SAT_CALC_FUNC OneSatCalcFunc;
     VERIQC_ORBIT_SAT_CALC_BY_TOE_FUNC SatCalcByToeFunc;
+    VERIQC_ORBIT_SAT_CALC_ONE_LEO_FUNC SatCalcOneLeoFunc;
 }VERIQC_ORBIT_IFX_T;
 
 extern VERIQC_ORBIT_IFX_T* VeriQCGetOrbitIfx();

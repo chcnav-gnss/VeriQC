@@ -38,7 +38,17 @@ public:
     CommandLineProcessor();
     int exec(QCoreApplication& app);
 protected:
-    static bool parseCommandLine(QCoreApplication& app, CommandLineConfigData &parseResult);
+    enum ParseResultEnum
+    {
+        ParseOk,
+        ParseHelpOrVersion,    /**< -h/-v: exit code must stay 0 */
+        ParseError,            /**< bad arguments: exit code 2 */
+    };
+    /** @brief Parse the console arguments (-q/-r mode, input dir, -o output
+     *         dir, -c config file) into @p parseResult; returns ParseOk only
+     *         when every argument check passed (help/version and invalid
+     *         arguments map to the other results). */
+    static ParseResultEnum parseCommandLine(QCoreApplication& app, CommandLineConfigData &parseResult);
     void onProgressRateChanged(int totalRate, QString currentQCName, int currentQCRate);
     void onProcessError(QString currentQCName, QString errorMsg);
 };

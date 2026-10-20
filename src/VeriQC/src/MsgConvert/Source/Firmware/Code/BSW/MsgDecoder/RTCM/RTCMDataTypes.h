@@ -359,7 +359,7 @@ typedef struct _OBS_DATA_PER_SAT_T
 	unsigned int SystemID;
 	unsigned int SatID;
 	unsigned int ObsNum;
-	RM_RANGE_DATA_T ObsData[MAX_FREQ_INDEX_NUM+1]; /**< obs data*/
+	RM_RANGE_DATA_T ObsData[MAX_OBS_SIGNAL_NUM]; /**< obs data*/
 } OBS_DATA_PER_SAT_T;
 
 #define OBS_DATA_SAT_NUM_MAX			(96)	/**< obs data sat num max */

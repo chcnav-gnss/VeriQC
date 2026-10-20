@@ -215,3 +215,65 @@ QProgressBar::chunk {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #FA853A, stop:1 #FF9418);
 }
 
+QSpinBox, QDoubleSpinBox {
+    background-color: white;
+    border: 0.06em solid #cccccc;
+    border-radius: 0.25em;
+    padding: 0 0 0 0.75em;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button {
+    subcontrol-origin: content;
+    subcontrol-position: top right;
+    width: 1.5em;
+    border: none;
+    border-left: 0.06em solid #cccccc;
+    border-top-right-radius: 0.25em;
+    background-color: white;
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-origin: content;
+    subcontrol-position: bottom right;
+    width: 1.5em;
+    border: none;
+    border-left: 0.06em solid #cccccc;
+    border-bottom-right-radius: 0.25em;
+    background-color: white;
+}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    background-color: #ffe6d7;
+}
+
+QSpinBox::up-button:pressed, QDoubleSpinBox::up-button:pressed,
+QSpinBox::down-button:pressed, QDoubleSpinBox::down-button:pressed {
+    background-color: #ffc199;
+}
+
+QSpinBox::up-button:disabled, QDoubleSpinBox::up-button:disabled,
+QSpinBox::down-button:disabled, QDoubleSpinBox::down-button:disabled {
+    background-color: #f4f4f4;
+}
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    image: url(:/icons/Resources/Icons/SpinUp.png);
+    width: 0.75em;
+    height: 0.75em;
+}
+
+QSpinBox::up-arrow:disabled, QDoubleSpinBox::up-arrow:disabled {
+    image: url(:/icons/Resources/Icons/SpinUp_Disable.png);
+}
+
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
+    image: url(:/icons/Resources/Icons/SpinDown.png);
+    width: 0.75em;
+    height: 0.75em;
+}
+
+QSpinBox::down-arrow:disabled, QDoubleSpinBox::down-arrow:disabled {
+    image: url(:/icons/Resources/Icons/SpinDown_Disable.png);
+}
+

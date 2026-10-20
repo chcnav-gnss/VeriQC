@@ -49,6 +49,7 @@ public:
         SystemIndexGLO,
         SystemIndexGAL,
         SystemIndexQZSS,
+        SystemIndexXW1,
 
         SystemCount,
     };

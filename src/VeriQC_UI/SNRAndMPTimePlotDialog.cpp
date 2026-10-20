@@ -16,7 +16,8 @@ SNRAndMPTimePlotDialog::SNRAndMPTimePlotDialog(int qcObjectId, QWidget *parent) 
     QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(qcObjectId);
     this->setWindowTitle(QString("%1 : %2").arg(tr("SNR/Multipath Plot")).arg(qcObject->getName()));
 
-    m_plot = new SNRAndMPTimePlot(qcObjectId,this);
+    const bool hasEphemeris = !qcObject->getQCConfigurator()->getQCConfig().noEphEnable();
+    m_plot = new SNRAndMPTimePlot(qcObjectId,hasEphemeris,this);
     QVBoxLayout *plotLayout = new QVBoxLayout();
     plotLayout->addWidget(m_plot);
     plotLayout->setContentsMargins(0,0,0,0);
@@ -39,6 +40,9 @@ SNRAndMPTimePlotDialog::SNRAndMPTimePlotDialog(int qcObjectId, QWidget *parent) 
     ui->checkBoxQZSS->setStyleSheet(QString("QCheckBox::indicator:unchecked{"
                                             "background-color: \"%1\";"
                                             "border-image: none;}").arg(m_plot->getSystemGraphColor(QCResultManager::QCSysQZSS)));
+    ui->checkBoxXW1->setStyleSheet(QString("QCheckBox::indicator:unchecked{"
+                                           "background-color: \"%1\";"
+                                           "border-image: none;}").arg(m_plot->getSystemGraphColor(QCResultManager::QCSysXW1)));
     connect(ui->satComboBox,QOverload<int>::of(&QComboBox::currentIndexChanged),this,&SNRAndMPTimePlotDialog::onSatChanged);
     connect(ui->freqComboBox,&QComboBox::currentTextChanged,this,&SNRAndMPTimePlotDialog::onFreqChanged);
 
@@ -63,12 +67,14 @@ void SNRAndMPTimePlotDialog::initSatComboBox(const QSharedPointer<QCResultManage
     ui->satComboBox->addItem(QCResultManager::getSatName(QCResultManager::QCSysGLO,1).left(1),QVariant::fromValue(SatComboBoxItemData{QCResultManager::QCSysGLO,0}));   // all sats of one sys
     ui->satComboBox->addItem(QCResultManager::getSatName(QCResultManager::QCSysGAL,1).left(1),QVariant::fromValue(SatComboBoxItemData{QCResultManager::QCSysGAL,0}));   // all sats of one sys
     ui->satComboBox->addItem(QCResultManager::getSatName(QCResultManager::QCSysQZSS,1).left(1),QVariant::fromValue(SatComboBoxItemData{QCResultManager::QCSysQZSS,0}));   // all sats of one sys
+    ui->satComboBox->addItem(QCResultManager::getSatName(QCResultManager::QCSysXW1,1).left(1),QVariant::fromValue(SatComboBoxItemData{QCResultManager::QCSysXW1,0}));   // all sats of one sys
 
     this->satComboBoxAddSysSats(result,QCResultManager::QCSysBDS);
     this->satComboBoxAddSysSats(result,QCResultManager::QCSysGPS);
     this->satComboBoxAddSysSats(result,QCResultManager::QCSysGLO);
     this->satComboBoxAddSysSats(result,QCResultManager::QCSysGAL);
     this->satComboBoxAddSysSats(result,QCResultManager::QCSysQZSS);
+    this->satComboBoxAddSysSats(result,QCResultManager::QCSysXW1);
 }
 
 void SNRAndMPTimePlotDialog::satComboBoxAddSysSats(const QSharedPointer<QCResultManager> &result, QCResultManager::QCSysTypeEnum sys)
@@ -122,6 +128,12 @@ void SNRAndMPTimePlotDialog::onSatChanged(int index)
             ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_QZSS_L5),FREQ_INDEX_QZSS_L5);
             ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_QZSS_L1CP),FREQ_INDEX_QZSS_L1CP);
             ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_QZSS_L6),FREQ_INDEX_QZSS_L6);
+            break;
+        case QCResultManager::QCSysXW1:
+            ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_XW1_L1L),FREQ_INDEX_XW1_L1L);
+            ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_XW1_L1H),FREQ_INDEX_XW1_L1H);
+            ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_XW1_L2L),FREQ_INDEX_XW1_L2L);
+            ui->freqComboBox->addItem(QCResultManager::getFreqName(sys,FREQ_INDEX_XW1_L2H),FREQ_INDEX_XW1_L2H);
             break;
         case QCResultManager::QCSysComplex:
             ui->freqComboBox->addItem(QCResultManager::getUIComplexFreqsName(QCResultManager::UiComplexMP1),(int)QCResultManager::UiComplexMP1);

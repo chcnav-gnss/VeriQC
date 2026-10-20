@@ -129,7 +129,9 @@
       <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\template.html" "$(OutDir)"
-xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote.txt" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote_en.txt" "$(OutDir)"</Command>
     </PostBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -144,7 +146,9 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf
       <Command>xcopy /y /d "$(SolutionDir)exe\Release64\VeriQC.dll" "$(OutDir)" 
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
 xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\template.html" "$(OutDir)"
-xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote.txt" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote_en.txt" "$(OutDir)"</Command>
     </PostBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -160,7 +164,9 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\VeriQCUserManual_zh.pdf
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)exe\Debug64\VeriQC.dll" "$(OutDir)" 
-xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote.txt" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote_en.txt" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Console|x64'">
@@ -173,7 +179,9 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(SolutionDir)exe\Debug64\VeriQC.dll" "$(OutDir)" 
-xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"</Command>
+xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Regular.ttf" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote.txt" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)..\..\doc\releaseNote_en.txt" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -246,14 +254,22 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlot.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\PathUtils.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCConfigDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigFileModel.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCConfigurator.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCExceptionDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCObject.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCObjectManager.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCObjectTableModel.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCProcessor.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCProcessThread.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCProgressDialog.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseData.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseEngine.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseReportExporter.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseTextBuilder.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCResultExporter.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCResultManager.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QCustomplot\qcustomplot.cpp" />
@@ -290,6 +306,7 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxworksheet.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipreader.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\QXlsx\source\xlsxzipwriter.cpp" />
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeDialog.cpp" />
     <ClCompile Include="..\..\src\VeriQC_UI\RinexMergeProcessor.cpp" />
@@ -344,10 +361,17 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
   <ItemGroup>
     <ClInclude Include="..\..\src\VeriQC_UI\AppSettingsManagement.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\PathUtils.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCConfigFileModel.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCConfigurator.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCObject.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCObjectManager.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCProcessor.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseConstants.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseData.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseEngine.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseReportExporter.h" />
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseTextBuilder.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCResultExporter.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\QCResultManager.h" />
     <ClInclude Include="..\..\src\VeriQC_UI\resource.h" />
@@ -365,11 +389,14 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     <QtMoc Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlot.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeProcessor.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\RinexMergeDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\QCProgressDialog.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\QCProcessThread.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\QCObjectTableModel.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\QCConfigDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.h" />
+    <QtMoc Include="..\..\src\VeriQC_UI\QCExceptionDialog.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\ObsTimePlot.h" />
     <QtMoc Include="..\..\src\VeriQC_UI\MainWindow.h" />
@@ -437,7 +464,10 @@ xcopy /y /d "$(SolutionDir)..\..\src\VeriQC_UI\Resources\AlibabaPuHuiTi-3-55-Reg
     <QtUic Include="..\..\src\VeriQC_UI\MainWindow.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\ObsTimePlotDialog.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\QCConfigDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\QCExceptionDialog.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\QCProgressDialog.ui" />
+    <QtUic Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\RinexMergeDialog.ui" />
     <QtUic Include="..\..\src\VeriQC_UI\SatNumAndDOPTimePlotDialog.ui" />

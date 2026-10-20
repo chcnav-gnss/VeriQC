@@ -35,6 +35,6 @@ int PrintSNRDegHtml(char* pBuffer, int* pBufferLen, int AntID, QC_RESULT_T* pQcR
 void PrintEpochMP(QC_TIME_T* pTime, FILE* fpOutFile, QC_RESULT_T* pQcRes, int AntID, LOG_HEADTYPE_E eLogType);
 void PrintEpochCS(QC_TIME_T* pTime, FILE* fpOutFile, QC_RESULT_T* pQcRes, int AntID, LOG_HEADTYPE_E eLogType);
 void PrintEpochDataList(QC_TIME_T* pTime, FILE* fpOutFile, QC_OBS_T* pObs, int (*pSlipFlag)[QC_NUM_FREQ], LOG_HEADTYPE_E eLogType, BOOL bCheckLLI, double EleMask);
-
+void PrintQCResultBinaryList(QC_RESULT_T* pRes, QC_OPT_T* pOpt);
 
 #endif /**< _PRINT_FUNC_H_ */

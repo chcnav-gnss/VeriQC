@@ -32,6 +32,7 @@ protected:
     void onGLOCheckBoxClicked(bool checked);
     void onGALCheckBoxClicked(bool checked);
     void onQZSSCheckBoxClicked(bool checked);
+    void onXW1CheckBoxClicked(bool checked);
 
     void showEvent(QShowEvent *) override;
     void updateSatCountInfo();

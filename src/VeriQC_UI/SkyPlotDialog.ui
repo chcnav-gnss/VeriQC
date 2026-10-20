@@ -213,6 +213,46 @@ font-size: 1.3em;</string>
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>24</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_9">
+       <property name="styleSheet">
+        <string notr="true">font-weight: bold;
+color:black;
+font-size: 1.3em;</string>
+       </property>
+       <property name="text">
+        <string>L:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="xw1CountLabel">
+       <property name="styleSheet">
+        <string notr="true">font-weight: bold;
+color:#FF8F1F;
+font-size: 1.3em;</string>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -396,6 +436,20 @@ font-size: 1.3em;</string>
             <property name="icon">
              <iconset resource="QuiCkResource.qrc">
               <normaloff>:/icons/Resources/Icons/qzss_20x20.png</normaloff>:/icons/Resources/Icons/qzss_20x20.png</iconset>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="xw1CheckBox">
+            <property name="text">
+             <string>XW1</string>
+            </property>
+            <property name="icon">
+             <iconset resource="QuiCkResource.qrc">
+              <normaloff>:/icons/Resources/Icons/xw1_20x20.png</normaloff>:/icons/Resources/Icons/xw1_20x20.png</iconset>
             </property>
             <property name="checked">
              <bool>true</bool>

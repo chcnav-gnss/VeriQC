@@ -44,6 +44,15 @@ public:
     bool doQC(QCProcessCallbackFun callback, bool &cancelQC);
     bool doRinexConvert(QCProcessCallbackFun callback, bool &cancel);
     const QString &getLastErrorMsg() const;
+    /** Last doQC() processor return value: distinguishes execution failure
+     *  from QCStatusFailed's threshold-based quality verdict. */
+    bool isQCRunSucceeded() const;
+    /** Empty when fine; "No valid data: ..." (run counts as failed) or
+     *  "Note: ..." (degraded run, results still valid). */
+    const QString &getDataExceptionMsg() const;
+    /** Convert-mode results (OutDir snapshot diff of the last run). */
+    const QStringList &getConvertOutputFiles() const;
+    bool isConvertSucceeded() const;
     QCResultStatusEnum getQCStatus() const;
     const QCCheckStatusInfoStruct &getQCCheckStatusInfo()const;
     void changeInputFormat(QCConfigurator::RawFileDataFormatEnum format);
@@ -55,7 +64,11 @@ private:
     QSharedPointer<QCResultManager> m_resultManager;
     QSharedPointer<QCProcessor> m_processor;
     QCResultStatusEnum m_qcStatus = QCResultStatusEnum::QCStatusNotExecuted;
-    QCCheckStatusInfoStruct m_qcCheckStatusInfo;
+    /** Zero-initialized: exportToExcel() reads the pass flags on the FAILED
+     *  branch only after updateQCStatus() filled them, but a default value
+     *  keeps that safety independent of branch order. */
+    QCCheckStatusInfoStruct m_qcCheckStatusInfo = {};
+    bool m_lastRunOK = false;
 };
 
 #endif // QCOBJECT_H

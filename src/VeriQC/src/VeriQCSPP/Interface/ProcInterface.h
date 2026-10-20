@@ -100,7 +100,7 @@ typedef struct _VERIQC_ORBIT_PROCESSOR_T
     int SatInfoNum;                           /*number of satellite orbit fitting information*/
     unsigned char* pEphValidFlag;             /*ephemeris fitting update status, 0 : not uodate / finish fitting, 1 : update*/
     unsigned char* pEphActiveValidFlag;
-    unsigned char EphValidFlagNum;
+    unsigned short EphValidFlagNum;
     struct _QC_TIME_T* pEphTime;              /*gps time of ephemeris*/
     int* pEphIndex;
     int* pEphIndexBD3;

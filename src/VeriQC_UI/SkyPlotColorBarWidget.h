@@ -29,6 +29,8 @@ public:
     void setColorGradient(QCPColorGradient colorGradient);
 private:
     Ui::SkyPlotColorBarWidget *ui;
+    int m_barWidth;   ///< DPI-scaled color bar width
+    int m_barHeight;  ///< DPI-scaled color bar height
 };
 
 #endif // SKYPLOTCOLORBARWIDGET_H

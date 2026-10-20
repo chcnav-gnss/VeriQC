@@ -95,6 +95,7 @@ extern "C" {
 #define CHC_ENAGLO
 #define CHC_ENAGAL
 #define CHC_ENAQZS
+#define CHC_ENALEO
 
 #ifdef BDS23
 #define BD23 1
@@ -153,6 +154,7 @@ extern "C" {
 #define CHC_SYS_QZS     0x10                /* navigation system: QZSS */
 #define CHC_SYS_CMP     0x20                /* navigation system: BeiDou */
 #define CHC_SYS_BD3     0x40                /* navigation system: BeiDou 3 */
+#define CHC_SYS_LEO     0x80                /* navigation system: XW1 LEO */
 #define CHC_SYS_ALL     0xFF                /* navigation system: all */
 
 #define CSPP_NFREQ       5
@@ -180,7 +182,7 @@ extern "C" {
 #define CHC_MINPRNGPS      1                /* min satellite PRN number of GPS */
 #ifdef CHC_ENAQZS
 #ifdef USING_QZSS_AS_GPS
-#define CHC_MAXPRNGPS      39               /* max satellite PRN number of GPS+QZSS */
+#define CHC_MAXPRNGPS      42               /* max satellite PRN number of GPS+QZSS */
 #else
 #define CHC_MAXPRNGPS      32               /* max satellite PRN number of GPS */
 #endif
@@ -215,14 +217,14 @@ extern "C" {
 #ifdef CHC_ENAQZS
 #ifndef USING_QZSS_AS_GPS
 #define CHC_MINPRNQZS   193                 /* min satellite PRN number of QZSS */
-#define CHC_MAXPRNQZS   200                 /* max satellite PRN number of QZSS */
+#define CHC_MAXPRNQZS   202                 /* max satellite PRN number of QZSS */
 #define CHC_MINPRNQZS_S 183                 /* min satellite PRN number of QZSS SAIF */
 #define CHC_MAXPRNQZS_S 185                 /* max satellite PRN number of QZSS SAIF */
 #define CHC_NSATQZS     (CHC_MAXPRNQZS-CHC_MINPRNQZS+1) /* number of QZSS satellites */
 #define CHC_NSYSQZS     1
 #else
 #define CHC_MINPRNQZS   193
-#define CHC_MAXPRNQZS   200
+#define CHC_MAXPRNQZS   202
 #define CHC_NSATQZS     0
 #define CHC_NSYSQZS     0
 #endif
@@ -254,7 +256,19 @@ extern "C" {
 #define CHC_NSATSBS     0
 #endif
 
-#define CHC_MAXSAT      (CHC_NSATGPS+CHC_NSATGLO+CHC_NSATGAL+CHC_NSATQZS+CHC_NSATCMP+CHC_NSATSBS)
+#ifdef CHC_ENALEO
+#define CHC_MINPRNLEO   22                  /* min satellite PRN number of SBAS */
+#define CHC_MAXPRNLEO   620                 /* max satellite PRN number of SBAS */
+#define CHC_NSATLEO     (CHC_MAXPRNLEO-CHC_MINPRNLEO+1) /* number of SBAS satellites */
+#define CHC_NSYSLEO     1
+#else
+#define CHC_MINPRNLEO   0
+#define CHC_MAXPRNLEO   0
+#define CHC_NSATLEO     0
+#define CHC_NSYSLEO     0
+#endif
+
+#define CHC_MAXSAT      (CHC_NSATGPS+CHC_NSATGLO+CHC_NSATGAL+CHC_NSATQZS+CHC_NSATCMP+CHC_NSATSBS+CHC_NSATLEO)
 
 #ifdef CHC_ENAGPS
 #define CHC_GPSSDOBS    16
@@ -508,6 +522,7 @@ extern "C" {
 #define SYS_QZS     CHC_SYS_QZS         /* navigation system: QZSS */
 #define SYS_CMP     CHC_SYS_CMP         /* navigation system: BeiDou */
 #define SYS_BD3     CHC_SYS_BD3         /* navigation system: BeiDou 3 */
+#define SYS_LEO     CHC_SYS_LEO         /* navigation system: XW1 LEO */
 #define SYS_ALL     CHC_SYS_ALL         /* navigation system: all */
 
 #ifndef NFREQ
@@ -550,6 +565,11 @@ extern "C" {
 #define MINPRNSBS   CHC_MINPRNSBS                 
 #define MAXPRNSBS   CHC_MAXPRNSBS                
 #define NSATSBS     CHC_NSATSBS 
+
+#define MINPRNLEO   CHC_MINPRNLEO                 
+#define MAXPRNLEO   CHC_MAXPRNLEO    
+#define NSATLEO     CHC_NSATLEO
+#define NSYSLEO     CHC_NSYSLEO
 
 //***min
 
@@ -786,6 +806,49 @@ struct _IONO_PARAM_T;
 		int LeapSec;          /**< leap seconds*/
 	} CHC_GEPH_T;
 
+    typedef struct _CHC_LEO_EPH_T {     /**< XW1 LEO broadcast ephemeris type */
+        int Sat;                        /**< satellite number */
+        int IODE;                       /**< IODE */
+        int IODC;                       /**< IODC */
+        int IODE2;                      /**< IODE used for second ssr match*/
+        int SVA;                        /**< SV accuracy (URA index) */
+        int SVH;                        /**< SV health (0:ok) */
+        int Week;                       /**< week */
+        int Code;                       /**<  */
+        int Flag;                       /**<  */
+        QC_TIME_T Toe;
+        QC_TIME_T Toc;
+        QC_TIME_T TTrans;               /**< Toe,Toc,T_trans */
+        /** SV orbit parameters */
+        double A;
+        double Ecc;
+        double I0;
+        double OMG0;
+        double OMG;
+        double M0;
+        double DelN;
+        double OMGd;
+        double IDot;
+        double Crc;
+        double Crs;
+        double Cuc;
+        double Cus;
+        double Cic;
+        double Cis;
+        double DeltaCrs;
+        double DeltaCrc;
+        double DeltaCis;
+        double DeltaCic;
+        double ToeSec;                  /**< Toe (s) in week */
+        double Fit;                     /**< fit interval (h) */
+        double Af0;
+        double Af1;
+        double Af2;                     /**< SV clock parameters (af0,af1,af2) */
+        double Tgd[4];                  /**< group delay parameters */
+        double ADot;
+        double NDot;
+    } CHC_LEO_EPH_T;
+
 	typedef struct _CHC_NAV_T {        /**< navigation data type */
         int Num;
         int NumMax;                    /**< number of broadcast ephemeris */
@@ -794,9 +857,12 @@ struct _IONO_PARAM_T;
         unsigned int NumBD2;           /**< number of BD2 ephemeris */
         int NumBD3;
         int NumMaxBD3;                 /**< number of BD3 ephemeris */
+        int NumLEO;
+        int NumMaxLEO;                 /**< number of LEO ephemeris */
 		CHC_EPH_T *pEph;               /**< GPS/QZS/GAL ephemeris */
 		CHC_GEPH_T *pGEph;             /**< GLONASS ephemeris */
 		CHC_EPH_T *pEphBD3;            /**< CMP-BD3 ephemeris */
+        CHC_LEO_EPH_T* pEphLEO;        /**< XW1 LEO ephemeris */
         int LeapSec;                   /**< leap seconds (s) */
 		double CBias[CHC_MAXSAT][3];   /**< code bias (0:p1-p2,1:p1-c1,2:p2-c2) (m) */
         struct _IONO_PARAM_T* pIonoParamGPS;     /**< GPS iono model parameters */
@@ -1034,6 +1100,7 @@ struct _IONO_PARAM_T;
     struct _RM_RANGE_LOG_T;
     struct _UNI_EPHEMERIS_T;
     struct _GLO_EPHEMERIS_T;
+    struct _XW_LEO_EPHEMERIS_T;
     
     typedef struct 
     {
@@ -1094,6 +1161,7 @@ struct _IONO_PARAM_T;
     extern unsigned char VeriQCConvertSigIDRange(int Sys, uint32_t SigID, unsigned char* pFreq);
     extern int VeriQCConvertUNIEphemeris(const struct _UNI_EPHEMERIS_T* pSrc, struct _CHC_EPH_T* pDst);
     extern int VeriQCConvertGLOEphemeris(const struct _GLO_EPHEMERIS_T* pSrc, struct _CHC_GEPH_T* pDst);
+    extern int VeriQCConvertLEOEphemeris(const struct _XW_LEO_EPHEMERIS_T* pSrc, struct _CHC_LEO_EPH_T* pDst);
     extern int VeriQCConvertSolToSolInfo(const struct _CHC_SOL_T* pSrc, const struct _CHC_SSATLIST_T* pSrcSsat,
         const VERIQC_ORBIT_SOL_T* pOrbSol, VERIQC_SOLINFO_T* pDst);
 
@@ -1163,10 +1231,13 @@ struct _IONO_PARAM_T;
     /* ephemeris and clock functions ---------------------------------------------*/
     extern double Eph2Clk(QC_TIME_T Time, const CHC_EPH_T* pEph);
     extern double GEph2Clk(QC_TIME_T Time, const CHC_GEPH_T* pGEph);
+    extern double LEOEph2Clk(QC_TIME_T Time, const CHC_LEO_EPH_T* pEph);
     extern void Eph2Pos(QC_TIME_T Time, const CHC_EPH_T* pEph, double* pRs, double* pDts,
         double* pVar, double* pRelCorr);
     extern void GEph2Pos(QC_TIME_T Time, const CHC_GEPH_T* pGEph, double* pRs, double* pDts,
         double* pVar);
+    extern void CalcSatPosClkByEphLEO(QC_TIME_T Time, const CHC_LEO_EPH_T* pEph, double* pRs, double* pDts,
+        double* pVar, double* pRelCorr, int bXW);
     extern unsigned int SatPoss(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T Time, const CHC_OBSD_T* pObs, int Num, const CHC_NAV_T* pNav,
         int SatEph, double* pRs, double* pDts, double* pVar, U1* pSVH, U1* pType, int* pIODE, int* pToeSec, const U1* pExcludeSats,
         U1 IncrementUpdateMark, int BD3Flag, int16_t* pSatNo, unsigned int* pNumGAL);
@@ -1180,6 +1251,7 @@ struct _IONO_PARAM_T;
     extern void EndSatIptInfo(CHC_SATIPTINFO_T* pSatIptInfo, int Num);
     extern BOOL GetSatApprPosVelClock(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T Time, int Sat, const CHC_NAV_T* pNav, double* pSatRs, double* pSatDts, int BD3Flag);
     extern BOOL GetSatPosVelClockSpecifyToe(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T TransTime, QC_TIME_T Time, int Sat, const CHC_NAV_T* pNav, double* pSatRs, double* pSatDts, int BD3Flag, int Toe);
+    extern BOOL GetLEOSatPosVelClock(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T TransTime, QC_TIME_T Time, int Sat, const CHC_NAV_T* pNav, double* pSatRs, double* pSatDts, int* pToe, int BD3Flag);
 
 #ifdef __cplusplus
 }

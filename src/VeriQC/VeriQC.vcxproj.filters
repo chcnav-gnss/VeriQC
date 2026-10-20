@@ -87,6 +87,9 @@
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXFilter.h">
       <Filter>MsgConvert\头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRC\HRCFilter.h">
+      <Filter>MsgConvert\头文件</Filter>
+    </ClInclude>
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.h">
       <Filter>MsgConvert\头文件</Filter>
     </ClInclude>

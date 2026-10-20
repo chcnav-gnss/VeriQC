@@ -100,6 +100,10 @@ QVariant QCObjectTableModel::data(const QModelIndex &index, int role) const
             sysName = "QZSS";
             resultData = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysQZSS);
             break;
+        case TableModelSystemIndexEnum::SystemIndexXW1:
+            sysName = "XW1";
+            resultData = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysXW1);
+            break;
         default:
             return QVariant();
         }

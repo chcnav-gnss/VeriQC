@@ -59,8 +59,9 @@ SkyPlot::SkyPlot(int qcObjectId, QWidget *parent)
     m_sysLayers[QCResultManager::QCSysGLO] = this->createSysLayer("GLOLayer");
     m_sysLayers[QCResultManager::QCSysGAL] = this->createSysLayer("GALLayer");
     m_sysLayers[QCResultManager::QCSysQZSS] = this->createSysLayer("QZSSLayer");
+    m_sysLayers[QCResultManager::QCSysXW1] = this->createSysLayer("XW1Layer");
 
-    for (int i = (int)QCResultManager::QCSysGPS; i <= (int)QCResultManager::QCSysQZSS; ++i)
+    for (int i = (int)QCResultManager::QCSysGPS; i <= (int)QCResultManager::QCSysXW1; ++i)
     {
         QCResultManager::QCSysTypeEnum sys = (QCResultManager::QCSysTypeEnum)i;
 
@@ -161,6 +162,9 @@ void SkyPlot::doRun()
             case QC_SYS_QZS:
                 satSys = QCResultManager::QCSysQZSS;
                 break;
+            case QC_SYS_XW1:
+                satSys = QCResultManager::QCSysXW1;
+                break;
             default:
                 continue;
             }
@@ -191,6 +195,7 @@ void SkyPlot::doRun()
             pointData.value = y;
             pointData.color = this->getSNRColor(snr);
             pointData.satName = QCResultManager::getSatName(satSys,satData.prn);
+            pointData.sys = satSys;
             m_sysGraphs[satSys]->addData(pointData);
         }
     }

@@ -764,7 +764,7 @@ unsigned int UTC2Epoch(UTC_TIME_T* pUTCTime)
 
 	/** leap year if year%4==0 in 1901-2099 */
 	Days = (Year - 1970) * 365 + (Year - 1969) / 4 + DayOfYear[Month - 1] + Day - 2 + (Year % 4 == 0 && Month >= 3 ? 1 : 0);
-	TempTime = (long long)Days * 86400 + pUTCTime->Hour * 3600 + pUTCTime->Minute * 60 + pUTCTime->Second;
+	TempTime = Days * 86400 + pUTCTime->Hour * 3600 + pUTCTime->Minute * 60 + pUTCTime->Second;
 
 	return TempTime;
 }
@@ -813,7 +813,7 @@ QC_TIME_T UTC2QCTime(UTC_TIME_T* pUTCTime)
 	/* leap year if year%4==0 in 1901-2099 */
 	Days = (Year - 1970) * 365 + ((Year - 1969) >> 2) + Doy[Mon - 1] + Day - 2 + ((Year & 0x03) == 0 && Mon >= 3 ? 1 : 0);
 	Sec = pUTCTime->Second;
-	TempTime.Time = (long long)Days * 86400 + (int)pUTCTime->Hour * 3600 + (int)pUTCTime->Minute * 60 + Sec;
+	TempTime.Time = (long long)Days * 86400 + (long long)pUTCTime->Hour * 3600 + (long long)pUTCTime->Minute * 60 + Sec;
 	TempTime.Sec = (double)pUTCTime->Millisecond / 1000;
 
 	return TempTime;
@@ -917,7 +917,7 @@ extern QC_TIME_T Epoch2QCTime(const double* pEpoch)
 	/* leap year if year%4==0 in 1901-2099 */
 	days = (year - 1970) * 365 + (year - 1969) / 4 + doy[mon - 1] + day - 2 + (year % 4 == 0 && mon >= 3 ? 1 : 0);
 	sec = (int)floor(pEpoch[5]);
-	time.Time = (time_t)days * 86400 + (int)pEpoch[3] * 3600 + (int)pEpoch[4] * 60 + sec;
+	time.Time = (time_t)days * 86400 + (long long)pEpoch[3] * 3600 + (long long)pEpoch[4] * 60 + sec;
 	time.Sec = pEpoch[5] - sec;
 	return time;
 }

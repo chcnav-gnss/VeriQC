@@ -1,6 +1,7 @@
 ﻿#include "RinexMergeProcessor.h"
 #include <QDir>
 #include "VeriQC.h"
+#include "PathUtils.h"
 
 RinexMergeProcessor::RinexMergeProcessor(QObject *parent) : QThread(parent)
 {
@@ -26,16 +27,25 @@ void RinexMergeProcessor::run()
     InitRinexCfg(&config);
     config.DataType = 11;
     config.OutputType = 0;
-    QByteArray inputFileData = m_inputFilePaths.join(",").toLocal8Bit();
+    /** Encode each input path individually (short-path on Windows) then join
+     *  with ASCII comma; the C layer splits RawFile on ',' in multi-file mode. */
+    QByteArray inputFileData;
+    inputFileData.reserve(m_inputFilePaths.size() * 64);
+    for (int i = 0; i < m_inputFilePaths.size(); ++i)
+    {
+        if (i > 0)
+        {
+            inputFileData.append(',');
+        }
+        inputFileData.append(PathUtils::toLocalFilePathBytes(m_inputFilePaths.at(i)));
+    }
     Q_ASSERT(inputFileData.size() < MAX_FILE_NAME_LENGTH - 1);
     Q_ASSERT(m_inputFilePaths.size() <= 10);
-    memcpy(config.RawFile,inputFileData.data(),inputFileData.size());
-    QString outputDir = m_outputFilePath;
-    if(!outputDir.endsWith("/") && !outputDir.endsWith("\\"))
-    {
-        outputDir += QDir::separator();
-    }
-    memcpy(config.OutDir,outputDir.toLocal8Bit().data(),outputDir.toLocal8Bit().size());
+    memcpy(config.RawFile, inputFileData.constData(), inputFileData.size());
+    /** toLocalDirPathBytes normalizes the trailing separator, creates the
+     *  directory, and encodes the path for the C layer's fopen(). */
+    QByteArray outDirBytes = PathUtils::toLocalDirPathBytes(m_outputFilePath);
+    memcpy(config.OutDir, outDirBytes.constData(), outDirBytes.size());
 
     RinexProcesser(&config);
 }

@@ -215,6 +215,34 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="xw1CheckBox">
+       <property name="text">
+        <string>XW1</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/xw1_20x20.png</normaloff>:/icons/Resources/Icons/xw1_20x20.png</iconset>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="compactBarLayout">
+     <item>
+      <widget class="QCheckBox" name="compactCheckBox">
+       <property name="toolTip">
+        <string>Fit all satellites into one screen for overview and screenshot</string>
+       </property>
+       <property name="text">
+        <string>Compact Layout</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

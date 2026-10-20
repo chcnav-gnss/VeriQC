@@ -74,6 +74,9 @@
             <property name="pixmap">
              <pixmap resource="Resource.qrc">:/icons/Resources/Icons/ImportPage.png</pixmap>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
            </widget>
           </item>
           <item>
@@ -135,8 +138,8 @@
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
               <property name="styleSheet">
-               <string notr="true">width: 180px;
-height: 32px;
+               <string notr="true">width: 11.25em;
+height: 2em;
 background: #fa853a;
 border: 1px solid #ffa463;
 border-radius: 4px;
@@ -251,6 +254,7 @@ color:white;</string>
     <addaction name="actionImport"/>
     <addaction name="actionExportQCResult"/>
     <addaction name="actionExportQCReport"/>
+    <addaction name="actionExportQCDiagnose"/>
    </widget>
    <widget class="MyMenu" name="menuSetting">
     <property name="title">
@@ -258,6 +262,9 @@ color:white;</string>
     </property>
     <addaction name="actionQCSetting"/>
     <addaction name="actionRinexConvertSetting"/>
+    <addaction name="separator"/>
+    <addaction name="actionQCConfigFileEditor"/>
+    <addaction name="actionRinexConfigFileEditor"/>
    </widget>
    <widget class="MyMenu" name="menuFunction">
     <property name="title">
@@ -343,6 +350,7 @@ color:white;</string>
    <addaction name="separator"/>
    <addaction name="actionExportQCResult"/>
    <addaction name="actionExportQCReport"/>
+   <addaction name="actionExportQCDiagnose"/>
   </widget>
   <action name="actionQCSetting">
    <property name="text">
@@ -352,6 +360,22 @@ color:white;</string>
   <action name="actionRinexConvertSetting">
    <property name="text">
     <string>Rinex Convert Setting</string>
+   </property>
+  </action>
+  <action name="actionQCConfigFileEditor">
+   <property name="text">
+    <string>QC Config File Editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Create or edit a GNSS QC config file for the command line</string>
+   </property>
+  </action>
+  <action name="actionRinexConfigFileEditor">
+   <property name="text">
+    <string>Rinex Convert Config File Editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Create or edit a Rinex convert config file for the command line</string>
    </property>
   </action>
   <action name="actionQC">
@@ -482,6 +506,16 @@ color:white;</string>
    </property>
    <property name="text">
     <string>Export QC Report</string>
+   </property>
+  </action>
+  <action name="actionExportQCDiagnose">
+   <property name="icon">
+    <iconset resource="Resource.qrc">
+     <normaloff>:/icons/Resources/Icons/Report.png</normaloff>
+     <disabledoff>:/icons/Resources/Icons/Report_Disable.png</disabledoff>:/icons/Resources/Icons/Report.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export QC Diagnosis</string>
    </property>
   </action>
  </widget>

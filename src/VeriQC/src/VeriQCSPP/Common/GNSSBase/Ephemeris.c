@@ -22,11 +22,13 @@
 #define MU_GLO   3.9860044E14     /* gravitational constant         ref [2] */
 #define MU_GAL   3.986004418E14   /* earth gravitational constant   ref [7] */
 #define MU_CMP   3.986004418E14   /* earth gravitational constant   ref [9] */
+#define MU_XW    3.986004418E14   /* earth gravitational constant   ref [9] */
 #define J2_GLO   1.0826257E-3     /* 2nd zonal harmonic of geopot   ref [2] */
 
 #define OMGE_GLO 7.292115E-5      /* earth angular velocity (rad/s) ref [2] */
 #define OMGE_GAL 7.2921151467E-5  /* earth angular velocity (rad/s) ref [7] */
 #define OMGE_CMP 7.292115E-5      /* earth angular velocity (rad/s) ref [9] */
+#define OMGE_XW  7.292115E-5      /* earth angular velocity (IS-GPS) (rad/s) */
 
 #define SIN_5 -0.0871557427476582 /* sin(-5.0 deg) */
 #define COS_5  0.9961946980917456 /* cos(-5.0 deg) */
@@ -130,6 +132,22 @@ extern double Eph2Clk(QC_TIME_T Time, const CHC_EPH_T *pEph)
     }
     return pEph->Af0+pEph->Af1*t+pEph->Af2*t*t;
 }
+
+extern double LEOEph2Clk(QC_TIME_T Time, const CHC_LEO_EPH_T* pEph)
+{
+    double DeltaTme;
+    int iLoop;
+    
+    DeltaTme = QCTimeDiff(&Time, &pEph->Toc);
+    
+    for (iLoop = 0; iLoop < 2; iLoop++)
+    {
+        DeltaTme -= pEph->Af0 + pEph->Af1 * DeltaTme + pEph->Af2 * DeltaTme * DeltaTme;
+    }
+    
+    return pEph->Af0 + pEph->Af1 * DeltaTme + pEph->Af2 * DeltaTme * DeltaTme;
+}
+
 static void GetEphConstantValue(const CHC_EPH_T *pEph,CHC_SATIPTINFO_T *pSatIptInfo)
 {
 	int sys,prn=0;
@@ -375,6 +393,81 @@ extern void Eph2Pos(QC_TIME_T Time, const CHC_EPH_T *pEph, double *pRs, double *
 	   *pVar=VarURAEph(pEph->SVA);
 	}   
 }
+
+extern void CalcSatPosClkByEphLEO(QC_TIME_T Time, const CHC_LEO_EPH_T* pEph, double* pRs, double* pDts,
+    double* pVar, double* pRelCorr, int bXW)
+{
+    double Tk, M, E, Ek, SinE, CosE, U, R, I, O, Sin2U, Cos2U, X, Y, SinO, CosO, CosI, MU, OMEGE, Sin3U, Cos3U;
+    double Ak, Delnk;
+    int N;
+    int MAXITENUM = 10, Iter = 0;
+
+    if (pEph->A <= 0.0) 
+    {
+        pRs[0] = pRs[1] = pRs[2] = *pDts = *pVar = 0.0;
+        return;
+    }
+
+    Tk = QCTimeDiff(&Time, &pEph->Toe);
+
+    MU = MU_XW;
+    OMEGE = OMGE_XW;
+
+    Ak = pEph->A + pEph->ADot * Tk;
+    Delnk = pEph->DelN + 0.5 * pEph->NDot * Tk;
+    M = pEph->M0 + (sqrt(MU / (pEph->A * pEph->A * pEph->A)) + Delnk) * Tk;
+
+    for (N = 0, E = M, Ek = 0.0; fabs(E - Ek) > RTOL_KEPLER; N++) 
+    {
+        Ek = E; 
+        E -= (E - pEph->Ecc * sin(E) - M) / (1.0 - pEph->Ecc * cos(E));
+        Iter++;
+        if (Iter > MAXITENUM)
+        {
+            break;/**< modify 20160601 */
+        }
+    }
+
+    SinE = sin(E); CosE = cos(E);
+
+    U = atan2(sqrt(1.0 - pEph->Ecc * pEph->Ecc) * SinE, CosE - pEph->Ecc) + pEph->OMG;
+    R = Ak * (1.0 - pEph->Ecc * CosE);
+    I = pEph->I0 + pEph->IDot * Tk;
+    Sin2U = sin(2.0 * U); Cos2U = cos(2.0 * U);
+    Sin3U = sin(3.0 * U); Cos3U = cos(3.0 * U);
+    U += pEph->Cus * Sin2U + pEph->Cuc * Cos2U;      
+    R += pEph->Crs * Sin2U + pEph->Crc * Cos2U + pEph->DeltaCrs * Sin3U + pEph->DeltaCrc * Cos3U;
+    I += pEph->Cis * Sin2U + pEph->Cic * Cos2U + pEph->DeltaCis * Sin3U + pEph->DeltaCic * Cos3U;
+    X = R * cos(U); 
+    Y = R * sin(U); 
+    CosI = cos(I);
+
+    O = pEph->OMG0 + (pEph->OMGd - OMEGE) * Tk - OMEGE * pEph->ToeSec;/**< the toes must be itself system time */
+    SinO = sin(O); 
+    CosO = cos(O);
+    pRs[0] = X * CosO - Y * CosI * SinO;
+    pRs[1] = X * SinO + Y * CosI * CosO;
+    pRs[2] = Y * sin(I);
+
+    if (pDts)
+    {
+        Tk = QCTimeDiff(&Time, &pEph->Toc);
+        *pDts = pEph->Af0 + pEph->Af1 * Tk + pEph->Af2 * Tk * Tk;
+        if (pRelCorr)
+        {
+            /** relativity correction */
+            *pRelCorr = 2.0 * sqrt(MU * pEph->A) * pEph->Ecc * SinE / SQR(CLIGHT);
+            *pDts -= *pRelCorr;
+        }
+    }
+
+    /** position and clock error variance */
+    if (pVar)
+    {
+        *pVar = VarURAEph(pEph->SVA);
+    }
+}
+
 /* glonass orbit differential equations --------------------------------------*/
 static void Deq(const double *pX, double *pXDot, const double *pAcc)
 {
@@ -804,12 +897,67 @@ static CHC_GEPH_T *SelGEph(QC_TIME_T Time, int Sat, int IODE, const CHC_NAV_T *p
     return pNav->pGEph+j;
 }
 
+static CHC_LEO_EPH_T* SelEphLEO(QC_TIME_T Time, int Sat, int IODE, const CHC_NAV_T* pNav)
+{
+    double DeltaTime, MaxDT, MinDT;
+    int iLoop;
+    int Index = -1;
+    MaxDT = GetTimeMax(SYS_CMP);
+    MinDT = MaxDT + 1.0;
+    MaxDT = 500;
+
+    for (iLoop = 0; iLoop < pNav->NumLEO; iLoop++)
+    {
+        if (pNav->pEphLEO[iLoop].Sat != Sat)
+        {
+            continue;
+        }
+
+        if ((DeltaTime = fabs(QCTimeDiff(&pNav->pEphLEO[iLoop].Toe, &Time))) > MaxDT)
+        {
+            continue;
+        }
+
+        if (IODE >= 0)
+        {
+            return pNav->pEphLEO + iLoop;
+        }
+
+        if (DeltaTime <= MinDT)
+        {
+            /** toe closest to time */
+            Index = iLoop;
+            MinDT = DeltaTime;
+        }
+    }
+
+    if (IODE >= 0 || Index < 0)
+    {
+        return NULL;
+    }
+
+    DeltaTime = QCTimeDiff(&pNav->pEphLEO[Index].Toe, &pNav->pEphLEO[Index].Toc);
+
+    if (fabs(DeltaTime) > 1800.0)
+    {
+        return NULL;
+    }
+#if 0
+    if (!checkEphParamValid(pNav->leo eph + Index))
+    {
+        return NULL;
+    }
+#endif
+    return pNav->pEphLEO + Index;
+}
+
 /* satellite clock with broadcast ephemeris ----------------------------------*/
 static int EphClk(QC_TIME_T Time, QC_TIME_T TimeEph, int Sat, const CHC_NAV_T* pNav,
     double* pDts, int BD3Flag, CHC_SATIPTINFO_T* pSatIptInfo)
 {
-    CHC_EPH_T* eph;
+    CHC_EPH_T* eph = NULL;
     CHC_GEPH_T* geph;
+    CHC_LEO_EPH_T* pEphLEO = NULL;
     //seph_t *seph;
     int sys, i;
     double tst, ted, toctt;
@@ -864,14 +1012,22 @@ static int EphClk(QC_TIME_T Time, QC_TIME_T TimeEph, int Sat, const CHC_NAV_T* p
         }
     }
 
-    if (sys==SYS_GPS||sys==SYS_GAL||sys==SYS_QZS||sys==SYS_CMP||sys==SYS_BD3) {
+    if (sys==SYS_GPS||sys==SYS_GAL||sys==SYS_QZS||sys==SYS_CMP||sys==SYS_BD3 || (sys == SYS_LEO)) 
+    {
 		if (BD3Flag)
 		{
-			if (!(eph = SelEphBD3(TimeEph, Sat, -1, pNav))) {
-
+			if (!(eph = SelEphBD3(TimeEph, Sat, -1, pNav))) 
+            {
 				return 0;
 			}
 		}
+        else if (sys == SYS_LEO)
+        {
+            if (!(pEphLEO = SelEphLEO(TimeEph, Sat, -1, pNav)))
+            {
+                return 0;
+            }
+        }
 		else
 		{
 			if (!(eph = SelEph(TimeEph, Sat, -1, pNav))) {
@@ -879,7 +1035,15 @@ static int EphClk(QC_TIME_T Time, QC_TIME_T TimeEph, int Sat, const CHC_NAV_T* p
 				return 0;
 			}	
 		}
-		*pDts = Eph2Clk(Time, eph);
+
+        if (sys == SYS_LEO)
+        {
+            *pDts = LEOEph2Clk(Time, pEphLEO);
+        }
+        else
+        {
+            *pDts = Eph2Clk(Time, eph);
+        }
     }
     else if (sys==SYS_GLO) {
         if (!(geph=SelGEph(TimeEph,Sat,-1,pNav))) return 0;
@@ -1308,10 +1472,11 @@ extern int UpdateInterSatPosInfoBD3(int SolType, const CHC_OBSD_T *pObs, int Num
 /* satellite position and clock by broadcast ephemeris -----------------------*/
 static int EphPos(QC_TIME_T Time, QC_TIME_T EphTime, int Sat, const CHC_NAV_T *pNav,
                   int IODE, double *pRs, double *pDts, double *pRelCorr, double *pVar,
-                  U1 *pSVH,CHC_SATIPTINFO_T *pSatIptInfo,int *pUsedIODE, int *pToeSec, int BD3Flag)
+                  U1 *pSVH,CHC_SATIPTINFO_T *pSatIptInfo,int *pUsedIODE, int *pToeSec, int BD3Flag, BOOL bXW)
 {
-    CHC_EPH_T  *eph;
-    CHC_GEPH_T *geph;
+    CHC_EPH_T  *eph = NULL;
+    CHC_GEPH_T *geph = NULL;
+    CHC_LEO_EPH_T* pEphLEO = NULL;
 	QC_TIME_T timer={0};
     double toett;
 	double tst,ted;
@@ -1396,27 +1561,56 @@ static int EphPos(QC_TIME_T Time, QC_TIME_T EphTime, int Sat, const CHC_NAV_T *p
 	}
 	else
 	{
-		if (sys==SYS_GPS||sys==SYS_GAL||sys==SYS_CMP||sys==SYS_BD3)
+		if (sys==SYS_GPS||sys==SYS_GAL||sys==SYS_CMP||sys==SYS_BD3 || (sys == SYS_LEO))
 		{
 			if (BD3Flag)
 			{
-				if (!(eph = SelEphBD3(EphTime, Sat, IODE, pNav))) return 0;
+                if (!(eph = SelEphBD3(EphTime, Sat, IODE, pNav)))
+                {
+                    return 0;
+                }
 			}
+            else if (sys == SYS_LEO)
+            {
+                if (!(pEphLEO = SelEphLEO(EphTime, Sat, IODE, pNav)))
+                {
+                    return 0;
+                }
+            }
 			else
 			{
-				if (!(eph = SelEph(EphTime, Sat, IODE, pNav))) return 0;
+                if (!(eph = SelEph(EphTime, Sat, IODE, pNav)))
+                {
+                    return 0;
+                }
 			}
-        
-			if(pUsedIODE) *pUsedIODE=eph->IODE;
 
-			Eph2Pos(Time,eph,pRs,pDts,pVar,pRelCorr);
-            *pSVH = eph->SVH == 0 ? 0 : 1;
-            if (pToeSec)
+            if (sys == SYS_LEO)
             {
-                *pToeSec = (int)QCTime2GPSTime(eph->Toe, NULL);
+                if (pUsedIODE) *pUsedIODE = pEphLEO->IODE;
+
+                CalcSatPosClkByEphLEO(Time, pEphLEO, pRs, pDts, pVar, pRelCorr, bXW);
+                *pSVH = pEphLEO->SVH == 0 ? 0 : 1;
+                if (pToeSec)
+                {
+                    *pToeSec = (int)QCTime2GPSTime(pEphLEO->Toe, NULL);
+                }
+                timer = QCTimeAdd(&Time, tt);
+                CalcSatPosClkByEphLEO(timer, pEphLEO, rst, dtst, pVar, &relcorrt, bXW);
             }
-            timer = QCTimeAdd(&Time, tt);
-            Eph2Pos(timer, eph, rst, dtst, pVar, &relcorrt);
+            else
+            {
+                if (pUsedIODE) *pUsedIODE = eph->IODE;
+
+                Eph2Pos(Time, eph, pRs, pDts, pVar, pRelCorr);
+                *pSVH = eph->SVH == 0 ? 0 : 1;
+                if (pToeSec)
+                {
+                    *pToeSec = (int)QCTime2GPSTime(eph->Toe, NULL);
+                }
+                timer = QCTimeAdd(&Time, tt);
+                Eph2Pos(timer, eph, rst, dtst, pVar, &relcorrt);
+            }
 		}
 		else
 		{
@@ -1461,12 +1655,12 @@ static int EphPos(QC_TIME_T Time, QC_TIME_T EphTime, int Sat, const CHC_NAV_T *p
 *-----------------------------------------------------------------------------*/
 static int SatPos(QC_TIME_T Time, QC_TIME_T EphTime, int Sat, int EphOpt,
                   const CHC_NAV_T *pNav, double *pRs, double *pDts, double *pRelCorr, double *pVar,
-                  U1 *pSVH,CHC_SATIPTINFO_T *pSatIptInfo,int *pIODE, int* pToeSec, int BD3Flag)
+                  U1 *pSVH,CHC_SATIPTINFO_T *pSatIptInfo,int *pIODE, int* pToeSec, int BD3Flag, int bXW)
 {
     *pSVH=0;
     
     switch (EphOpt) {
-        case EPHOPT_BRDC  : return EphPos     (Time,EphTime,Sat,pNav,-1,pRs,pDts,pRelCorr,pVar,pSVH,pSatIptInfo,pIODE, pToeSec, BD3Flag);
+        case EPHOPT_BRDC  : return EphPos     (Time,EphTime,Sat,pNav,-1,pRs,pDts,pRelCorr,pVar,pSVH,pSatIptInfo,pIODE, pToeSec, BD3Flag, bXW);
 		default:break;
 	}
     *pSVH=-1;
@@ -1675,7 +1869,7 @@ extern unsigned int SatPoss(CHC_SATIPTINFO_T *pSatIptInfo,QC_TIME_T EphTime, con
 
         /* satellite position and clock at transmission time */
         if (!SatPos(signalEmitTime,EphTime,pObs[i].Sat,EphOpt,pNav,pRs+i*6,pDts+i*2,&relcorr,pVar+i,
-                    pSVH+i,pSatIptInfo?(&pSatIptInfo[index]):NULL,pIODE+i,pToeSec ? (pToeSec + i) : NULL, BD3Flag)) {
+                    pSVH+i,pSatIptInfo?(&pSatIptInfo[index]):NULL,pIODE+i,pToeSec ? (pToeSec + i) : NULL, BD3Flag, 0)) {
             GNSS_LOG_TRACE("satpos fail, sat=%d", pObs[i].Sat);
             continue;
         }
@@ -1741,7 +1935,7 @@ extern BOOL GetSatApprPosVelClock(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T Time,
     gt = QCTimeAdd(&Time, -0.07);  /**< sat single approximate travel time */
 
     return SatPos(gt, Time, Sat, EPHOPT_BRDC, pNav, pSatRs, pSatDts, &relCorr, &var,
-                  &svh, pSatIptInfo, &iode, NULL, BD3Flag);
+                  &svh, pSatIptInfo, &iode, NULL, BD3Flag, FALSE);
 }
 
 /*********************************************************************************//**
@@ -1931,4 +2125,26 @@ extern BOOL GetSatPosVelClockSpecifyToe(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T
     pSatDts[1] = (DtsTemp[0] - pSatDts[0]) / TT;
 
     return TRUE;
+}
+
+extern BOOL GetLEOSatPosVelClock(CHC_SATIPTINFO_T* pSatIptInfo, QC_TIME_T TransTime, QC_TIME_T Time, int Sat, const CHC_NAV_T* pNav, double* pSatRs, double* pSatDts, int* pToe, int BD3Flag)
+{
+    double Var = 0.0;
+    double Relcorr = 0.0;
+    double DeltaT;
+    unsigned char SVH;
+    int Sys;
+    int IODE;
+
+    /** adjust transmission time */
+    if (!EphClk(TransTime, Time, Sat, pNav, &DeltaT, 0, pSatIptInfo))
+    {
+        return FALSE;
+    }
+    TransTime = QCTimeAdd(&TransTime, -DeltaT);
+        
+    Sys = SatSys(Sat, NULL);
+
+    return SatPos(TransTime, Time, Sat, EPHOPT_BRDC, pNav, pSatRs, pSatDts, &Relcorr, &Var,
+        &SVH, pSatIptInfo, &IODE, pToe, BD3Flag, 0);
 }

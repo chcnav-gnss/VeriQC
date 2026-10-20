@@ -34,7 +34,14 @@ QMessageBox::StandardButton MyMessageBox::critical(QWidget *parent, const QStrin
 QMessageBox::StandardButton MyMessageBox::execMessageBox(QWidget *parent, QIcon icon, const QString &title, const QString &text, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
 {
     QMessageBox messageBox(parent);
-    messageBox.setStyleSheet("QLabel {min-width: 200px;}");
+    /**< Do NOT apply geometry stylesheets (e.g. "QLabel { min-width: ... }")
+     *   to a QMessageBox: QMessageBoxPrivate::updateSize() measures the
+     *   layout minimum width with word wrap forced off, and an explicit QSS
+     *   min-width on the message label REPLACES (not maxes with) the label's
+     *   minimumSizeHint. The box then gets fixed to roughly that min-width
+     *   and any wider text is hard-clipped on a single line (verified
+     *   against Qt 5.12.12: a 12.5em rule collapsed the box to ~268px and
+     *   truncated long CJK prompts at ~40%). */
     messageBox.setWindowTitle(title);
     messageBox.setWindowIcon(icon);
     messageBox.setText(text);

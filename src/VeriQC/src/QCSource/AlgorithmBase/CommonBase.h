@@ -1,7 +1,7 @@
 /*************************************************************************//**
            VeriQC
     Data Quality Check Module
- *- 
+ *-
 @file   CommonBase.h
 @author CHC
 @date   5 September 2022
@@ -77,6 +77,8 @@
 #define QC_CODE_L8P    58                  /* obs code: B2a+b      (BDS3-B2) */
 #define QC_CODE_L6D    59                  /* obs code: B3A   D    (BDS3) */
 #define QC_CODE_L6P    60                  /* obs code: B3A   P    (BDS3) */
+#define QC_CODE_L1H    68                  /* obs code: CNLH       (XW1) */
+#define QC_CODE_L2H    69                  /* obs code: B2bH       (XW1) */
 
 
 #define QC_FREQ1       1.57542E9           /* L1/E1  frequency (Hz) */
@@ -102,18 +104,21 @@
 #define QC_FREQ5_BD3   QC_FREQ5			   /* BeiDou BD3-B2a frequency (Hz) */
 #define QC_FREQ8_BD3   QC_FREQ8			   /* BeiDou BD3-B2 frequency (Hz) */
 #define QC_FREQ7_BD3   1.20714E9           /* BeiDou BD3-B2b frequency (Hz) */
-        
+
+#define QC_FREQ1_XW1   1.522224E9			/* XW1 CNL frequency (Hz) */
+#define QC_FREQ2_XW1   1.202025E9           /* XW1 B2b frequency (Hz) */
+
 #define QC_LAM1_GPS 0.19029367279836487//#define lam1_GPS (CLIGHT/FREQ1)
 #define QC_LAM2_GPS 0.24421021342456825//#define lam2_GPS (CLIGHT/FREQ2)
 #define QC_LAM3_GPS 0.25482804879085386//#define lam3_GPS (CLIGHT/FREQ5)
-        
+
 #define QC_LAM1_CMP 0.19203948631027648 //#define lam1_CMP (CLIGHT/FREQ2_CMP) 
 #define QC_LAM2_CMP 0.24834936958430670//#define lam2_CMP  (CLIGHT/FREQ7_CMP) 
 #define QC_LAM3_CMP 0.23633246460442089//#define lam3_CMP  (CLIGHT/FREQ6_CMP)
 #define QC_LAM4_CMP 0.19029367279836488047631742646405 //#define lam4_CMP (CLIGHT/FREQ1_BD3) 
 #define QC_LAM5_CMP 0.2548280487908538399421989884823//#define lam5_CMP  (CLIGHT/FREQ5_BD3) 
 #define QC_LAM6_CMP 0.2515470009523449922176213191027//#define lam6_CMP  (CLIGHT/FREQ8_BD3)
-        
+
 #define QC_LAM1_GAL 0.19029367279836488047631742646405     //#define lam1_GAL (CLIGHT/CHC_FREQ1/E1) 
 #define QC_LAM2_GAL 0.2548280487908538399421989884823      //#define lam2_GAL (CLIGHT/CHC_FREQ5/E5a) 
 #define QC_LAM3_GAL 0.24834936958430670841824477691071     //#define lam3_GAL (CLIGHT/CHC_FREQ7/E5b)

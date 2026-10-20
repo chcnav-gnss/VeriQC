@@ -43,8 +43,18 @@ extern "C"
 #define NULL ((void *)0)
 #endif /**< NULL */
 #define QC_MAX_FILE_NAME_LENGTH       512         /**< max file name length */
-#define QC_MAX_SNRGROUP_STR_LENGTH   (9*3+1)      /**< max SNR group STR length */
+#define QC_MAX_SNRGROUP_STR_LENGTH    (9*3+1)     /**< max SNR group STR length */
 #define QC_MAX_MSG_LEN                128
+#define QC_INVALID_AZEL_VALUE         (-1000.0)   /**< invalid azimuth/elevation sentinel */
+
+#define QC_DIAG_TOP_WIN_NUM           5           /**< top diagnostic time window number */
+#define QC_DIAG_TOP_BREAK_NUM         3           /**< top observation break number */
+#define QC_CN0_DROP_WINDOW_SEC        300.0       /**< one CN0 drop window time, s */
+#define QC_CN0_DROP_EDGE_SEC          60.0        /**< CN0 drop window step, s */
+#define QC_SLIP_WINDOW_SEC            300.0       /**< one slip window time, s */
+#define QC_SLIP_EDGE_SEC              60.0        /**< slip window step, s */
+#define QC_SLIP_EPOCH_RATIO_LIMIT     0.3f        /**< abnormal epoch slip ratio, epoch slip number/epoch sat number */
+#define QC_BREAK_TIME_LIMIT           60.0        /**< observation break time limit, s */
 
 typedef int BOOL;
 #ifndef TRUE
@@ -55,7 +65,7 @@ typedef int BOOL;
 #define QC_WIN_SIZE_MP 50                         /**< Windows size for MP */
 
 #define QC_MAX_NUM_OBS_FILE       2               /**< MaxNum of obsFile: rover and base */
-#define MAX_NUM_NAV_FILE          2*5             /**< MaxNum of navFile: G\R\E\C four system without J\S and I*/
+#define MAX_NUM_NAV_FILE          (2*5)           /**< MaxNum of navFile: G\R\E\C four system without J\S and I*/
 #define MAX_NUM_INPUT_FILE        \
        (QC_MAX_NUM_OBS_FILE+MAX_NUM_NAV_FILE)     /**< 2 obs file and 8 nav file */
 
@@ -67,6 +77,7 @@ typedef int BOOL;
 * Galileo	E1, E5A, E5B, E5(A+B), E6
 * QZSS	    L1, L2,  L5,  L5S,     L6,  L1C(P), L1S
 * SBAS	    L1, L5
+* XW1	    L1L,L1H, L2L, L2H
 */
 #define QC_SYSTEM_NUM             7               /**< system number */
 #define QC_GPS_FRE_NUM            5               /**< GPS frequency number */
@@ -76,11 +87,12 @@ typedef int BOOL;
 #define QC_QZSS_FRE_NUM           6               /**< QZS frequency number */
 #define QC_SBAS_FRE_NUM           2               /**< SBA frequency number */
 #define QC_IRNSS_FRE_NUM          2               /**< NIC frequency number */
+#define QC_XW1_FRE_NUM            4               /**< XW1 frequency number */
 
 #define QC_MAXELEVINTERV          9               /**< elevation group number for SNR statistics */
 #define QC_NUM_FREQ               QC_BDS_FRE_NUM  /**< number of carrier type */
 #define QC_NUM_EXTEND_OBS_CODE    5               /**< extend frequency number */
-#define QC_MAX_NUM_CODE           61              /**< max frequency number */
+#define QC_MAX_NUM_CODE           70              /**< max frequency number */
 #define QC_MAX_NUM_OBS_TYPE       64              /**< max observation types */
 #define QC_MAX_NUM_OBS            256             /**< number of obs in one epoch */
 #define QC_MAX_SIG_TYPE           20              /**< number of signal type in one system */
@@ -95,13 +107,13 @@ typedef int BOOL;
 #define QC_SYS_QZS                0x10            /**< navigation system: QZSS */
 #define QC_SYS_CMP                0x20            /**< navigation system: BeiDou */
 #define QC_SYS_BD3                0x40            /**< navigation system: BeiDou */
-#define QC_SYS_LEO                0x80            /**< navigation system: LEO */
+#define QC_SYS_XW1                0x80            /**< navigation system: LEO */
 #define QC_SYS_ALL                0xFF            /**< navigation system: all */
 
 /** GPS */
 #define QC_MIN_PRN_GPS            1               /**< min gps satellite number */
 #define QC_MAX_PRN_GPS_TRUE       32
-#define QC_MAX_PRN_GPS            39              /**< max gps satellite number, 33~39: QZSS */
+#define QC_MAX_PRN_GPS            42              /**< max gps satellite number, 33~42: QZSS */
 #define QC_NUM_SYS_GPS            1
 #define QC_NUM_SAT_GPS            (QC_MAX_PRN_GPS-QC_MIN_PRN_GPS+1) /**< gps satellite number */
 /** GLONASS */
@@ -121,7 +133,7 @@ typedef int BOOL;
 #define QC_NUM_SAT_CMP            (QC_MAX_PRN_CMP-QC_MIN_PRN_CMP+1) /**< BeiDou satellite number */
 /** QZSS */
 #define QC_MIN_PRN_QZS            193             /**< min QZSS satellite number */
-#define QC_MAX_PRN_QZS            200			  /**< max QZSS satellite number */
+#define QC_MAX_PRN_QZS            202			  /**< max QZSS satellite number */
 #define QC_NUM_SYS_QZS            1
 #define QC_NUM_SAT_QZS            0               /**< (QC_MAX_PRN_QZS-QC_MIN_PRN_QZS+1) QZSS satellite number */
 /** SBAS */
@@ -130,9 +142,15 @@ typedef int BOOL;
 #define QC_NUM_SYS_SBS            1
 #define QC_NUM_SAT_SBS            (QC_MAX_PRN_SBS-QC_MIN_PRN_SBS+1) /**< SBAS satellite number */
 
+/** XW1 */
+#define QC_MIN_PRN_XW1            22              /**< min XW1 satellite number */
+#define QC_MAX_PRN_XW1            620			  /**< max XW1 satellite number */
+#define QC_NUM_SYS_XW1            1
+#define QC_NUM_SAT_XW1            (QC_MAX_PRN_XW1-QC_MIN_PRN_XW1+1) /**< XW1 satellite number */
+
 /** max number of satellites and navigation systems */
-#define QC_MAX_NUM_SAT            (QC_NUM_SAT_GPS+QC_NUM_SAT_GLO+QC_NUM_SAT_GAL+QC_NUM_SAT_CMP+QC_NUM_SAT_QZS+QC_NUM_SAT_SBS) /**< max satellite number */
-#define QC_MAX_NUM_SYS            (QC_NUM_SYS_GPS+QC_NUM_SYS_GLO+QC_NUM_SYS_GAL+QC_NUM_SYS_CMP+QC_NUM_SYS_QZS+QC_NUM_SYS_SBS) /**< max system number */
+#define QC_MAX_NUM_SAT            (QC_NUM_SAT_GPS+QC_NUM_SAT_GLO+QC_NUM_SAT_GAL+QC_NUM_SAT_CMP+QC_NUM_SAT_QZS+QC_NUM_SAT_SBS+QC_NUM_SAT_XW1) /**< max satellite number */
+#define QC_MAX_NUM_SYS            (QC_NUM_SYS_GPS+QC_NUM_SYS_GLO+QC_NUM_SYS_GAL+QC_NUM_SYS_CMP+QC_NUM_SYS_QZS+QC_NUM_SYS_SBS+QC_NUM_SYS_XW1) /**< max system number */
 
 #define QC_LC_NUM                 6               /**< GF/MW combination number */
 #define QC_MAXSIGTYPE             32              /**< max signal type */
@@ -149,7 +167,7 @@ typedef int BOOL;
 /** Multipath mode */
 #define MP_METHOD_FIXED           0
 #define MP_METHOD_FILTER          1
-
+#define MP_GROUP_PERCENT_SIZE     3 /**< Group sort: PSR MP 0.3,0.6,0.9m */
 
 /** QC result structure */
 typedef struct _QC_TIME_T                         /**< gps time <16 Byte>*/
@@ -164,10 +182,79 @@ typedef struct _QC_SNR_T
 	float Snr[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];  /**< SNR sum for every frequency */
 }QC_SNR_T;
 
+typedef enum _QC_EXCEPTION_HANDLING_E
+{
+	QC_EXCEPTION_OK = 0,                                         /**< success */
+
+	/** Total/File */
+	QC_EXCEPTION_UNSUPPORTED_FORMAT,                             /**< file format is unsupported */
+	QC_EXCEPTION_OBS_FILE_OPEN_FAILED,                           /**< input obs file open failed */
+	QC_EXCEPTION_NAV_FILE_MISSING,                               /**< dependent navigation file is missing */
+	QC_EXCEPTION_PARSE_FAILED,                                   /**< file parse failed */
+	QC_EXCEPTION_PARSE_HEADER_FAILED,                            /**< header parse failed */
+	QC_EXCEPTION_PARSE_EPOCH_FAILED,                             /**< epoch parse failed */
+	QC_EXCEPTION_PARTIAL_SYS_FAILED,                             /**< some systems fail to process */
+	QC_EXCEPTION_SPP_ALL_FAILED,                                 /**< spp solution failed totally */
+	
+	/** Single System */
+	QC_EXCEPTION_SYS_NAV_UNMATCHED,                              /**< obs exists but no matched nav injected for system */
+	QC_EXCEPTION_SYS_SPP_UNSOLVED,                               /**< obs and nav exist but system is still unsolved */
+
+	QC_EXCEPTION_MAX = 0xFFFFFFFF,
+}QC_EXCEPTION_HANDLING_E;
+
+/** QC GNSS EPH Mode */
+typedef enum _QC_EPH_MODE_E
+{
+	QC_EPH_MODE_AUTO = 0,                                         /**< auto find same-dir same-name eph/nav file */
+	QC_EPH_MODE_NONE,                                             /**< no ephemeris mode */
+	QC_EPH_MODE_SPECIFIED,                                        /**< use specified eph/nav file */
+
+	QC_EPH_MODE_MAX = 0xFFFFFFFF,
+} QC_EPH_MODE_E;
+
+typedef struct _QC_EXCEPTION_INFO_T
+{
+	int Code;                                                    /**< see QC_EXCEPTION_HANDLING_E */
+	BOOL IsHaveEph;                                              /**< if have Eph */
+	BOOL IsHaveObs;                                              /**< If have Obs */
+	BOOL IsAllEpochSPPUnsolved;                                  /**< SPP fail */
+}QC_EXCEPTION_INFO_T;
+
+typedef struct _QC_SLIP_TIME_WIN_INFO_T
+{
+	QC_TIME_T WindowStartTime;                                   /**< time window start */
+	
+	unsigned int WindowEpochNum;                                 /**< epoch number in current window */
+	unsigned int OutLimitEpochNum;                               /**< out-limit epoch number in current window */
+	float OutLimitEpochRatio;                                    /**< out-limit epoch ratio in current window */
+	
+	unsigned short SatSlipNum[QC_MAX_NUM_SAT];                   /**< satellite slip number in window */
+	unsigned short SatNum[QC_MAX_NUM_SAT];                       /**< satellite number in window */
+	float SatSlipRatio[QC_MAX_NUM_SAT];                          /**< satellite slip number/satellite number */
+}QC_SLIP_TIME_WIN_INFO_T;
+
+typedef struct _QC_CN0_TIME_WIN_INFO_T
+{
+	QC_TIME_T WindowStartTime;                                   /**< time window start */
+
+	float WindowStartAvgCN0;                                     /**< average CN0 at window start time */
+	float AvgCN0Drop;                                            /**< average CN0 drop in current window */
+}QC_CN0_TIME_WIN_INFO_T;
+
+typedef struct _QC_OBS_BREAK_INFO_T
+{
+	QC_TIME_T BreakStartTime;                                    /**< observation break start time */
+	float BreakDurationSec;                                      /**< observation break duration in seconds */
+}QC_OBS_BREAK_INFO_T;
+
 /** QC result structure */
 typedef struct _QC_RESULT_T
 {
 	int IntervNum;                                                        /**< elevation group number */
+	int FileDataType[QC_MAX_NUM_OBS_FILE];                                /**< File Data type, see GNSS_STRFMT_XX, default STRFMT_NONE */
+	QC_EXCEPTION_INFO_T FileException[QC_MAX_NUM_OBS_FILE];               /**< file level exception info */
+	QC_EXCEPTION_INFO_T SysException[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SYS];/**< system level exception info */
 	float DegThreshold[QC_MAXELEVINTERV];			                      /**< SNR group elevation threshold[Deg] */
 	QC_SNR_T QcSnr[QC_MAXELEVINTERV];                                     /**< SNR */
 
@@ -192,13 +279,28 @@ typedef struct _QC_RESULT_T
 	int SlipFlag[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];       /**< satellite slip flag for every epoch */
 	int SysSlipNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SYS];                  /**< cycle slip number for every system */
 	int SysDetectNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SYS];                /**< detect epoch number for every system */
-
+	
+	float AvgHealthyArcDurationSec[QC_MAX_NUM_OBS_FILE];                  /**< average healthy arc duration, unit: second */
+	float MaxHealthyArcDurationSec[QC_MAX_NUM_OBS_FILE];                  /**< max healthy arc duration, unit: second */
+	unsigned int HealthyArcEpochCountTemp[QC_MAX_NUM_OBS_FILE];           /**< current healthy arc epoch count for each file */
+	QC_TIME_T HealthyArcStartTimeTemp[QC_MAX_NUM_OBS_FILE];               /**< current healthy arc start time for each file */
+	double HealthyArcDurationSumSec[QC_MAX_NUM_OBS_FILE];                 /**< healthy arc duration sum for average calculation */
+	unsigned int HealthyArcCount[QC_MAX_NUM_OBS_FILE];                    /**< healthy arc count for average calculation */
+	
+	int SlipOutlierWindowCount[QC_MAX_NUM_OBS_FILE];                      /**< valid number of slip outlier windows */
+	QC_SLIP_TIME_WIN_INFO_T SlipOutlierWindow[QC_MAX_NUM_OBS_FILE][QC_DIAG_TOP_WIN_NUM];/**< top slip outlier windows */
+	int SlipOutlierWindowTempCount[QC_MAX_NUM_OBS_FILE];                  /**< valid number of temp slip outlier windows */
+	QC_SLIP_TIME_WIN_INFO_T SlipOutlierWindowTemp[QC_MAX_NUM_OBS_FILE][QC_DIAG_TOP_WIN_NUM];/**< temp slip outlier windows */
+	
 	/** use rate */
 	int SatCompleteNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];              /**< complete freq observations number for each sat, file */
 	int CompleteNum[QC_MAX_NUM_OBS_FILE];                                 /**< complete freq observations number for each file */
 	int SatPossibleNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];              /**< possible freq observations number for each sat, file */
 	int PossibleNum[QC_MAX_NUM_OBS_FILE];                                 /**< possible freq observations number for each file */
 	double UseRateSat[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];               /**< use rate for each sat, file */
+	
+	int ObsBreakCount[QC_MAX_NUM_OBS_FILE];                               /**< observation break count, break duration > 1 minute */
+	QC_OBS_BREAK_INFO_T ObsBreakTop[QC_MAX_NUM_OBS_FILE][QC_DIAG_TOP_BREAK_NUM];/**< longest observation break info */
 
 	QC_TIME_T MPTime[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];   /**< Current MP time */
 	double MP[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];          /**< the sum in the first and the sum of squares in the second */
@@ -208,6 +310,10 @@ typedef struct _QC_RESULT_T
 	int MPWinsNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];      /**< MP windows number */
 	double CurMP[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_NUM_FREQ];       /**< current MP value */
 	unsigned short CurMPValidMask[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];
+	
+	float MPGroupPercent[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SYS][QC_NUM_FREQ][MP_GROUP_PERCENT_SIZE]; /**< mp ratio lower than 0.3m, 0.6m, 0.9m */
+	float MPGroupPercentAve[QC_MAX_NUM_OBS_FILE][QC_NUM_FREQ][MP_GROUP_PERCENT_SIZE]; /**< average mp ratio lower than 0.3m, 0.6m, 0.9m */
+	int MPGroupNum[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SYS][QC_NUM_FREQ][MP_GROUP_PERCENT_SIZE]; /**< mp observation count for each group threshold(0.3m, 0.6m, 0.9m) */
 
 	QC_TIME_T IonTime[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];               /**< Ion time */
 	double Ion[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];                      /**< Ion value */
@@ -220,7 +326,17 @@ typedef struct _QC_RESULT_T
 	double MW[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT][QC_LC_NUM];            /**< MW value */
 	
 	unsigned char CurGFAndMWValidMask[QC_MAX_NUM_OBS_FILE][QC_MAX_NUM_SAT];
-
+	
+	unsigned int SatNum[QC_MAX_NUM_OBS_FILE];                             /**< All satellite number */
+	unsigned int LowCN0SatNum[QC_MAX_NUM_OBS_FILE];                       /**< low CN0(< 35dBHz) satellite number */
+	unsigned int LowCN0EpochNum[QC_MAX_NUM_OBS_FILE];                     /**< low CN0(< 35dBHz) epoch number */
+	float LowCN0SatRatio[QC_MAX_NUM_OBS_FILE];                            /**< low CN0(<35dBHz) satellite ratio */
+	float LowCN0EpochRatio[QC_MAX_NUM_OBS_FILE];                          /**< low CN0(<35dBHz) epoch ratio */
+	
+	int CN0DropWindowCount[QC_MAX_NUM_OBS_FILE];                          /**< valid number of CN0 drop windows */
+	QC_CN0_TIME_WIN_INFO_T CN0DropWindow[QC_MAX_NUM_OBS_FILE][QC_DIAG_TOP_WIN_NUM];/**< top CN0 drop windows */
+	int CN0DropWindowTempCount[QC_MAX_NUM_OBS_FILE];                      /**< valid number of temp CN0 drop windows */
+	QC_CN0_TIME_WIN_INFO_T CN0DropWindowTemp[QC_MAX_NUM_OBS_FILE][QC_DIAG_TOP_WIN_NUM];/**< temp CN0 drop windows */
 }QC_RESULT_T;
 
 /** QC GNSS config */
@@ -247,6 +363,9 @@ typedef struct _CHCQC_GNSSCFG_T
 
 	BOOL bIsOutputDataList;                               /**< # [bool] whether to output DataList file */
 	BOOL bIsOutputQCLog;                                  /**< # [bool] whether to output .CS/.MP file */
+	BOOL bIsOutputQCResBinaryList;                        /**< # [bool] whether to output _QCResList.txt file */
+	
+	int EphMode;                                          /**< ephemeris mode: auto/no-eph/specified, see QC_EPH_MODE_xx */
 
 	/** # QC threshold */
 	float GMpMAX[QC_GPS_FRE_NUM];                         /**< [m]max mp Rms pseudorange for GPS(L1,L2,L5) */
@@ -256,6 +375,7 @@ typedef struct _CHCQC_GNSSCFG_T
 	float JMpMAX[QC_QZSS_FRE_NUM];                        /**< [m]max mp Rms pseudorange for QZSS(L1,L2,L5,L5S,L6)*/
 	float SMpMAX[QC_SBAS_FRE_NUM];			              /**< [m]max mp Rms pseudorange for SBAS(L1,L5)*/
 	float IMpMAX[QC_IRNSS_FRE_NUM];		                  /**< [m]max mp Rms pseudorange for IRNSS(L5,S)*/
+	float LMpMAX[QC_XW1_FRE_NUM];		                  /**< [m]max mp Rms pseudorange for XW1 LEO(L1L,L1H,L2L,L2H)*/
 	float MPCarrier;                                      /**< [m]max mp Rms carrier */
 
 	unsigned int GSnrMIN[QC_GPS_FRE_NUM];                 /**< [dBHz] min snr for GPS(L1,L2,L5,L1C/A,L2C/A) */
@@ -265,6 +385,7 @@ typedef struct _CHCQC_GNSSCFG_T
 	unsigned int JSnrMIN[QC_QZSS_FRE_NUM];                /**< [dBHz] min snr for QZSS(L1,L2,L5,L5S,L6) */
 	unsigned int SSnrMIN[QC_SBAS_FRE_NUM];				  /**< [dBHz] min snr for SBAS(L1,L5)		   */
 	unsigned int ISnrMIN[QC_IRNSS_FRE_NUM];				  /**< [dBHz] min snr for IRNSS(L5,S)		   */
+	unsigned int LSnrMIN[QC_XW1_FRE_NUM];				  /**< [dBHz] min snr for XW1 LEO(L1L,L1H,L2L,L2H)		   */
 	float UseRate;								          /**< [%] data useRate					   */
 	unsigned int CJR;									  /**< [int] cycle jump ratio				   */
 	/** # SNR min Number of satellite */
@@ -275,17 +396,19 @@ typedef struct _CHCQC_GNSSCFG_T
 	unsigned int NumJSnrMIN[QC_QZSS_FRE_NUM];			  /**< [int] min QZSS SNR sat number(L1,L2,L5,L5S,L6)					   */
 	unsigned int NumSSnrMIN[QC_SBAS_FRE_NUM];			  /**< [int] min SBAS SNR sat number(L1,L5)								   */
 	unsigned int NumISnrMIN[QC_IRNSS_FRE_NUM];			  /**< [int] min IRNSS SNR sat number(L5,S)								   */
+	unsigned int NumLSnrMIN[QC_XW1_FRE_NUM];			  /**< [int] min XW1 LEO SNR sat number(L1L,L1H,L2L,L2H)								   */
 	/** # file settings */
 	char OutDir[MAX_FILE_NAME_LENGTH];                    /**< output file dir */
 	char RoverFile[MAX_FILE_NAME_LENGTH];                 /**< rover obs file name and path */
 	char BaseFile[MAX_FILE_NAME_LENGTH];                  /**< base obs file name and path */
+	char RinexEphFile[MAX_FILE_NAME_LENGTH];              /**< specified RINEX eph/nav file path */
 	/* # freq_Option form user */
 	BOOL AllFreq;                                         /**< gnss observation all frequency (0:from user 1:all freq) */
 	int SysSigType[QC_MAX_NUM_SYS][QC_MAXSIGTYPE];
-	int NumSigType[QC_MAX_NUM_SYS];                     /**< number of signal types, allFreq != 1 */
+	int NumSigType[QC_MAX_NUM_SYS];                       /**< number of signal types, allFreq != 1 */
 	BOOL bIsDoubleDiffCheckLLI;                           /**< whether double difference between station and satellite takes into LLI, default FALSE */
 	/** multipath option */
-	unsigned int MPMethod;                                  /**< 0: use 50-epoch; 1: filter */
+	unsigned int MPMethod;                                /**< 0: use 50-epoch; 1: filter */
 }CHCQC_GNSSCFG_T;
 
 /** RinexCfg */
@@ -294,7 +417,7 @@ typedef struct _CHCQC_RINEXCFG_T
 	unsigned int DataType;                     /**< data type */
 	unsigned int OutputType;                   /**< data output type */
 	unsigned int RinexVer;                     /**< output rinex file version */
-	unsigned int Interval;                     /**< output rinex file interval(0:from raw file,x>0:from user) */
+	float Interval;                            /**< output rinex file interval(0:from raw file,x>0:from user) */
 	unsigned char Sys[MAX_SYS_STR_LENGTH];     /**< gnss system choose(GPS:G,SBAS:S,GLO:R,GLA:E,QZS:J,BDS:C,IRNSS:I) */
 	unsigned int Split;                        /**< obsfile split option(0:no,1:station moving,2:time interval,3:time period) */
 	unsigned int SplitTimeInt;                 /**< time interval to use when splitting files */
@@ -322,8 +445,9 @@ typedef CHCQC_GNSSCFG_T QC_OPT_T;
 /** Msg decoder structure */
 typedef struct _QC_OBSD_T				/* observation data record */
 {
-	unsigned char Sat;			        /**< satellite/receiver number */
-	unsigned char Sys, PRN;
+	unsigned short Sat;			        /**< satellite/receiver number */
+	unsigned short PRN;
+	unsigned char Sys;
 	unsigned char NumFre;
 	int GLOFreq;                        /**< GLONASS frq */
 
@@ -333,7 +457,7 @@ typedef struct _QC_OBSD_T				/* observation data record */
 	unsigned char Visibility;           /**< 1:invisible, 0:visible */
 	double L[QC_NUM_FREQ];				/**< observation data carrier-phase (cycle) */
 	double P[QC_NUM_FREQ];				/**< observation data pseudorange (m) */
-	float  D[QC_NUM_FREQ];				/**< observation data doppler frequency (m/s) */
+	float  D[QC_NUM_FREQ];				/**< observation data doppler frequency (Hz) */
 	double Azel[2];                     /**< azimuth and elevation(rad) */
 	double R;                           /**< distance between satellite and station(m) */
 	double Dts[2];
@@ -435,6 +559,8 @@ _declspec(dllexport) BOOL ReadGNSSCfg(FILE* fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg
 
 /** interface: GNSS QC function */
 _declspec(dllexport) void GNSSProcesser(CHCQC_GNSSCFG_T* pGNSSCfg, QC_RESULT_T* pQCRes);
+_declspec(dllexport) void GNSSPreProcess(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader);
+_declspec(dllexport) double GetGNSSPreProcessProgress();
 
 /** interface: Rixne function */
 _declspec(dllexport) void InitRinexCfg(CHCQC_RINEXCFG_T* pRinexCfg);
@@ -481,6 +607,8 @@ BOOL ReadGNSSCfg(FILE* fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg);
 
 /** interface: GNSS QC function */
 void GNSSProcesser(CHCQC_GNSSCFG_T* pGNSSCfg, QC_RESULT_T* pQCRes);
+void GNSSPreProcess(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader);
+double GetGNSSPreProcessProgress();
 
 /** interface: Rixne function */
 void InitRinexCfg(CHCQC_RINEXCFG_T* pRinexCfg);

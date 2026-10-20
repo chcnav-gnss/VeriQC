@@ -1,5 +1,7 @@
 ﻿#include "ImportFileDialog.h"
 #include "ui_ImportFileDialog.h"
+#include <QScreen>
+#include <QGuiApplication>
 #include <QFileInfo>
 #include "Components/MyComboBox.h"
 #include <QListView>
@@ -29,19 +31,17 @@ ImportFileDialog::ImportFileDialog(QWidget *parent) :
     connect(ui->batchFormattingButton, &QPushButton::clicked, this, &ImportFileDialog::onBatchFormatting);
     connect(ui->cancelBatchFormattingButton, &QPushButton::clicked, this, &ImportFileDialog::onCancelBatchFormatting);
 
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2),QCConfigurator::RawFileDataFormatEnum::RTCM2);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3),QCConfigurator::RawFileDataFormatEnum::RTCM3);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RINEX),QCConfigurator::RawFileDataFormatEnum::RINEX);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::HRCX),QCConfigurator::RawFileDataFormatEnum::HRCX);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgAscii),QCConfigurator::RawFileDataFormatEnum::RawMsgAscii);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgBinary),QCConfigurator::RawFileDataFormatEnum::RawMsgBinary);
+    QCConfigurator::addFileDataFormatItems(ui->inputFormatComboBox);
     connect(ui->inputFormatComboBox,&QComboBox::currentTextChanged,this,&ImportFileDialog::onInputFormatComboBoxChanged);
 
     ui->rtcmTimeEdit->setDateTime(QDateTime::currentDateTime());
 
+    /** Column widths and minimum size use logical pixels.
+     *  Qt AA_EnableHighDpiScaling handles DPI scaling automatically;
+     *  multiplying by devicePixelRatio() causes double-scaling on HiDPI displays. */
     ui->tableWidget->setColumnWidth(TableWidgetColumnIndexEnum::ColumnIndexCheckBox, 0);
-    ui->tableWidget->setColumnWidth(TableWidgetColumnIndexEnum::ColumnIndexNum,50);
-    ui->tableWidget->setColumnWidth(TableWidgetColumnIndexEnum::ColumnIndexFileName,120);
+    ui->tableWidget->setColumnWidth(TableWidgetColumnIndexEnum::ColumnIndexNum, 50);
+    ui->tableWidget->setColumnWidth(TableWidgetColumnIndexEnum::ColumnIndexFileName, 120);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(TableWidgetColumnIndexEnum::ColumnIndexNum,QHeaderView::ResizeToContents);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(TableWidgetColumnIndexEnum::ColumnIndexFileName,QHeaderView::Interactive);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(TableWidgetColumnIndexEnum::ColumnIndexFilePath,QHeaderView::Stretch);
@@ -50,7 +50,9 @@ ImportFileDialog::ImportFileDialog(QWidget *parent) :
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(TableWidgetColumnIndexEnum::ColumnIndexRTCMTime,QHeaderView::ResizeToContents);
     ui->tableWidget->setEditTriggers(QTableWidget::NoEditTriggers);
 
-    ui->tableWidget->setMinimumWidth(900);
+    /** Minimum width in logical pixels (aligned with UI file base geometry 660).
+     *  Do NOT multiply by devicePixelRatio() — Qt handles HiDPI scaling. */
+    ui->tableWidget->setMinimumWidth(660);
     ui->batchStackedWidget->setCurrentIndex(0);
 }
 
@@ -94,18 +96,11 @@ void ImportFileDialog::addFileRow(const QString &file)
 
     QCConfigurator::RawFileDataFormatEnum autoFormat = this->getFormatFromSuffix(QFileInfo(file).suffix());
     MyComboBox *formatCombobox = new MyComboBox(this);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::None),QCConfigurator::RawFileDataFormatEnum::None);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2),QCConfigurator::RawFileDataFormatEnum::RTCM2);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3),QCConfigurator::RawFileDataFormatEnum::RTCM3);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RINEX),QCConfigurator::RawFileDataFormatEnum::RINEX);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::HRCX),QCConfigurator::RawFileDataFormatEnum::HRCX);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgAscii),QCConfigurator::RawFileDataFormatEnum::RawMsgAscii);
-    formatCombobox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgBinary),QCConfigurator::RawFileDataFormatEnum::RawMsgBinary);
+    QCConfigurator::addFileDataFormatItems(formatCombobox, true);
     ui->tableWidget->setItem(row,ColumnIndexFormat,new QTableWidgetItem(""));
     ui->tableWidget->setCellWidget(row,ColumnIndexFormat,formatCombobox);
     connect(formatCombobox,&MyComboBox::currentTextChanged,[row,this](const QString &text){
-        if(text == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2)
-                || text == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3))
+        if(isRtcmTimeFormatName(text))
         {
             QDateTimeEdit *edit = qobject_cast<QDateTimeEdit*>(ui->tableWidget->cellWidget(row,ColumnIndexRTCMTime));
             if(edit)
@@ -157,21 +152,11 @@ QString ImportFileDialog::formatFileSize(qint64 fileSize)
 
 QCConfigurator::RawFileDataFormatEnum ImportFileDialog::getFormatFromSuffix(const QString &suffix)
 {
-    const QString lowerSuffix = suffix.toLower();
-
-    // RINEX foramt（[year]o/p/n/c/g/l）
-    static QRegularExpression rinexRegex(R"(^\d{2}[opncgl]$)");
-    if (rinexRegex.match(lowerSuffix).hasMatch()) {
-        return QCConfigurator::RawFileDataFormatEnum::RINEX;
-    }
-
-    // RTCM3 format
-    if (lowerSuffix == "rtcm3") {
-        return QCConfigurator::RawFileDataFormatEnum::RTCM3;
-    }
-
-    // other format
-    return QCConfigurator::RawFileDataFormatEnum::None;
+    // Shared implementation (observation-only RINEX pattern). Differences vs
+    // the previous dialog-local logic: ephemeris suffixes (p/n/c/g/l) are no
+    // longer guessed as RINEX (unreachable here - importFiles() skips them
+    // first), while multi-digit/plain "o" observation suffixes now are.
+    return QCConfigurator::getFormatFromSuffix(suffix);
 }
 
 void ImportFileDialog::onImport()
@@ -211,8 +196,7 @@ void ImportFileDialog::onApply()
 
 void ImportFileDialog::onInputFormatComboBoxChanged(const QString &text)
 {
-    if(text == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2)
-            || text == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3))
+    if(isRtcmTimeFormatName(text))
     {
         ui->rtcmTimeEdit->setEnabled(true);
     }
@@ -220,6 +204,13 @@ void ImportFileDialog::onInputFormatComboBoxChanged(const QString &text)
     {
         ui->rtcmTimeEdit->setEnabled(false);
     }
+}
+
+bool ImportFileDialog::isRtcmTimeFormatName(const QString &formatName)
+{
+    return formatName == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2)
+            || formatName == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3)
+            || formatName == QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::HRC);
 }
 
 void ImportFileDialog::onBatchFormatting()

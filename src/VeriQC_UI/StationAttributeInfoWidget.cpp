@@ -1,5 +1,4 @@
 ﻿#include "StationAttributeInfoWidget.h"
-#include "StationAttributeInfoWidget.h"
 #include "ui_StationAttributeInfoWidget.h"
 #include <QPropertyAnimation>
 #include <QGraphicsDropShadowEffect>
@@ -11,18 +10,13 @@ StationAttributeInfoWidget::StationAttributeInfoWidget(QWidget *parent) :
     ui->setupUi(this);
 
     // init sub widgets style
-    this->setStyleSheet("QLabel {min-height:30px;}");
+    this->setStyleSheet("QLabel {min-height: 1.875em;} margin: 0.375em;");
     this->initInfoWidget(ui->stationInfoWidget);
     this->initInfoWidget(ui->obsInfoWidget);
     this->initInfoWidget(ui->recevierInfoWidget);
     this->initInfoWidget(ui->antennaInfoWidget);
 
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM2),QCConfigurator::RawFileDataFormatEnum::RTCM2);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RTCM3),QCConfigurator::RawFileDataFormatEnum::RTCM3);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RINEX),QCConfigurator::RawFileDataFormatEnum::RINEX);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::HRCX),QCConfigurator::RawFileDataFormatEnum::HRCX);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgAscii),QCConfigurator::RawFileDataFormatEnum::RawMsgAscii);
-    ui->inputFormatComboBox->addItem(QCConfigurator::getFileDataFormatName(QCConfigurator::RawFileDataFormatEnum::RawMsgBinary),QCConfigurator::RawFileDataFormatEnum::RawMsgBinary);
+    QCConfigurator::addFileDataFormatItems(ui->inputFormatComboBox);
 
     connect(ui->stationInfoToolButton,&QToolButton::clicked,this,&StationAttributeInfoWidget::onStationInfoToolButtonClicked);
     connect(ui->obsInfoToolButton,&QToolButton::clicked,this,&StationAttributeInfoWidget::onObsInfoToolButtonClicked);
@@ -37,7 +31,6 @@ StationAttributeInfoWidget::StationAttributeInfoWidget(QWidget *parent) :
     shadowEffect->setBlurRadius(6);
     shadowEffect->setColor(QColor(0, 0, 0, 25));
     this->setGraphicsEffect(shadowEffect);
-    this->setStyleSheet("margin:6px;");
     ui->frame->setStyleSheet("QFrame{background-color: white;}");
 
     this->hide();

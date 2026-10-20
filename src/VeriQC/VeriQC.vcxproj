@@ -101,7 +101,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Debug32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\PropMsgDecoder\Lib\Windows\Debug32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -120,7 +120,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\PropMsgDecoder\Lib\Windows\Release32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\PropMsgDecoder\Lib\Windows\Release32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -137,8 +137,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>src\PropMsgDecoder\Lib\Windows\Debug64\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>PropMsgDecoder.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\PropMsgDecoder\Lib\Windows\Debug64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,7 +157,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>src\PropMsgDecoder\Lib\Windows\Release64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\PropMsgDecoder\Lib\Windows\Release64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>PropMsgDecoder.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -182,6 +182,7 @@
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\CHCRawMsgBinary\CHCRawMsgBinaryFilter.h" />
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXDataTypes.h" />
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRCX\HRCXFilter.h" />
+    <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\HRC\HRCFilter.h" />
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecode.h" />
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgDecodeDefinesEx.h" />
     <ClInclude Include="src\MsgConvert\Source\Firmware\Code\BSW\MsgDecoder\RTCM\UnitTest\MsgConvert\Code\Decoder\MsgPort.h" />

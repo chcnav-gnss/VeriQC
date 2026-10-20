@@ -606,9 +606,11 @@ int DecodeRTCM2Type17(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM2_DECODE
 
 	pGPSEphData->SatID = SatID;
 	pGPSEphData->SystemID= GPS;
-	pGPSEphData->Week = Week;
 	pGPSEphData->SqrtAorDeltaA = SqrtA;
 	pGPSEphData->A = SqrtA * SqrtA;
+
+	pGPSEphData->Week = AdjGPSWeekByUTCTime(Week, &pParseInfo->RTCMInterimData.RTCMTime);
+	UpdateRTCMTimeByGPSTime(pParseInfo, pGPSEphData->Week, (pGPSEphData->TOE > 0.0) ? pGPSEphData->TOE : pGPSEphData->TOC);
 
 #ifdef RTCM_DEBUG_INFO
 	char* pDebugInfoBuf = (char*)pParseInfo->ParsedDebugInfoBuf.pBaseAddr;

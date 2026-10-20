@@ -1,0 +1,67 @@
+> START_CHCGNSSCFG
+# QC common parameters
+Mode           =-1   # [int] GNSS QC mode(-1:NONE 0:zero baseline 1:diff sat and epoch 2:short baseline 3:tripleDiff epoch) 
+Sys            =    # [string] gnss system choose(GPS:G,SBAS:S,GLO:R,GLA:E,QZS:J,BDS:C,IRNSS:I) 
+RawFileDataType = 11 # File Data type, 0-RTCM2, 1-RTCM3, 11-Rinex, 37-HRCX, 38-HRC, 51-RawMsg ASCII, 52-RawMsg BIN, 56-CHC RawMsg BIN
+BanPRN         =    # [string] ban satellite group(G23,C01...)
+EleDeg         =  0  # [deg] ele mask
+Interval       =1   # [s] sample interval 
+SNRGroup       =30  # [deg] grouping SNR with ele(0,10,30,40,90)
+IsThresholdSNR =1   # [bool] whether to verify SNR threshold
+IsThresholdMP  =1   # [bool] whether to verify MP threshold
+HeightToReflector  =    # [m] height from main reflector
+RTCMTime       = 2021-09-25 05:00:00  # [string]When decoding rtcm data, need to specify the time of the day
+#StartTime     =2023-03-24 13:00:00      # [string] start time to process, StartTime=NaN:no limit
+#EndTime       =2023-08-03 09:00:00      # [string] end time to process, EndTime=NaN:no limit
+#BaseTrueXYZ   =0,0,0
+RoverTrueXYZ   =0,0,0
+IsOutputDataList = 1    #  [bool] whether to output DataList file
+IsOutputQCLog  = 1    #  [bool] whether to output .CS/.MP file
+IsOutputQCResBinaryList = 0 #  [bool] whether to output _QCResList.txt file
+EphMode       = 0    #  [int] ephemeris mode: 0-auto find same-name eph, 1-no ephemeris, 2-specified eph file
+RinexEphFile  =      #  [string] specified RINEX eph/nav file path when EphMode=2
+MPMethod       = 0    #   [int] MP process method, 0: fix 50-epoch, 1: filter
+# freq_Option form user
+AllFreq        = 1 # [bool] gnss observation all frequency (0:external from user 1:all freq 2:simple from user )
+GPS            = 1,L2 # [string] GPS freq option from user(<20)
+SBAS           = 1,C1C # [string] SBAS freq option from user(<20)
+GLONASS        = 1,C1C # [string] GLONASS freq option from user(<20)
+Galileo        = 1,C1C # [string] Galileo freq option from user(<20)
+QZSS           = 1,C1C # [string] QZSS freq option from user(<20)
+BDS            = 2,B1,B2
+NavIC          = 1,C1C # [string] NavIC freq option from user(<20)
+# QC parameters for zero baseline and short baseline 
+IsInputTrueXYZ=0   # [bool] whether to input base and rover XYZ
+IsDoubleDiffCheckLLI = 0  # [bool] whether double difference between station and satellite takes into LLI, default 0
+# QC threshold
+# section 2: max MP, min SNR, use rate and cycle jump ratio
+GPSMpMAX          =    0.5,0.65,0.5,0.5,0.65    #[m] max mp Rms pseudorange for GPS(L1,L2,L5,L1C/A,L2C/A)
+GLOMpMAX          =    0.5,0.65,0.5,0.5,0.5     #[m] max mp Rms pseudorange for GLONASS(G1,G1a,G2,G2a,G3)
+GALMpMAX          =    0.5,0.65,0.5,0.5,0.5     #[m] max mp Rms pseudorange for Galileo(E1,E5A,E5B,E5(A+B),E6)
+BDSMpMAX          =    0.5,0.65,0.5,0.5,0.5,0.5,0.5,0.5,0.5#[m] max mp Rms pseudorange for BDS(B1,B2,B3,B1C,B2a,B1A,B3A,B2b,B2a+B2b)
+QZSMpMAX          =    0.5,0.65,0.5,0.5,0.5,0.5,0.5     #[m] max mp Rms pseudorange for QZSS(L1,L2,L5,L5S,L6,L1C/A)
+SBAMpMAX          =    0.5,0.65                 #[m] max mp Rms pseudorange for SBAS(L1,L5)
+NICMpMAX          =    0.5,0.65                 #[m] max mp Rms pseudorange for NavIC(L5,S)
+MpCarrier         =    0.005                    #[m] max mp Rms carrier
+GPSSnrMIN         =    48,36,45,48,36           #[dBHz] min snr for GPS(L1,L2,L5,L1C/A,L2C/A)
+GLOSnrMIN         =    48,36,45,45,45           #[dBHz] min snr for GLONASS(G1,G1a,G2,G2a,G3)
+GALSnrMIN         =    48,36,45,45,45           #[dBHz] min snr for Galileo(E1,E5A,E5B,E5(A+B),E6)
+BDSSnrMIN         =    48,36,45,45,45,45,45,45,45#[dBHz] min snr for BDS(B1,B2,B3,B1C,B2a,B1A,B3A,B2b,B2a+B2b)
+QZSSnrMIN         =    48,36,45,45,45,45,45           #[dBHz] min snr for QZSS(L1,L2,L5,L5S,L6,L1C/A)
+SBASnrMIN         =    48,36                    #[dBHz] min snr for SBAS(L1,L5)
+NICSnrMIN         =    48,36                    #[dBHz] min snr for NavIC(L5,S)
+UseRate           =    95                       #[%] data useRate
+CycleJumpRatio    =    400                      #[int] cycle jump ratio
+# section 3: SNR min Number of satellite
+NumGPSSnrMIN      =2,2,2,2,2                    #[int] min GPS SNR sat number(L1,L2,L5,L1C/A,L2C/A)
+NumGLOSnrMIN      =2,2,2,2,2                    #[int] min GLONASS SNR sat number(G1,G1a,G2,G2a,G3)
+NumGALSnrMIN      =2,2,2,2,2                    #[int] min Galileo SNR sat number(E1,E5A,E5B,E5(A+B),E6)
+NumBDSSnrMIN      =2,2,2,2,2,2,2,2,2,2          #[int] min BDS SNR sat number(B1,B2,B3,B1C,B2a,B1A,B3A,B2b,B2a+B2b)
+NumQZSSnrMIN      =2,2,2,2,2,2,2                  #[int] min QZSS SNR sat number(L1,L2,L5,L5S,L6,L1C/A)
+NumSBASnrMIN      =2,2,2                        #[int] min SBAS SNR sat number(L1,L5)
+NumNICSnrMIN      =2,2,2                        #[int] min NavIC SNR sat number(L5,S)
+# file settings
+OutDir        =./out
+RoverFile     =./rover.obs
+BaseFile      = # [string] base obs file name and path 
+> END_CHCGNSSCFG

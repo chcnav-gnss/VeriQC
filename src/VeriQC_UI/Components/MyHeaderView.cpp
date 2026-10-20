@@ -3,11 +3,15 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QCheckBox>
+#include <QScreen>
+#include <QGuiApplication>
 
 MyHeaderView::MyHeaderView(Qt::Orientation orientation, QWidget *parent)
     :QHeaderView(orientation,parent)
 {
     setTextElideMode(Qt::ElideRight);
+    qreal dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
+    m_checkIconSize = QSize(static_cast<int>(12 * dpr), static_cast<int>(12 * dpr));
 }
 
 void MyHeaderView::setCheckable(bool checkable)
@@ -50,7 +54,7 @@ void MyHeaderView::paintSection(QPainter *painter, const QRect &rect, int logica
     {
         QStyleOptionButton option;
         option.initFrom(this);
-        option.iconSize = QSize(12,12);
+        option.iconSize = m_checkIconSize;
         option.rect = rect.adjusted(2,0,0,0);
         option.state = QStyle::State_Enabled;
         if(m_checkState == Qt::PartiallyChecked)

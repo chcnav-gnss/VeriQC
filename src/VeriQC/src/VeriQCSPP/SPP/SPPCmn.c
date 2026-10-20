@@ -1263,6 +1263,9 @@ extern int SatNo(int Sys, int PRN)
     case SYS_SBS:
         if (PRN < MINPRNSBS || MAXPRNSBS < PRN) return 0;
         return NSATGPS + NSATGLO + NSATGAL + NSATQZS + NSATCMP + PRN - MINPRNSBS + 1;
+    case SYS_LEO:
+        if (PRN < MINPRNLEO || MAXPRNLEO < PRN) return 0;
+        return NSATGPS + NSATGLO + NSATGAL + NSATQZS + NSATCMP + NSATSBS + PRN - MINPRNLEO + 1;
     }
     return 0;
 }
@@ -1296,6 +1299,9 @@ extern int SatSys(int Sat, int* pPRN)
     }
     else if ((Sat -= NSATCMP) <= NSATSBS) {
         sys = SYS_SBS; Sat += MINPRNSBS - 1;
+    }
+    else if ((Sat -= NSATSBS) <= NSATLEO) {
+        sys = SYS_LEO; Sat += MINPRNLEO - 1;
     }
     else Sat = 0;
     if (pPRN) *pPRN = Sat;

@@ -42,6 +42,7 @@
 #include "Decoder/MsgPort.h"
 #include "Decoder/MsgDecode.h"
 #include "Decoder/HRCX/HRCXFilter.h"
+#include "Decoder/HRC/HRCFilter.h"
 #include "Decoder/RTCM/RTCM3Filter.h"
 #include "Decoder/RTCM/RTCM2Filter.h"
 #include "Decoder/RTCM/RTCMDecodeManage.h"
@@ -259,7 +260,7 @@ static int InitEphOpt(RINEX_EPH_OPT_T* pEphOpt)
 **************************************************************************/
 int GetOemType(int ver)
 {
-	int32_t OemType = -1;
+	int32_t OemType = -2;
 
 	if (ver == 85) OemType = GNSS_STRFMT_RTCM3;
 	else if (ver == 94) OemType = GNSS_STRFMT_RTCM2;
@@ -1317,6 +1318,10 @@ int GetDecodeType(int Type)
 			DecodeType = MSG_DECODE_TYPE_HRCX;
 			break;
 
+		case GNSS_STRFMT_HRC:
+			DecodeType = MSG_DECODE_TYPE_HRC;
+			break;
+
 		case GNSS_STRFMT_RAWMSGA:
 		case GNSS_STRFMT_BASEOBSA:
 		case GNSS_STRFMT_KMD_RAWMSGA:
@@ -1335,10 +1340,6 @@ int GetDecodeType(int Type)
 
 		case GNSS_STRFMT_UNRAWMSGB:
 			DecodeType = MSG_DECODE_TYPE_RAWMSGB | MSG_DECODE_TYPE_CHCRAWMSGB | MSG_DECODE_TYPE_UNRAWMSGB;
-			break;
-
-		case GNSS_STRFMT_RTKLOGB:
-			DecodeType = MSG_DECODE_TYPE_RTKLOGB;
 			break;
 
 		default:
@@ -1636,11 +1637,10 @@ int AllFreqDecode(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecode,
 		(DecodeType & MSG_DECODE_TYPE_RTCM3) ||/**< rtcm3 */
 		(DecodeType & MSG_DECODE_TYPE_RINEX) ||/**< Rinex */
 		(DecodeType & MSG_DECODE_TYPE_HRCX) ||/**< HRCX */
+		(DecodeType & MSG_DECODE_TYPE_HRC) ||/**< HRC */
 		(DecodeType & MSG_DECODE_TYPE_RAWMSGA) ||/**< RawMsg Binary */
 		(DecodeType & MSG_DECODE_TYPE_RAWMSGB) ||/**< RawMsg Binary */
-		(DecodeType & MSG_DECODE_TYPE_CHCRAWMSGB) ||/**< RawMsg Binary */
-		(DecodeType & MSG_DECODE_TYPE_RTKLOGA) ||/**< RTKLOG Binary */
-		(DecodeType & MSG_DECODE_TYPE_RTKLOGB))/**< RTKLOG Binary */
+		(DecodeType & MSG_DECODE_TYPE_CHCRAWMSGB))/**< RawMsg Binary */
 	{
 		MsgDecodeReset(pMsgDecode);
 
@@ -1693,6 +1693,54 @@ int AllFreqDecode(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecode,
 	}
 
 	return 0;
+}
+
+static void ResetSingleObsConvertTimeState(SINGLE_OBS_CONVERT_DATA_T* pSingleObsConvertData)
+{
+	if (pSingleObsConvertData == NULL)
+	{
+		return;
+	}
+
+	MEMSET(pSingleObsConvertData->TimeStartHistory, 0x00, sizeof(pSingleObsConvertData->TimeStartHistory));
+	MEMSET(pSingleObsConvertData->TimeEndHistory, 0x00, sizeof(pSingleObsConvertData->TimeEndHistory));
+	MEMSET(&pSingleObsConvertData->OldTime, 0x00, sizeof(pSingleObsConvertData->OldTime));
+	MEMSET(pSingleObsConvertData->PosHistory, 0x00, sizeof(pSingleObsConvertData->PosHistory));
+	MEMSET(pSingleObsConvertData->PosHistoryBuf, 0x00, sizeof(pSingleObsConvertData->PosHistoryBuf));
+	MEMSET(&pSingleObsConvertData->RINEXObsHeader.TimeStart, 0x00, sizeof(pSingleObsConvertData->RINEXObsHeader.TimeStart));
+	MEMSET(&pSingleObsConvertData->RINEXObsHeader.TimeEnd, 0x00, sizeof(pSingleObsConvertData->RINEXObsHeader.TimeEnd));
+	pSingleObsConvertData->RINEXObsHeader.TimeDiff = 0;
+	pSingleObsConvertData->Rece = 0;
+	pSingleObsConvertData->TimeInt = 0.0;
+	pSingleObsConvertData->DiffPos = 0;
+	pSingleObsConvertData->PosHistoryNum = 0;
+}
+
+static void ResetObsConvertTimeStateAfterAllFreqDecode(MSG_CONVERT_DATA_T* pMsgConvertData)
+{
+	int Index;
+
+	if ((pMsgConvertData == NULL) || (pMsgConvertData->AllFreqFlag <= 0))
+	{
+		return;
+	}
+
+	ResetSingleObsConvertTimeState(&pMsgConvertData->GlobalObsConvertData);
+	for (Index = 0; Index < RAW_OBS_DATA_TYPE_NUM_MAX; Index++)
+	{
+		ResetSingleObsConvertTimeState(&pMsgConvertData->SingleObsConvertData[Index]);
+	}
+
+	MEMSET(pMsgConvertData->TimeStartHistory, 0x00, sizeof(pMsgConvertData->TimeStartHistory));
+	MEMSET(pMsgConvertData->TimeEndHistory, 0x00, sizeof(pMsgConvertData->TimeEndHistory));
+	MEMSET(&pMsgConvertData->OldTime, 0x00, sizeof(pMsgConvertData->OldTime));
+	MEMSET(pMsgConvertData->PosHistory, 0x00, sizeof(pMsgConvertData->PosHistory));
+	MEMSET(pMsgConvertData->PosHistoryBuf, 0x00, sizeof(pMsgConvertData->PosHistoryBuf));
+	pMsgConvertData->Rece = 0;
+	pMsgConvertData->TimeInt = 0.0;
+	pMsgConvertData->DiffPos = 0;
+	pMsgConvertData->PosHistoryNum = 0;
+	pMsgConvertData->ObsEpochNum = 0;
 }
 
 /**********************************************************************//**
@@ -1971,6 +2019,68 @@ int RinexDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData)
 }
 
 /**********************************************************************//**
+@brief  message deocde convert end
+
+@param pMsgConvertData	  [In] pointer to message convert data
+@param pMsgDecode		   [In] pointer to message decode
+
+@retval <0:error, =0:success
+
+@author CHC
+@date 2023/05/17
+@note
+**************************************************************************/
+static int MsgDecodeConvertSingleEnd(SINGLE_OBS_CONVERT_DATA_T* pSingleObsConvertData, MSG_DECODE_T* pMsgDecode)
+{
+	int Index;
+	unsigned char HeaderBuf[READ_BUF_LEN_MAX] = { 0 };
+	MSG_BUF_T EncodeBuf = { HeaderBuf, 0 };
+
+	if (!pSingleObsConvertData->RinexObsFileFp)
+	{
+		GNSSPrintf(".o file pointer error!\n");
+	}
+	else
+	{
+		if ((pSingleObsConvertData->RINEXObsHeader.TimeStart.Year != 0)
+			&& (pSingleObsConvertData->RINEXObsHeader.TimeEnd.Year != 0))
+		{
+			fseek(pSingleObsConvertData->RinexObsFileFp, 0, SEEK_SET);
+			OutRINEXObsHeader(pSingleObsConvertData->RinexObsFileFp, &pSingleObsConvertData->RINEXObsOpt, &pSingleObsConvertData->RINEXObsHeader, &EncodeBuf);
+			fflush(pSingleObsConvertData->RinexObsFileFp);
+		}
+
+		if (fclose(pSingleObsConvertData->RinexObsFileFp) == EOF)
+		{
+			GNSSPrintf(".o file close error!\n");
+		}
+	}
+
+	if (pSingleObsConvertData->RINEXEphHeader.Ver >= 300)
+	{
+		if (pSingleObsConvertData->RinexNavFileFp[MSG_CONVERT_FILE_INDEX_MUTIEPH] != NULL)
+		{
+			if (fclose(pSingleObsConvertData->RinexNavFileFp[MSG_CONVERT_FILE_INDEX_MUTIEPH]) == EOF)
+			{
+				GNSSPrintf("eph file close error!\n");
+			}
+		}
+	}
+	for (Index = MSG_CONVERT_FILE_INDEX_GPSEPH; Index < MSG_CONVERT_FILE_EPH_NUM_MAX; Index++)
+	{
+		if (pSingleObsConvertData->RinexNavFileFp[Index] != NULL)
+		{
+			if (fclose(pSingleObsConvertData->RinexNavFileFp[Index]) == EOF)
+			{
+				GNSSPrintf("eph file close error!\n");
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**********************************************************************//**
 @brief  data deocde start
 
 @param pMsgConvertData	  [In] pointer to message convert data
@@ -2007,11 +2117,10 @@ int DataDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecod
 		(DecodeType & MSG_DECODE_TYPE_RTCM3) ||/**< rtcm3 */
 		(DecodeType & MSG_DECODE_TYPE_RINEX) ||/**< Rinex */
 		(DecodeType & MSG_DECODE_TYPE_HRCX) ||/**< HRCX */
+		(DecodeType & MSG_DECODE_TYPE_HRC) ||/**< HRC */
 		(DecodeType & MSG_DECODE_TYPE_RAWMSGA) ||/**< RawMsg Binary */
 		(DecodeType & MSG_DECODE_TYPE_RAWMSGB) ||/**< RawMsg Binary */
-		(DecodeType & MSG_DECODE_TYPE_CHCRAWMSGB) ||/**< RawMsg Binary */
-		(DecodeType & MSG_DECODE_TYPE_RTKLOGA) ||/**< RTKLOG Binary */
-		(DecodeType & MSG_DECODE_TYPE_RTKLOGB))/**< RTKLOG Binary */
+		(DecodeType & MSG_DECODE_TYPE_CHCRAWMSGB))/**< RawMsg Binary */
 	{
 		if (pMsgConvertData->RINEXEphHeader.Ver >= 300)
 		{
@@ -2070,6 +2179,8 @@ int DataDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecod
 			}
 		}
 
+		ResetObsConvertTimeStateAfterAllFreqDecode(pMsgConvertData);
+
 		if (pMsgDecode->ProtocolFilterInfo.pRTCMParseInfo)
 		{
 			RTCMParseInfoReset(pMsgDecode->ProtocolFilterInfo.pRTCMParseInfo);
@@ -2080,6 +2191,12 @@ int DataDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecod
 		{
 			HRCXParseInfoReset(pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo);
 			pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo->HRCXInterimData.HRCXTime = pMsgConvertData->HRCXTime;
+		}
+
+		if (pMsgDecode->ProtocolFilterInfo.pHRCParseInfo)
+		{
+			HRCParseInfoReset(pMsgDecode->ProtocolFilterInfo.pHRCParseInfo);
+			pMsgDecode->ProtocolFilterInfo.pHRCParseInfo->HRCInterimData.HRCTime = pMsgConvertData->RTCMTime;
 		}
 
 		MsgDecodeReset(pMsgDecode);
@@ -2114,17 +2231,7 @@ int DataDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecod
 		{
 			pSingleObsConvertData = &pMsgConvertData->GlobalObsConvertData;
 
-			if (!pSingleObsConvertData->RinexObsFileFp)
-			{
-				GNSSPrintf(".o file pointer error!\n");
-			}
-			else
-			{
-				if (fclose(pSingleObsConvertData->RinexObsFileFp) == EOF)
-				{
-					GNSSPrintf(".o file close error!\n");
-				}
-			}
+			MsgDecodeConvertSingleEnd(pSingleObsConvertData, pMsgDecode);
 		}
 		else
 		{
@@ -2134,17 +2241,7 @@ int DataDecodeStart(MSG_CONVERT_DATA_T* pMsgConvertData, MSG_DECODE_T* pMsgDecod
 				{
 					pSingleObsConvertData = &pMsgConvertData->SingleObsConvertData[DataTypeIndex];
 
-					if (!pSingleObsConvertData->RinexObsFileFp)
-					{
-						GNSSPrintf(".o file pointer error!\n");
-					}
-					else
-					{
-						if (fclose(pSingleObsConvertData->RinexObsFileFp) == EOF)
-						{
-							GNSSPrintf(".o file close error!\n");
-						}
-					}
+					MsgDecodeConvertSingleEnd(pSingleObsConvertData, pMsgDecode);
 				}
 			}
 		}

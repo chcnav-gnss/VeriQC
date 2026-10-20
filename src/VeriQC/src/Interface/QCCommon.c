@@ -125,6 +125,7 @@ void InitGNSSCfg(CHCQC_GNSSCFG_T* pGNSSCfg)
 		pGNSSCfg->OutDir[i] = 0;
 		pGNSSCfg->RoverFile[i] = 0;
 		pGNSSCfg->BaseFile[i] = 0;
+		pGNSSCfg->RinexEphFile[i] = 0;
 	}
 	for (i = 0; i < 3; i++)
 	{
@@ -174,6 +175,12 @@ void InitGNSSCfg(CHCQC_GNSSCFG_T* pGNSSCfg)
 		pGNSSCfg->ISnrMIN[i] = 45;
 		pGNSSCfg->NumISnrMIN[i] = 2;
 	}
+	for (i = 0; i < QC_XW1_FRE_NUM; i++)
+	{
+		pGNSSCfg->LMpMAX[i] = 0.5f;
+		pGNSSCfg->LSnrMIN[i] = 45;
+		pGNSSCfg->NumLSnrMIN[i] = 2;
+	}
 	pGNSSCfg->AllFreq = 1;
 	pGNSSCfg->bIsDoubleDiffCheckLLI = FALSE;
 	pGNSSCfg->IsInputTrueXYZ = FALSE;
@@ -182,6 +189,8 @@ void InitGNSSCfg(CHCQC_GNSSCFG_T* pGNSSCfg)
 
 	pGNSSCfg->bIsOutputDataList = FALSE;
 	pGNSSCfg->bIsOutputQCLog = FALSE;
+	pGNSSCfg->bIsOutputQCResBinaryList = FALSE;
+	pGNSSCfg->EphMode = QC_EPH_MODE_AUTO;
 
 	memset(pGNSSCfg->SysSigType, 0, sizeof(int) * QC_MAX_NUM_SYS * QC_MAXSIGTYPE);
 	memset(pGNSSCfg->NumSigType, 0, sizeof(int) * QC_MAX_NUM_SYS);
@@ -240,7 +249,7 @@ BOOL ReadRinexCfg(FILE *fpCfgFile, CHCQC_RINEXCFG_T* pRinexCfg)
 		}
 		if (strstr(line, "Interval")) 
 		{
-			pRinexCfg->Interval = atoi(p);
+			pRinexCfg->Interval = (float)atof(p);
 			continue;
 		}
 		if (strstr(line, "Sys")) 
@@ -661,6 +670,17 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 		{
 			break;
 		}
+		if (strstr(line, "EphMode"))
+		{
+			pGNSSCfg->EphMode = atoi(p);
+			continue;
+		}
+		if (strstr(line, "RinexEphFile"))
+		{
+			memcpy(pGNSSCfg->RinexEphFile, p, strlen(p));
+			AdjustStr(pGNSSCfg->RinexEphFile, MAX_FILE_NAME_LENGTH);
+			continue;
+		}
 		if (strstr(line, "Mode"))
 		{
 			pGNSSCfg->Mode = atoi(p);
@@ -774,7 +794,7 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 			}
 			continue;
 		}
-		if (strstr(line, "IsIuputTrueXYZ"))
+		if (strstr(line, "IsInputTrueXYZ"))
 		{
 			pGNSSCfg->IsInputTrueXYZ = atoi(p);
 			continue;
@@ -877,6 +897,20 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 			}
 			continue;
 		}
+		if (strstr(line, "XW1MpMAX"))
+		{
+			pTokResult = strtok(p, ",");
+			for (i = 0; i < QC_XW1_FRE_NUM; i++)
+			{
+				if (NULL == p)
+				{
+					break;
+				}
+				pGNSSCfg->LMpMAX[i] = (float)atof(p);
+				p = strtok(NULL, ",");
+			}
+			continue;
+		}
 		if (strstr(line, "NumGPSSnrMIN"))
 		{
 			pTokResult = strtok(p, ",");
@@ -975,6 +1009,20 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 			}
 			continue;
 		}
+		if (strstr(line, "NumXW1SnrMIN"))
+		{
+			pTokResult = strtok(p, ",");
+			for (i = 0; i < QC_XW1_FRE_NUM; i++)
+			{
+				if (NULL == p)
+				{
+					break;
+				}
+				pGNSSCfg->NumLSnrMIN[i] = atoi(p);
+				p = strtok(NULL, ",");
+			}
+			continue;
+		}
 		if (strstr(line, "GPSSnrMIN"))
 		{
 			pTokResult = strtok(p, ",");
@@ -1069,6 +1117,20 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 					break;
 				}
 				pGNSSCfg->ISnrMIN[i] = atoi(p);
+				p = strtok(NULL, ",");
+			}
+			continue;
+		}
+		if (strstr(line, "XW1SnrMIN"))
+		{
+			pTokResult = strtok(p, ",");
+			for (i = 0; i < QC_XW1_FRE_NUM; i++)
+			{
+				if (NULL == p)
+				{
+					break;
+				}
+				pGNSSCfg->LSnrMIN[i] = atoi(p);
 				p = strtok(NULL, ",");
 			}
 			continue;
@@ -1209,6 +1271,20 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 			memset(freStr, 0, sizeof(unsigned char) * MAX_FRE_STR_LENGTH);//reset
 			continue;
 		}
+		if (strstr(line, "XW1"))
+		{
+			memcpy(freStr, p, strlen(p));
+			if (pGNSSCfg->AllFreq == 0)
+			{
+				DecodeFreqList(p, QC_SYS_XW1, pGNSSCfg);
+			}
+			else if (pGNSSCfg->AllFreq == 2)
+			{
+				Obs2FreId(p, QC_SYS_XW1, pGNSSCfg);
+			}
+			memset(freStr, 0, sizeof(unsigned char) * MAX_FRE_STR_LENGTH);//reset
+			continue;
+		}
 		if (strstr(line, "IsDoubleDiffCheckLLI"))
 		{
 			pGNSSCfg->bIsDoubleDiffCheckLLI = atoi(p);
@@ -1218,23 +1294,38 @@ BOOL ReadGNSSCfg(FILE *fpCfgFile, CHCQC_GNSSCFG_T* pGNSSCfg)
 		{
 			pGNSSCfg->bIsOutputDataList = atoi(p);
 			continue;
-		}if (strstr(line, "IsOutputQCLog"))
+		}
+		if (strstr(line, "IsOutputQCLog"))
 		{
 			pGNSSCfg->bIsOutputQCLog = atoi(p);
+			continue;
+		}
+		if (strstr(line, "IsOutputQCResBinaryList"))
+		{
+			pGNSSCfg->bIsOutputQCResBinaryList = atoi(p);
+			continue;
+		}
+		if (strstr(line, "RawFileDataType"))
+		{
+			pGNSSCfg->RawFileDataType = atoi(p);
 			continue;
 		}
 	}
 	return TRUE;
 }
+
 int Obs2FreId(int8_t* pObsString, int Sys, CHCQC_GNSSCFG_T* pGNSSCfg)
 {
 	const char FreList[QC_MAX_NUM_SYS][QC_NUM_FREQ][8] =
-	{ {"L1", "L2C", "L5", "L1C-P", "L2P", ""},/*GPS*/
-	{ "L1","L5",  "",     "",     "",""},/*SBAS*/
-	{ "G1","G2", "", "", "", ""},/*GLONASS*/
-	{ "E1","E5A","E5B","E5(A+B)","E6",""},/*Galileo*/
-	{ "L1","L2","L5","L1C(P)","L6","L1C/B"},/*QZSS*/
-	{ "B1","B2","B3","B1C","B2a","B2b"} };/*BDS*/
+	{ 
+		{ "L1","L2C", "L5",  "L1C-P","L2P", ""},/*GPS*/
+		{ "L1", "L5",   "",       "",   "", ""},/*SBAS*/
+		{ "G1", "G2",   "",       "",   "", ""},/*GLONASS*/
+		{ "E1","E5A","E5B","E5(A+B)", "E6", ""},/*Galileo*/
+		{ "L1", "L2", "L5", "L1C(P)", "L6","L1C/B"},/*QZSS*/
+		{ "B1", "B2", "B3",    "B1C","B2a","B2b"},/*BDS*/
+		{"L1L","L1H","L2L",    "L2H",   "", ""} /**< XW1 LEO */
+	};
 
 	int num = atoi(&pObsString[0]), iFreq, iCharS, iCharE, Len = (int)strlen(pObsString);
 	int sysid = QCSys2Id(Sys) - 1;
@@ -1265,7 +1356,6 @@ int Obs2FreId(int8_t* pObsString, int Sys, CHCQC_GNSSCFG_T* pGNSSCfg)
 		m_str[iCharE - iCharS] = '\0';
 		for (iCharE = 0; iCharE < QC_NUM_FREQ; iCharE++)
 		{
-			
 			if (!strcmp(FreList[sysid][iCharE], m_str))
 			{
 				pGNSSCfg->SysSigType[sysid][iCharE] = 1;
@@ -1459,14 +1549,16 @@ void RinexProcesser(CHCQC_RINEXCFG_T* pRinexCfg)
 		{
 			if (InitRinexMultiInputFile(pMsgConvertData, pRinexCfg->RawFile) < 0)
 			{
-				return;
+				//return;
+				goto RET;
 			}
 		}
 		else
 		{
 			if (InitRinexInputFile(pMsgConvertData, pRinexCfg->RawFile) < 0)
 			{
-				return;
+				//return;
+				goto RET;
 			}
 		}
 	}
@@ -1475,7 +1567,8 @@ void RinexProcesser(CHCQC_RINEXCFG_T* pRinexCfg)
 		if ((pMsgConvertData->RawFp = fopen(pRinexCfg->RawFile, "rb+")) == NULL)
 		{
 			PrintfQC("<Rinex error>The raw data file was not found.\n");
-			return;
+			//return;
+			goto RET;
 		}
 	}
 
@@ -1502,20 +1595,21 @@ void RinexProcesser(CHCQC_RINEXCFG_T* pRinexCfg)
 	if (-1 == InputDataType)
 	{
 		InputDataType = ParseHCNHeaderData(pMsgConvertData);
-		if (-1 == InputDataType)
+		if (0 > InputDataType)
 		{
 			PrintfQC("\n.HCN header file parsing failed, please check the data header file\n");
-			return;
+			//return;
+			goto RET;
 		}
 	}
 
 #ifdef RTCM_DEBUG_INFO
-	if ((GNSS_STRFMT_RTCM2 == InputDataType) || (GNSS_STRFMT_RTCM3 == InputDataType) || (GNSS_STRFMT_HRCX == InputDataType))
+	if ((GNSS_STRFMT_RTCM2 == InputDataType) || (GNSS_STRFMT_RTCM3 == InputDataType) || (GNSS_STRFMT_HRCX == InputDataType) || (GNSS_STRFMT_HRC == InputDataType))
 	{
 		InitOutputFile(OUTPUT_FILE_TYPE_DEBUGINFO, pMsgConvertData, pRinexCfg->RawFile, OutDir);
 	}
 #endif
-	if ((GNSS_STRFMT_RINEX != InputDataType) && (GNSS_STRFMT_RTKLOGA != InputDataType) && (GNSS_STRFMT_RTKLOGB != InputDataType))
+	if (GNSS_STRFMT_RINEX != InputDataType)
 	{
 		InitOutputFile(OUTPUT_FILE_TYPE_BASEOBSSATCOUNT, pMsgConvertData, pRinexCfg->RawFile, OutDir);
 	}
@@ -1535,6 +1629,16 @@ void RinexProcesser(CHCQC_RINEXCFG_T* pRinexCfg)
 	{
 		QCTimeToUTCTime(&pRinexCfg->SplitStart, &pMsgConvertData->RINEXObsOpt.TimeStart);
 		QCTimeToUTCTime(&pRinexCfg->SplitEnd, &pMsgConvertData->RINEXObsOpt.TimeEnd);
+
+		MEMCPY(&pMsgConvertData->GlobalObsConvertData.RINEXObsOpt.TimeStart, &pMsgConvertData->RINEXObsOpt.TimeStart, sizeof(UTC_TIME_T));
+		MEMCPY(&pMsgConvertData->GlobalObsConvertData.RINEXObsOpt.TimeEnd, &pMsgConvertData->RINEXObsOpt.TimeEnd, sizeof(UTC_TIME_T));
+		for (TypeIndex = 0; TypeIndex < RAW_OBS_DATA_TYPE_NUM_MAX; TypeIndex++)
+		{
+			MEMCPY(&pMsgConvertData->SingleObsConvertData[TypeIndex].RINEXObsOpt.TimeStart, &pMsgConvertData->RINEXObsOpt.TimeStart, sizeof(UTC_TIME_T));
+			MEMCPY(&pMsgConvertData->SingleObsConvertData[TypeIndex].RINEXObsOpt.TimeEnd, &pMsgConvertData->RINEXObsOpt.TimeEnd, sizeof(UTC_TIME_T));
+		}
+		MEMCPY(&pMsgConvertData->RinexMultiConvertData.RINEXObsOpt.TimeStart, &pMsgConvertData->RINEXObsOpt.TimeStart, sizeof(UTC_TIME_T));
+		MEMCPY(&pMsgConvertData->RinexMultiConvertData.RINEXObsOpt.TimeEnd, &pMsgConvertData->RINEXObsOpt.TimeEnd, sizeof(UTC_TIME_T));
 
 		MEMCPY(&pMsgDecode->SetStartTime, &pMsgConvertData->RINEXObsOpt.TimeStart, sizeof(UTC_TIME_T));
 		MEMCPY(&pMsgDecode->SetEndTime, &pMsgConvertData->RINEXObsOpt.TimeEnd, sizeof(UTC_TIME_T));
@@ -1564,6 +1668,9 @@ void RinexProcesser(CHCQC_RINEXCFG_T* pRinexCfg)
 		goto RET;
 	}
 
+	/** adjust RTCMTime */
+	MEMCPY(&pMsgConvertData->RTCMTime, &pMsgDecode->ProtocolFilterInfo.pRTCMParseInfo->RTCMInterimData.RTCMTime, sizeof(UTC_TIME_T));
+
 	if (InputDataType != GNSS_STRFMT_RINEX)
 	{
 		DataDecodeStart(pMsgConvertData, pMsgDecode, InputDataType);
@@ -1578,6 +1685,85 @@ RET:
 	MsgCodecDeinit(pMsgDecode);
 
 	PrintfQC("<Rinex log>Decoding finish!\r\n");
+}
+
+/**********************************************************************//**
+@brief interface: GNSS QC pre-process function
+
+@param pGNSSCfg     [In]     GNSS config
+@param pQCReader    [In]     Quality check result
+
+@author CHC
+@date
+@note
+History:
+**************************************************************************/
+void GNSSPreProcess(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader)
+{
+	unsigned long long FileTotalSize = 0;
+	unsigned long long FileCurrentSize = 0;
+	double FilePercent = 0;
+	int iLoop;
+	QC_CODEC_INFO_T* pCodecInfo = NULL;
+
+	FileTotalSize = pQCReader->RawFileSize[0] + pQCReader->RawFileSize[1];
+
+	SetGNSSPreProcessProgress(0);
+	/** get file interval */
+	if ((pGNSSCfg->Interval < QC_MIN_SAMPLE_INTERVAL) 
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[0])->StreamFormat == STRFMT_TEMP) 
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[1])->StreamFormat == STRFMT_TEMP)
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[0])->StreamFormat == GNSS_STRFMT_RTCM3) /** adjust RTCM time */
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[1])->StreamFormat == GNSS_STRFMT_RTCM3)
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[0])->StreamFormat == GNSS_STRFMT_RTCM2)
+		|| (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[1])->StreamFormat == GNSS_STRFMT_RTCM2))
+	{
+		while (TRUE)
+		{
+			if (QCProcessCore(pGNSSCfg, pQCReader, QC_PRE_PROCESS_FUNC_INDEX) < 0)
+			{
+				break;
+			}
+
+			FileCurrentSize = pQCReader->CurFilePos[0];
+			FileCurrentSize += pQCReader->CurFilePos[1];
+			FilePercent = (FileTotalSize > 0) ? (100.0 * FileCurrentSize / FileTotalSize) : 100;
+			SetGNSSPreProcessProgress(FilePercent);
+			PrintfQC("<GNSSQC msg>:pre-processing file %5.1f%%%%\r", FilePercent);
+		}
+		PrintfQC("\n");
+		pQCReader->pOpt->Interval = (pQCReader->QcRes.Interval[0] > pQCReader->QcRes.Interval[1]) ? pQCReader->QcRes.Interval[1] : pQCReader->QcRes.Interval[0];
+		
+		for (iLoop = 0; iLoop < QC_MAX_NUM_OBS_FILE; iLoop++)
+		{
+			pCodecInfo = (QC_CODEC_INFO_T*)pQCReader->pCodecInfo[iLoop];
+			if ((pCodecInfo->StreamFormat != STRFMT_TEMP) && (pCodecInfo->StreamFormat != STRFMT_NONE))
+			{
+				pQCReader->QcRes.FileDataType[iLoop] = pCodecInfo->StreamFormat;
+			}
+			else
+			{
+				pCodecInfo->StreamFormat = STRFMT_NONE;
+			}
+		}
+
+		ResetQCReader(pQCReader);
+	}
+	else
+	{
+		pQCReader->QcRes.Interval[0] = pGNSSCfg->Interval;
+		pQCReader->QcRes.Interval[1] = pGNSSCfg->Interval;
+	}
+
+	for (iLoop = 0; iLoop < QC_MAX_NUM_OBS_FILE; iLoop++)
+	{
+		if (pQCReader->QcRes.FileDataType[iLoop] == STRFMT_NONE)
+		{
+			pQCReader->QcRes.FileException[iLoop].Code = QC_EXCEPTION_UNSUPPORTED_FORMAT;
+		}
+	}
+
+	SetGNSSPreProcessProgress(100);
 }
 
 /**********************************************************************//**
@@ -1600,7 +1786,6 @@ void GNSSProcesser(CHCQC_GNSSCFG_T* pGNSSCfg, QC_RESULT_T* pQCRes)
 	BOOL bState = FALSE;
 	unsigned long long FileTotalSize = 0;
 	unsigned long long FileCurrentSize = 0;
-	unsigned int PercentControl = 1;/**< control for one progress bar 1: only QC */
 	double FilePercent = 0;
 
 	pQcReader = (CHCQC_READER_T*)VERIQC_MALLOC(sizeof(CHCQC_READER_T));
@@ -1627,13 +1812,13 @@ void GNSSProcesser(CHCQC_GNSSCFG_T* pGNSSCfg, QC_RESULT_T* pQCRes)
 		PrintfQC("<GNSSQC error>: Failed to create decoder/Input file does not exit.\n");
 		return;
 	}
+	GNSSPreProcess(pGNSSCfg, pQcReader);
 	UpdateQCOpt(pQcReader->pOpt, &pQcReader->QcRes);  /**< QCLIB */
 	/* first: obtain the start and end time, sampling and frequency information */
 	pQcReader->IterNo = 0;
 
 	/** get rover and base file total size */
 	FileTotalSize = pQcReader->RawFileSize[0] + pQcReader->RawFileSize[1];
-	FileTotalSize *= PercentControl;
 
 	while (TRUE)
 	{
@@ -1756,11 +1941,6 @@ extern void Str2SnrGroup(char* pString, float* pSNRGroup, int* pSize)
 			iStr0 = iStr + 1;
 		}
 	}
-	if (pSNRGroup[*pSize - 1] != 90)
-	{
-		pSNRGroup[*pSize] = 90;
-		*pSize += 1;
-	}
 }
 
 /*********************************************************************
@@ -1802,9 +1982,9 @@ extern int Str2Sys(char* pString)
 		case 'c':
 			sys += QC_SYS_CMP;
 			break;
-		case 'I':
-		case 'i':
-			sys += QC_SYS_LEO;
+		case 'L':
+		case 'l':
+			sys += QC_SYS_XW1;
 			break;
 		default:
 			break;
@@ -1827,6 +2007,8 @@ extern void Sat2BanSat(char* pString, unsigned char* pSat)
 	int len = (int)strlen(pString);
 	int n = 0;
 	int SatNo = 0;
+	int SubLen = 2;
+
 	for (i = 0; i < len - 2; i++)
 	{
 		if (n >= MAX_NUM_SAT_BAN)
@@ -1859,9 +2041,10 @@ extern void Sat2BanSat(char* pString, unsigned char* pSat)
 		case 'c':
 			sys = QC_SYS_CMP;
 			break;
-		case 'I':
-		case 'i':
-			sys = QC_SYS_LEO;
+		case 'L':
+		case 'l':
+			sys = QC_SYS_XW1;
+			SubLen = 3;
 			break;
 		default:
 			sys = -1;
@@ -1869,7 +2052,7 @@ extern void Sat2BanSat(char* pString, unsigned char* pSat)
 		}
 		if (sys > 0)
 		{
-			prn = (int)QCStr2Num(pString, i + 1, 2);
+			prn = (int)QCStr2Num(pString, i + 1, SubLen);
 			SatNo = GetQCSatNo(sys, prn);
 			if (SatNo > 0)
 			{

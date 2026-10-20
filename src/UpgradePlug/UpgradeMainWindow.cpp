@@ -6,11 +6,14 @@
 #include <qstandardpaths.h>
 #include <qsettings.h>
 #include<QMetaEnum>
+#include<QScreen>
+#include<QGuiApplication>
 #include "zip/CZipExtractor.h"
 UpgradeMainWindow::UpgradeMainWindow(QWidget* parent)
 	:QMainWindow(parent)
 {
 	setCurrentLanguage();
+	qreal dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
     setWindowTitle(tr("AutoUpgrade"));
 	//setTitleBarBackgroundColor(QColor("#F5F5F5"));
 	QPalette pal(this->palette());
@@ -18,18 +21,18 @@ UpgradeMainWindow::UpgradeMainWindow(QWidget* parent)
 	this->setAutoFillBackground(true);
 	this->setPalette(pal);
 	QWidget* mainWidget = new QWidget(this);
-	setMinimumSize(500, 300);
+	setMinimumSize(static_cast<int>(500 * dpr), static_cast<int>(300 * dpr));
 	m_vRootLayout = new QVBoxLayout(mainWidget);
 	m_vRootLayout->setAlignment(Qt::AlignCenter);
 	m_vRootLayout->setMargin(20);
     m_descLabel = new QLabel(this);
     m_descLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_descLabel->setFixedHeight(30);
+    m_descLabel->setFixedHeight(static_cast<int>(30 * dpr));
     m_vRootLayout->addWidget(m_descLabel);
 
 	m_updageProgressLabel = new QLabel(this);
 	m_updageProgressLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-	m_updageProgressLabel->setFixedHeight(30);
+	m_updageProgressLabel->setFixedHeight(static_cast<int>(30 * dpr));
 	m_updageProgressLabel->setAlignment(Qt::AlignCenter);
 	m_vRootLayout->addWidget(m_updageProgressLabel);
 
@@ -42,7 +45,7 @@ UpgradeMainWindow::UpgradeMainWindow(QWidget* parent)
 	m_progressBar->setMaximum(100);
 	m_progressBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	m_progressBar->setAlignment(Qt::AlignCenter);
-	m_progressBar->setFixedHeight(30);
+	m_progressBar->setFixedHeight(static_cast<int>(30 * dpr));
 	QString text = m_progressBar->format();
 	text.replace("%v", QString::number(m_progressBar->value()));
 	m_vRootLayout->addWidget(m_progressBar);

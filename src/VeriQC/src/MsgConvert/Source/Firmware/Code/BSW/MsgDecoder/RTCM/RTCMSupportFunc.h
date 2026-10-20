@@ -82,6 +82,9 @@ unsigned int GetSatIndexStart(unsigned int System);
 
 const char * GetVendorTypeString(unsigned int VendorID);
 
+int AdjGPSWeekByUTCTime(int Week, const UTC_TIME_T* pApproxUTCTime);
+void UpdateRTCMTimeByGPSTime(RTCM_PARSE_INFO_T* pParseInfo, int GPSWeek, double Tow);
+
 #ifdef RTCM_DEBUG_INFO
 const char* GetRTCM3SignalName(unsigned int RTCMSys, unsigned int RTCMSignalID);
 unsigned int ExSystemToRTCMSystem(int ExSystemID);

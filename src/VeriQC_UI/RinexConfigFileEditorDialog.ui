@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RinexConfigFileEditorDialog</class>
+ <widget class="QDialog" name="RinexConfigFileEditorDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>760</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Rinex Convert Config File Editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topLayout">
+     <item>
+      <widget class="QPushButton" name="btnNew">
+       <property name="minimumSize">
+        <size>
+         <width>88</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>New</string>
+       </property>
+       <property name="toolTip">
+        <string>Start a new config with default values</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnOpen">
+       <property name="minimumSize">
+        <size>
+         <width>88</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Open...</string>
+       </property>
+       <property name="toolTip">
+        <string>Open an existing Rinex convert config file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSave">
+       <property name="minimumSize">
+        <size>
+         <width>88</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="toolTip">
+        <string>Save to the current file (asks for a name when the file is new)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSaveAs">
+       <property name="minimumSize">
+        <size>
+         <width>88</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Save As...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="fileLabel">
+       <property name="text">
+        <string>File:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="filePathEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>(not saved yet)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>740</width>
+        <height>520</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="scrollLayout">
+       <item>
+        <widget class="QToolButton" name="basicToolButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton{
+height: 2em;
+background-color: #f6f6f8;
+border: 1px solid #e9ebec;
+border-radius: 4px;
+color: black;
+}
+
+QToolButton::down-arrow {
+ image: url(:/icons/Resources/Icons/DownArrow.png);
+}
+QToolButton::right-arrow{
+ image: url(:/icons/Resources/Icons/RightArrow.png);
+}</string>
+         </property>
+         <property name="text">
+          <string>Basic</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+         <property name="arrowType">
+          <enum>Qt::DownArrow</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="basicWidget">
+         <layout class="QGridLayout" name="basicLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="dataTypeLabel">
+            <property name="text">
+             <string>Data Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="MyComboBox" name="dataTypeComboBox"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="outputTypeLabel">
+            <property name="text">
+             <string>Output Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="MyComboBox" name="outputTypeComboBox"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="rinexVerLabel">
+            <property name="text">
+             <string>RINEX Version:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="MyComboBox" name="rinexVerComboBox"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="intervalLabel">
+            <property name="text">
+             <string>Interval [s]:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="MyNoWheelDoubleSpinBox" name="intervalSpinBox">
+            <property name="decimals">
+             <number>3</number>
+            </property>
+            <property name="maximum">
+             <double>3600.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="toolTip">
+             <string>Output sample interval; 0 = derive from the raw file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="sysLabel">
+            <property name="text">
+             <string>Satellite Systems:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="3">
+           <layout class="QHBoxLayout" name="sysLayout">
+            <item>
+             <widget class="QCheckBox" name="sysGPSChk">
+              <property name="text">
+               <string>GPS(G)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysSBASChk">
+              <property name="text">
+               <string>SBAS(S)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysGLOChk">
+              <property name="text">
+               <string>GLONASS(R)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysGALChk">
+              <property name="text">
+               <string>Galileo(E)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysQZSChk">
+              <property name="text">
+               <string>QZSS(J)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysBDSChk">
+              <property name="text">
+               <string>BDS(C)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="sysNICChk">
+              <property name="text">
+               <string>NavIC(I)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="leapSecondLabel">
+            <property name="text">
+             <string>Leap Second:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="MyNoWheelSpinBox" name="leapSecondSpinBox">
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="toolTip">
+             <string>0 = take the leap second from the ephemeris</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" colspan="2">
+           <widget class="QCheckBox" name="cheakSeqChk">
+            <property name="text">
+             <string>Check the sequence of the obs file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="4">
+           <widget class="QCheckBox" name="pauseChk">
+            <property name="text">
+             <string>Pause at the end</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="splitToolButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton{
+height: 2em;
+background-color: #f6f6f8;
+border: 1px solid #e9ebec;
+border-radius: 4px;
+color: black;
+}
+
+QToolButton::down-arrow {
+ image: url(:/icons/Resources/Icons/DownArrow.png);
+}
+QToolButton::right-arrow{
+ image: url(:/icons/Resources/Icons/RightArrow.png);
+}</string>
+         </property>
+         <property name="text">
+          <string>Time</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+         <property name="arrowType">
+          <enum>Qt::DownArrow</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="splitWidget">
+         <layout class="QGridLayout" name="splitLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="splitLabel">
+            <property name="text">
+             <string>Split:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="MyComboBox" name="splitComboBox"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="splitTintLabel">
+            <property name="text">
+             <string>Split Interval [s]:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="MyNoWheelSpinBox" name="splitTintSpinBox">
+            <property name="maximum">
+             <number>999999999</number>
+            </property>
+            <property name="value">
+             <number>3600</number>
+            </property>
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="splitStartEnabledChk">
+            <property name="text">
+             <string>Split Start:</string>
+            </property>
+            <property name="toolTip">
+             <string>Checked: the line is written to the file. Unchecked: the line is commented out.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="MyDateTimeEdit" name="splitStartDateTimeEdit">
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="displayFormat">
+             <string>yyyy/MM/dd HH:mm:ss</string>
+            </property>
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="splitEndEnabledChk">
+            <property name="text">
+             <string>Split End:</string>
+            </property>
+            <property name="toolTip">
+             <string>Checked: the line is written to the file. Unchecked: the line is commented out.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="MyDateTimeEdit" name="splitEndDateTimeEdit">
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="displayFormat">
+             <string>yyyy/MM/dd HH:mm:ss</string>
+            </property>
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="rtcmTimeEnabledCheckBox">
+            <property name="text">
+             <string>RTCM Time:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="3">
+           <widget class="MyDateTimeEdit" name="rtcmTimeEdit">
+            <property name="calendarPopup">
+             <bool>true</bool>
+            </property>
+            <property name="displayFormat">
+             <string>yyyy/MM/dd HH:mm:ss</string>
+            </property>
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Only needed when the RTCM data carries no ephemeris (the time cannot be auto-detected then); data with ephemeris info does not need this.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="bottomLayout">
+     <item>
+      <spacer name="bottomSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnClose">
+       <property name="minimumSize">
+        <size>
+         <width>88</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">Components/MyComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MyNoWheelSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header location="global">Components/MyNoWheelSpinBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MyDateTimeEdit</class>
+   <extends>QDateTimeEdit</extends>
+   <header location="global">Components/MyDateTimeEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MyNoWheelDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">Components/MyNoWheelDoubleSpinBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -38,13 +38,14 @@ typedef enum _QC_MODE_E
 
 typedef enum _QC_GNSS_SYSID_E
 {
-	QC_GNSS_SYSID_NUL   = 0,     //NULL
-	QC_GNSS_SYSID_GPS   = 1,     //GPS
-	QC_GNSS_SYSID_SBAS  = 2,     //SBAS
-	QC_GNSS_SYSID_GLN   = 3,     //GLONASS
-	QC_GNSS_SYSID_GAL   = 4,     //Galileo
-	QC_GNSS_SYSID_QZS   = 5,     //qzss
-	QC_GNSS_SYSID_BDS   = 6,     //BDS
+	QC_GNSS_SYSID_NUL   = 0,     /**< NULL    */
+	QC_GNSS_SYSID_GPS   = 1,     /**< GPS	  */
+	QC_GNSS_SYSID_SBAS  = 2,     /**< SBAS	  */
+	QC_GNSS_SYSID_GLN   = 3,     /**< GLONASS */
+	QC_GNSS_SYSID_GAL   = 4,     /**< Galileo */
+	QC_GNSS_SYSID_QZS   = 5,     /**< qzss	  */
+	QC_GNSS_SYSID_BDS   = 6,     /**< BDS	  */
+	QC_GNSS_SYSID_XW1   = 7,     /**< XW1	  */
 	//QC_GNSS_SYSID_IRN   = 7,     //IRNSS(reserve)
 	QC_GNSS_SYSID_MAX = 0xFFFFFFFF
 }QC_GNSS_SYSID_E;

@@ -17,7 +17,7 @@
 #define OBS_CODEC_BUF_SIZE 50*1024
 
 void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Index, QC_TIME_T RTCMTime);
-BOOL InitNavCodec(char* pFileName, CHCQC_READER_T* pQcReader, uint8_t OrderNumber);
+BOOL InitNavCodec(char* pFileName, CHCQC_READER_T* pQcReader, uint8_t OrderNumber, char* pSpecifiedNavFile);
 void InitQCRes(QC_RESULT_T* pQCRes);
 void ResetQCReader(CHCQC_READER_T* pQcReader);
 void ResetQCfp(CHCQC_READER_T* pQcReader);
@@ -26,6 +26,7 @@ extern int IsInvailQCTimeRange(const CHCQC_READER_T* pQCReader, const QC_TIME_T*
 void QCSPPTcDefault(VERIQC_SPPTC_CREATE_OPT_T* pOpt0);
 void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_RESULT_T* pRes, CHCQC_READER_T* pQCReader,int AntID, int Week, double Second);
 
-int DetectFileFormat(const char* pFileName);
+int DetectFileFormatBySuffix(const char* pFileName);
+void SetGNSSPreProcessProgress(double Value);
 
 #endif

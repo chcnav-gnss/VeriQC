@@ -24,7 +24,7 @@
      </property>
      <property name="styleSheet">
       <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;
@@ -210,7 +210,7 @@ QToolButton::right-arrow{
      </property>
      <property name="styleSheet">
       <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;
@@ -224,7 +224,7 @@ QToolButton::right-arrow{
 }</string>
      </property>
      <property name="text">
-      <string>Satellite Systems</string>
+      <string>Satellite/Ephemeris Settings</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -306,6 +306,16 @@ QToolButton::right-arrow{
         </property>
        </widget>
       </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="sysXW1CheckBox">
+        <property name="text">
+         <string>XW1</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0" rowspan="3">
        <widget class="QLabel" name="label_5">
         <property name="text">
@@ -326,6 +336,83 @@ QToolButton::right-arrow{
         </property>
        </widget>
       </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_eph">
+        <property name="text">
+         <string>Ephemeris Mode:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="ephModeLayout">
+        <item>
+         <widget class="QRadioButton" name="rbEphDefault">
+          <property name="toolTip">
+           <string>Use the ephemeris/nav file auto-discovered next to the observation file.</string>
+          </property>
+          <property name="text">
+           <string>Default ephemeris</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbEphNone">
+          <property name="toolTip">
+           <string>Run QC without ephemeris/nav file. Sky plot and elevation-dependent outputs are disabled.</string>
+          </property>
+          <property name="text">
+           <string>No ephemeris in data</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbEphCustom">
+          <property name="toolTip">
+           <string>Specify a single RINEX ephemeris/nav file (mixed or per-system).</string>
+          </property>
+          <property name="text">
+           <string>Specify ephemeris file (RINEX only)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <layout class="QHBoxLayout" name="ephFilesLayout">
+        <item>
+         <widget class="QLineEdit" name="leEphFilePaths">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>RINEX nav file path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btnEphBrowse">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -339,7 +426,7 @@ QToolButton::right-arrow{
      </property>
      <property name="styleSheet">
       <string notr="true">QToolButton{
-height: 32px;
+height: 2em;
 background-color: #f6f6f8;
 border: 1px solid #e9ebec;
 border-radius: 4px;

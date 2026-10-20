@@ -341,6 +341,12 @@ static int RTCM2DecodeToSignalOverTimeCallback(int TypeID, RTCM_PARSE_INFO_T* pP
 {
 	MSG_DECODE_T* pDecode = (MSG_DECODE_T*)pSrcObj;
 
+	GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+	if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+	{
+		return 0;
+	}
+
 	return SignalDecodeObsConvert(RAW_DATA_TYPE_RTCM2, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM2);
 }
 
@@ -438,6 +444,16 @@ static int RTCM2DecodeToSignal(unsigned int TypeID, MSG_DECODE_T* pDecode, RTCM_
 		RTCM2DecodeInfoPrintfCallback(pParseInfo, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj);
 		if ((Result > 0) && (NULL != RTCM2DecodeFuncsMap[TypeID].ConvertFunc))
 		{
+			if (RTCM2DecodeFuncsMap[TypeID].ConvertFunc == SignalDecodeObsConvert)
+			{
+				GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+
+				if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+				{
+					return -1;
+				}
+			}
+
 			RTCM2DecodeFuncsMap[TypeID].ConvertFunc(RAW_DATA_TYPE_RTCM2, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM2);
 		}
 	}
@@ -461,6 +477,12 @@ static int RTCM2DecodeToSignal(unsigned int TypeID, MSG_DECODE_T* pDecode, RTCM_
 static int RTCM2DecodeToRINEXOverTimeCallback(int TypeID, RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj)
 {
 	MSG_DECODE_T* pDecode = (MSG_DECODE_T*)pSrcObj;
+
+	GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+	if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+	{
+		return 0;
+	}
 
 	return DataDecodeObsConvertRINEX(RAW_DATA_TYPE_RTCM2, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM2);
 }
@@ -547,14 +569,26 @@ static int RTCM2DecodeToRINEX(unsigned int TypeID, MSG_DECODE_T* pDecode, RTCM_P
 		{NULL, NULL},
 	};
 
-	if ((pParseInfo == NULL) || (SourceType != GNSS_STRFMT_RTCM2))
+	if (pParseInfo == NULL)
 		return -1;
 
 	if ((TypeID <= 59) && (NULL != RTCM2DecodeFuncsMap[TypeID].RTCM2DecodeByTypeIDFunc))
 	{
 		Result = RTCM2DecodeFuncsMap[TypeID].RTCM2DecodeByTypeIDFunc(pParseInfo, pDecode, RTCM2DecodeToRINEXOverTimeCallback);
 		if ((Result > 0) && (NULL != RTCM2DecodeFuncsMap[TypeID].ConvertFunc))
+		{
+			if (RTCM2DecodeFuncsMap[TypeID].ConvertFunc == DataDecodeObsConvertRINEX)
+			{
+				GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+
+				if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+				{
+					return -1;
+				}
+			}
+
 			RTCM2DecodeFuncsMap[TypeID].ConvertFunc(RAW_DATA_TYPE_RTCM2, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM2);
+		}
 	}
 
 	return Result;
@@ -659,3 +693,4 @@ RTCM2_FILTER_INFO_T* RTCM2FilterInit(void)
 }
 
 #endif
+

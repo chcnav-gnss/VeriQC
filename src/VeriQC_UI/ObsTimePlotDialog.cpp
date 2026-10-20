@@ -1,5 +1,7 @@
 ﻿#include "ObsTimePlotDialog.h"
 #include <QTimer>
+#include <QEvent>
+#include <QResizeEvent>
 #include "ui_ObsTimePlotDialog.h"
 #include "QCObjectManager.h"
 
@@ -42,6 +44,11 @@ ObsTimePlotDialog::ObsTimePlotDialog(int qcObjectId, QWidget *parent) :
     connect(ui->gloCheckBox,&QCheckBox::clicked,this,&ObsTimePlotDialog::onGLOCheckBoxClicked);
     connect(ui->galCheckBox,&QCheckBox::clicked,this,&ObsTimePlotDialog::onGALCheckBoxClicked);
     connect(ui->qzssCheckBox,&QCheckBox::clicked,this,&ObsTimePlotDialog::onQZSSCheckBoxClicked);
+    connect(ui->xw1CheckBox,&QCheckBox::clicked,this,&ObsTimePlotDialog::onXW1CheckBoxClicked);
+    connect(ui->compactCheckBox,&QCheckBox::clicked,this,&ObsTimePlotDialog::onCompactCheckBoxClicked);
+
+    // compact layout recomputes row height from the real viewport size: watch viewport resize events
+    ui->scrollArea->viewport()->installEventFilter(this);
 
     QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(qcObjectId);
 
@@ -84,13 +91,44 @@ void ObsTimePlotDialog::onBDSCheckBoxClicked(bool checked)
     this->updatePlot();
 }
 
+void ObsTimePlotDialog::onXW1CheckBoxClicked(bool checked)
+{
+    m_plot->setSysVisible(QCResultManager::QCSysXW1,checked);
+    this->updatePlot();
+}
+
+void ObsTimePlotDialog::onCompactCheckBoxClicked(bool checked)
+{
+    m_plot->setCompactMode(checked);
+    // compact layout fits the viewport: hide the always-on scrollbar for clean screenshots
+    ui->scrollArea->setVerticalScrollBarPolicy(checked ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOn);
+    this->updatePlot();
+}
+
+bool ObsTimePlotDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->scrollArea->viewport() && event->type() == QEvent::Resize)
+    {
+        int viewportHeight = static_cast<QResizeEvent*>(event)->size().height();
+        if (m_lastViewportHeight < 0 || qAbs(viewportHeight - m_lastViewportHeight) >= 2)
+        {
+            m_lastViewportHeight = viewportHeight;   // only advance the baseline when the threshold is reached (slow 1px steps must accumulate)
+            if (m_plot->isCompactMode() && !m_plot->isUpdating())
+            {
+                m_plot->refreshCompactLayout();
+            }
+        }
+    }
+    return MyDialog::eventFilter(watched, event);
+}
+
 QPixmap ObsTimePlotDialog::generateFreqLegendIcon(QColor color)
 {
     QPixmap pixmap(24, 4);
     pixmap.fill(Qt::transparent);
 
     QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing, true);
     painter.fillRect(0, 0, 24, 4, color);
 
     return pixmap;

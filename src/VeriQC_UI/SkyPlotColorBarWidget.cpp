@@ -1,6 +1,8 @@
 ﻿#include "SkyPlotColorBarWidget.h"
 #include "ui_SkyPlotColorBarWidget.h"
 #include <QPainter>
+#include <QScreen>
+#include <QGuiApplication>
 #include "QCustomplot/qcustomplot.h"
 
 SkyPlotColorBarWidget::SkyPlotColorBarWidget(QWidget *parent) :
@@ -9,7 +11,10 @@ SkyPlotColorBarWidget::SkyPlotColorBarWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->colorBarLabel->setFixedWidth(10);
+    qreal dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
+    m_barWidth = static_cast<int>(10 * dpr);
+    m_barHeight = static_cast<int>(200 * dpr);
+    ui->colorBarLabel->setFixedWidth(m_barWidth);
 }
 
 SkyPlotColorBarWidget::~SkyPlotColorBarWidget()
@@ -19,10 +24,10 @@ SkyPlotColorBarWidget::~SkyPlotColorBarWidget()
 
 void SkyPlotColorBarWidget::setColorGradient(QCPColorGradient colorGradient)
 {
-    QPixmap pixmap(10, 200);
+    QPixmap pixmap(m_barWidth, m_barHeight);
     QPainter painter(&pixmap);
 
-    QLinearGradient gradient(0, 200, 0, 0);
+    QLinearGradient gradient(0, m_barHeight, 0, 0);
     gradient.setColorAt(0.00, colorGradient.color(0,QCPRange(0,1)));
     gradient.setColorAt(0.17, colorGradient.color(0.17,QCPRange(0,1)));
     gradient.setColorAt(0.33, colorGradient.color(0.33,QCPRange(0,1)));

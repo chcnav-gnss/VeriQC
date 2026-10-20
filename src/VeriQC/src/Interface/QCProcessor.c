@@ -9,7 +9,9 @@
 @brief  Some Algorithm common function for QC
 *****************************************************************************/
 
+#include <ctype.h>
 #include <float.h>
+#include <stdlib.h>
 #include <string.h>
 #include "QCProcessor.h"
 #include "MsgConvert.h"
@@ -28,10 +30,349 @@
 #include "CommonBase.h"
 #include "QCCommon.h"
 #include "Coordinate.h"
+#include "TimeDefines.h"
 
 #define QC_READ_MAX_BUFF     QC_MIN(64, OBS_CODEC_BUF_SIZE)
 
 static int s_FreqGLO[QC_NUM_SAT_GLO] = { 0 };
+static double s_GNSSPreProcessProgress = 0.0;
+
+static BOOL IsNoEphModeEnabled(const QC_OPT_T* pOpt)
+{
+	return (pOpt != NULL) && (pOpt->EphMode == QC_EPH_MODE_NONE);
+}
+
+static void InitOpenedNavCodec(CHCQC_READER_T* pQcReader, int CodecOrder, int RinexFileIndex, FILE* fp, uint8_t OrderNumber)
+{
+	QC_CODEC_INFO_T* pCodecInfo = (QC_CODEC_INFO_T*)pQcReader->pCodecInfo[CodecOrder];
+
+	CycleBufInit(&pCodecInfo->RinexInfo.CycleBufCtrl[RinexFileIndex],
+		"RinexCycle", RINEX_DATA_CYCLE_BUF_SIZE, (char*)pCodecInfo->RinexInfo.RinexDataBuf[RinexFileIndex], 0, MsgRecv);
+	OpenRinexInfo(&pCodecInfo->RinexInfo, fp, RinexFileIndex);
+	pCodecInfo->fpInputFile = fp;
+	pCodecInfo->MsgConvertRinexIndex = RinexFileIndex;
+	pCodecInfo->StreamFormat = GNSS_STRFMT_RINEX;
+	pCodecInfo->EpochWait = 1;
+	pQcReader->AntID[CodecOrder] = (OrderNumber < 7) ? VERIQC_ANT_ID_ROVER : VERIQC_ANT_ID_BASE;
+}
+
+static FILE* OpenNavVariant(char* pFilePath, char NavSuffix)
+{
+	size_t FilePathLen;
+
+	if (pFilePath == NULL)
+	{
+		return NULL;
+	}
+
+	FilePathLen = strlen(pFilePath);
+	if (FilePathLen < 1)
+	{
+		return NULL;
+	}
+
+	pFilePath[FilePathLen - 1] = NavSuffix;
+	return fopen(pFilePath, "rb");
+}
+
+static int GetNavCodecOrderOffset(int RinexFileIndex)
+{
+	switch (RinexFileIndex)
+	{
+		case RINEX_FILE_INDEX_MUTIEPH:
+			return 0;
+		case RINEX_FILE_INDEX_GPSEPH:
+			return 1;
+		case RINEX_FILE_INDEX_GLOEPH:
+			return 2;
+		case RINEX_FILE_INDEX_GALEPH:
+			return 3;
+		case RINEX_FILE_INDEX_BDSEPH:
+			return 4;
+		default:
+			return -1;
+	}
+}
+
+static int DetectSpecifiedNavRinexIndex(FILE* fp)
+{
+	char LineBuf[256] = { 0 };
+	char FileType;
+	char SystemChar = ' ';
+	double Version;
+
+	if (fp == NULL)
+	{
+		return -1;
+	}
+
+	if (fseek(fp, 0, SEEK_SET) != 0)
+	{
+		return -1;
+	}
+
+	while (fgets(LineBuf, sizeof(LineBuf), fp) != NULL)
+	{
+		if (strstr(LineBuf, "RINEX VERSION / TYPE") == NULL)
+		{
+			continue;
+		}
+
+		if (strlen(LineBuf) <= 20)
+		{
+			break;
+		}
+
+		Version = strtod(LineBuf, NULL);
+		FileType = LineBuf[20];
+		if (strlen(LineBuf) > 40)
+		{
+			SystemChar = LineBuf[40];
+		}
+
+		if (Version < 3.0)
+		{
+			switch (FileType)
+			{
+				case 'N':
+					return RINEX_FILE_INDEX_GPSEPH;
+				case 'G':
+					return RINEX_FILE_INDEX_GLOEPH;
+				case 'E':
+					return RINEX_FILE_INDEX_GALEPH;
+				case 'C':
+					return RINEX_FILE_INDEX_BDSEPH;
+				default:
+					return -1;
+			}
+		}
+
+		if (FileType != 'N')
+		{
+			return -1;
+		}
+
+		switch (SystemChar)
+		{
+			case 'G':
+				return RINEX_FILE_INDEX_GPSEPH;
+			case 'R':
+				return RINEX_FILE_INDEX_GLOEPH;
+			case 'E':
+				return RINEX_FILE_INDEX_GALEPH;
+			case 'C':
+				return RINEX_FILE_INDEX_BDSEPH;
+			case ' ':
+			case 'M':
+				return RINEX_FILE_INDEX_MUTIEPH;
+			default:
+				return -1;
+		}
+	}
+
+	return -1;
+}
+
+/*************************************************//**
+@brief Initialize QC exception info with default state
+
+@param pInfo   [Out]  exception info structure
+
+@return void
+@author CHC
+
+@note 
+1.Initialize default exception code
+2.Clear observation and ephemeris flags
+3.Set all-epoch SPP unsolved flag to TRUE
+******************************************************/
+static void InitQCExceptionInfo(QC_EXCEPTION_INFO_T* pInfo)
+{
+	if (pInfo == NULL)
+	{
+		return;
+	}
+	pInfo->Code = QC_EXCEPTION_OK;
+	pInfo->IsHaveEph = FALSE;
+	pInfo->IsHaveObs = FALSE;
+	pInfo->IsAllEpochSPPUnsolved = TRUE;
+}
+
+/*************************************************//**
+@brief Set QC exception code
+
+@param pInfo   [In/Out]  exception info structure
+@param Code    [In]      exception code
+
+@return void
+@author CHC
+
+@note 
+1.Only update exception code
+2.Keep other state fields unchanged
+******************************************************/
+static void SetQCExceptionCode(QC_EXCEPTION_INFO_T* pInfo, int Code)
+{
+	if (pInfo == NULL)
+	{
+		return;
+	}
+	pInfo->Code = Code;
+}
+
+/*************************************************//**
+@brief Finalize system/file exception code by final system state
+
+@param pQcReader [In/Out]  QC reader object
+@param AntID     [In]      ant id {rover:0 base:1}
+
+@return void
+@author CHC
+
+@note 
+1.Summarize final observation and SPP state of all systems
+2.Generate system-level nav-unmatched or spp-unsolved code
+3.Generate file-level spp-all-failed or partial-system-failed code
+******************************************************/
+static void FinalizeFileExceptionBySysState(CHCQC_READER_T* pQcReader, int AntID)
+{
+	unsigned int iSys = 0;
+	int FailedSysCount = 0;
+	int ObservedSysCount = 0;
+	BOOL IsAnyObs = FALSE;
+	BOOL IsAnyEph = FALSE;
+	BOOL IsAllObservedSysUnsolved = TRUE;
+	BOOL bNoEphMode = FALSE;
+	QC_EXCEPTION_INFO_T* pFileException = NULL;
+
+	if ((pQcReader == NULL) || (AntID < 0) || (AntID >= QC_MAX_NUM_OBS_FILE))
+	{
+		return;
+	}
+
+	pFileException = &pQcReader->QcRes.FileException[AntID];
+	bNoEphMode = IsNoEphModeEnabled(pQcReader->pOpt);
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		QC_EXCEPTION_INFO_T* pSysExc = &pQcReader->QcRes.SysException[AntID][iSys];
+		int OldSysCode = pSysExc->Code;
+
+		if (pSysExc->IsHaveEph)
+		{
+			IsAnyEph = TRUE;
+		}
+
+		if (!pSysExc->IsHaveObs)
+		{
+			continue;
+		}
+
+		ObservedSysCount++;
+		IsAnyObs = TRUE;
+		if (pSysExc->IsAllEpochSPPUnsolved == FALSE)
+		{
+			IsAllObservedSysUnsolved = FALSE;
+		}
+
+		if (!bNoEphMode && !pSysExc->IsHaveEph && (pSysExc->Code == QC_EXCEPTION_OK))
+		{
+			/** no eph */
+			SetQCExceptionCode(pSysExc, QC_EXCEPTION_SYS_NAV_UNMATCHED);
+		}
+		else if (!bNoEphMode && pSysExc->IsHaveEph && (pSysExc->IsAllEpochSPPUnsolved) && (pSysExc->Code == QC_EXCEPTION_OK))
+		{
+			SetQCExceptionCode(pSysExc, QC_EXCEPTION_SYS_SPP_UNSOLVED);
+		}
+
+		if (pSysExc->Code != QC_EXCEPTION_OK)
+		{
+			FailedSysCount++;
+		}
+	}
+
+	pFileException->IsHaveObs = IsAnyObs;
+	pFileException->IsHaveEph = IsAnyEph;
+	pFileException->IsAllEpochSPPUnsolved = (IsAnyObs == TRUE) ? IsAllObservedSysUnsolved : TRUE;
+
+	if (!bNoEphMode && (IsAnyObs == TRUE) && (pFileException->IsAllEpochSPPUnsolved == TRUE) && (pFileException->Code == QC_EXCEPTION_OK))
+	{
+		SetQCExceptionCode(pFileException, QC_EXCEPTION_SPP_ALL_FAILED);
+	}
+	else if (!bNoEphMode && (FailedSysCount > 0) && (FailedSysCount < ObservedSysCount) && (pFileException->Code == QC_EXCEPTION_OK))
+	{
+		SetQCExceptionCode(pFileException, QC_EXCEPTION_PARTIAL_SYS_FAILED);
+	}
+}
+
+/*************************************************//**
+@brief Insert observation break info into top list
+
+@param pQcRes          [In/Out]  QC result structure
+@param AntID           [In]      ant id {rover:0 base:1}
+@param pBreakStartTime [In]      break start time
+@param BreakDurationSec[In]      break duration in seconds
+
+@return void
+@author CHC
+
+@note 
+1.Record every break count
+2.Keep top break list in descending order
+3.Only preserve the longest QC_DIAG_TOP_BREAK_NUM breaks
+******************************************************/
+static void InsertObsBreakTop(QC_RESULT_T* pQcRes, int AntID, const QC_TIME_T* pBreakStartTime, float BreakDurationSec)
+{
+	int iLoop = 0;
+	int InsertPos = 0;
+	int ValidCount = 0;
+
+	if ((pQcRes == NULL) || (pBreakStartTime == NULL) || (AntID < 0) || (AntID >= QC_MAX_NUM_OBS_FILE))
+	{
+		return;
+	}
+
+	if (BreakDurationSec <= 0.0f)
+	{
+		return;
+	}
+
+	pQcRes->ObsBreakCount[AntID]++;
+	ValidCount = pQcRes->ObsBreakCount[AntID];
+	if (ValidCount > QC_DIAG_TOP_BREAK_NUM)
+	{
+		ValidCount = QC_DIAG_TOP_BREAK_NUM;
+	}
+
+	while ((InsertPos < ValidCount) && 
+		(BreakDurationSec <= pQcRes->ObsBreakTop[AntID][InsertPos].BreakDurationSec))
+	{
+		InsertPos++;
+	}
+
+	if (pQcRes->ObsBreakCount[AntID] <= QC_DIAG_TOP_BREAK_NUM)
+	{
+		for (iLoop = ValidCount - 1; iLoop > InsertPos; iLoop--)
+		{
+			pQcRes->ObsBreakTop[AntID][iLoop] = pQcRes->ObsBreakTop[AntID][iLoop - 1];
+		}
+		pQcRes->ObsBreakTop[AntID][InsertPos].BreakStartTime = *pBreakStartTime;
+		pQcRes->ObsBreakTop[AntID][InsertPos].BreakDurationSec = BreakDurationSec;
+
+		return;
+	}
+
+	if (InsertPos >= QC_DIAG_TOP_BREAK_NUM)
+	{
+		return;
+	}
+
+	for (iLoop = QC_DIAG_TOP_BREAK_NUM - 1; iLoop > InsertPos; iLoop--)
+	{
+		pQcRes->ObsBreakTop[AntID][iLoop] = pQcRes->ObsBreakTop[AntID][iLoop - 1];
+	}
+	pQcRes->ObsBreakTop[AntID][InsertPos].BreakStartTime = *pBreakStartTime;
+	pQcRes->ObsBreakTop[AntID][InsertPos].BreakDurationSec = BreakDurationSec;
+}
 
 /**********************************************************************//**
 @brief get system signal type from Range Log
@@ -117,14 +458,16 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 	QC_CODEC_INFO_T* pCodecInfo = NULL;
 
 	pCodecInfo = pQcReader->pCodecInfo[FileIndex];
+	InitQCExceptionInfo(&pQcReader->QcRes.FileException[FileIndex]);
 
 	if (pQcReader->pOpt->RawFileDataType == STRFMT_NONE)
 	{
-		type = DetectFileFormat(pFileName);
+		type = DetectFileFormatBySuffix(pFileName);
 	}
 	else
 	{
-		type = pQcReader->pOpt->RawFileDataType;
+		type = pQcReader->pOpt->RawFileDataType; 
+		pQcReader->QcRes.FileDataType[FileIndex] = pQcReader->pOpt->RawFileDataType;
 	}
 
 	if (type == STRFMT_NONE)
@@ -132,6 +475,7 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 		if (strlen(pFileName) > 0)
 		{
 			PrintfQC("<GNSSQC error>: Unknown data format.\n");
+			SetQCExceptionCode(&pQcReader->QcRes.FileException[FileIndex], QC_EXCEPTION_UNSUPPORTED_FORMAT);
 		}
 		else
 		{
@@ -152,18 +496,34 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 		if (pCodecInfo->fpInputFile == NULL)
 		{
 			PrintfQC("<GNSSQC error>: Open file error:%s\n", pFileName);
+			SetQCExceptionCode(&pQcReader->QcRes.FileException[FileIndex], QC_EXCEPTION_OBS_FILE_OPEN_FAILED);
 			return;
 		}
 
 		switch (type)
 		{
 		case GNSS_STRFMT_RTCM2:
-		case GNSS_STRFMT_RTCM3:
-			if ((type == GNSS_STRFMT_RTCM2 || type == GNSS_STRFMT_RTCM3) && RTCMTime.Time == 0)
+			pQcReader->QcRes.FileDataType[FileIndex] = GNSS_STRFMT_RTCM2;
+			if (RTCMTime.Time == 0)
 			{
 				PrintfQC("<GNSSQC warning>: no approx time for rtcm decoding\n");
 			}
 			break;
+		case GNSS_STRFMT_RTCM3:
+			pQcReader->QcRes.FileDataType[FileIndex] = GNSS_STRFMT_RTCM3;
+			if (RTCMTime.Time == 0)
+			{
+				PrintfQC("<GNSSQC warning>: no approx time for rtcm decoding\n");
+			}
+			break;
+		case GNSS_STRFMT_HRC:
+			pQcReader->QcRes.FileDataType[FileIndex] = GNSS_STRFMT_HRC;
+			if (RTCMTime.Time == 0)
+			{
+				PrintfQC("<GNSSQC warning>: no approx time for hrc decoding\n");
+			}
+			break;
+		case STRFMT_TEMP:
 		case GNSS_STRFMT_HRCX:
 		case GNSS_STRFMT_RAWMSGA:
 		case GNSS_STRFMT_RAWMSGB:
@@ -171,6 +531,7 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 		case GNSS_STRFMT_UNRAWMSGB:
 			break;
 		case GNSS_STRFMT_RINEX:
+			pQcReader->QcRes.FileDataType[FileIndex] = GNSS_STRFMT_RINEX;
 			CycleBufInit(&pCodecInfo->RinexInfo.CycleBufCtrl[RINEX_FILE_INDEX_OBS], "RinexCycle", RINEX_DATA_CYCLE_BUF_SIZE, (char*)pCodecInfo->RinexInfo.RinexDataBuf[RINEX_FILE_INDEX_OBS], 0, MsgRecv);
 			pCodecInfo->MsgConvertRinexIndex = RINEX_FILE_INDEX_OBS;
 			Result = OpenRinexInfo(&pCodecInfo->RinexInfo, pCodecInfo->fpInputFile, RINEX_FILE_INDEX_OBS);
@@ -179,14 +540,17 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 			{
 				fclose(pCodecInfo->fpInputFile);
 				pCodecInfo->fpInputFile = NULL;
+				SetQCExceptionCode(&pQcReader->QcRes.FileException[FileIndex], QC_EXCEPTION_PARSE_HEADER_FAILED);
 			}
 			
 			break;
 		default:
 			PrintfQC("<GNSSQC error>: Unknown data format.\n");
+			SetQCExceptionCode(&pQcReader->QcRes.FileException[FileIndex], QC_EXCEPTION_UNSUPPORTED_FORMAT);
 			return;
 			break;
 		}
+		
 		pQcReader->AntID[FileIndex] = AntID;
 		
 		QCTimeToUTCTime(&RTCMTime, &UTCTime);
@@ -218,95 +582,99 @@ void InitObsCodec(char* pFileName, CHCQC_READER_T* pQcReader, int AntID, int Fil
 History:
 1. 2024/07/25 use MsgConvert funcs instead
 **************************************************************************/
-BOOL InitNavCodec(char* pFileName, CHCQC_READER_T* pQcReader, uint8_t OrderNumber)
+BOOL InitNavCodec(char* pFileName, CHCQC_READER_T* pQcReader, uint8_t OrderNumber, char* pSpecifiedNavFile)
 {
-	QC_CODEC_INFO_T* pCodecInfo = NULL;
-	char fileNav[512] = { 0 };
-	size_t len = 0;
-	int i = 0, ord_num;
-	BOOL invail_nav = FALSE;
-	FILE* fp = NULL;
-	char navType[] = { 'p','P' ,'n', 'N','G', 'g','L', 'l','C', 'c' };//in GREC order
-	int FileIndex[] = { 
+	char fileNav[QC_MAX_FILE_NAME_LENGTH] = { 0 };
+	int i;
+	static const char s_NavSuffix[] = { 'p','P', 'n','N', 'G','g', 'L','l', 'C','c' };
+	static const int  s_NavFileIndex[] = {
 		RINEX_FILE_INDEX_MUTIEPH, RINEX_FILE_INDEX_MUTIEPH,
-		RINEX_FILE_INDEX_GPSEPH, RINEX_FILE_INDEX_GPSEPH,
-		RINEX_FILE_INDEX_GLOEPH, RINEX_FILE_INDEX_GLOEPH,
-		RINEX_FILE_INDEX_GALEPH, RINEX_FILE_INDEX_GALEPH,
-		RINEX_FILE_INDEX_BDSEPH, RINEX_FILE_INDEX_BDSEPH };
-	int id = -1;
-	
-	memcpy(fileNav, pFileName, sizeof(char) * 512);
+		RINEX_FILE_INDEX_GPSEPH,  RINEX_FILE_INDEX_GPSEPH,
+		RINEX_FILE_INDEX_GLOEPH,  RINEX_FILE_INDEX_GLOEPH,
+		RINEX_FILE_INDEX_GALEPH,  RINEX_FILE_INDEX_GALEPH,
+		RINEX_FILE_INDEX_BDSEPH,  RINEX_FILE_INDEX_BDSEPH
+	};
+	int NavTypeCount = (int)(sizeof(s_NavSuffix) / sizeof(s_NavSuffix[0]));
+	FILE* fp = NULL;
+	BOOL NavFound = FALSE;
+	BOOL Specified = (pSpecifiedNavFile != NULL) && (pSpecifiedNavFile[0] != '\0');
 
+	/** Current contract: 2=rover (slots 2..6), 7=base (slots 7..11). */
+	if (OrderNumber > 7)
+	{
+		return FALSE;
+	}
+
+	/** --- Branch 1: caller specified a nav file --- */
+	if (Specified)
+	{
+		int RinexFileIndex, CodecOrderOffset;
+
+		if (strlen(pSpecifiedNavFile) >= QC_MAX_FILE_NAME_LENGTH)
+		{
+			return FALSE;
+		}
+		strncpy(fileNav, pSpecifiedNavFile, sizeof(fileNav) - 1);
+
+		fp = fopen(fileNav, "rb");
+		if (fp == NULL)
+		{
+			return FALSE;
+		}
+
+		RinexFileIndex = DetectSpecifiedNavRinexIndex(fp);
+		if ((RinexFileIndex >= RINEX_FILE_INDEX_MUTIEPH) && (RinexFileIndex <= RINEX_FILE_INDEX_BDSEPH))
+		{
+			CodecOrderOffset = GetNavCodecOrderOffset(RinexFileIndex);
+			if (CodecOrderOffset >= 0)
+			{
+				fseek(fp, 0, SEEK_SET);
+				InitOpenedNavCodec(pQcReader, OrderNumber + CodecOrderOffset, RinexFileIndex, fp, OrderNumber);
+				return TRUE;
+			}
+		}
+
+		fclose(fp);
+		return FALSE;
+	}
+
+	/** --- Branch 2: auto-search by base file name --- */
+	if (pFileName == NULL)
+	{
+		return FALSE;
+	}
+	if (strlen(pFileName) >= sizeof(fileNav))
+	{
+		return FALSE;
+	}
+	strncpy(fileNav, pFileName, sizeof(fileNav) - 1);
+
+	/** Try mixed nav (p/P) first; if found, covers all systems and we are done. */
 	for (i = 0; i < 2; i++)
 	{
-		len = strlen(fileNav);
-		fileNav[len - 1] = navType[i];
-		if ((fp = fopen(fileNav, "rb")))
+		if ((fp = OpenNavVariant(fileNav, s_NavSuffix[i])) != NULL)
 		{
-			invail_nav = TRUE;
-			break;
-		}
-		else
-		{
+			InitOpenedNavCodec(pQcReader, OrderNumber, RINEX_FILE_INDEX_MUTIEPH, fp, OrderNumber);
+			return TRUE;
 		}
 	}
 
-	/** If have mixed nav, use mixed nav. If not, search single system nav */
-	if (TRUE == invail_nav)
+	/** Otherwise probe each single-system suffix; Step by 2: avoid double-opening the same file on case-insensitive filesystems. */
+	for (; i < NavTypeCount; i += 2)
 	{
-		pCodecInfo = (QC_CODEC_INFO_T*)pQcReader->pCodecInfo[OrderNumber];
-		/** there is mix nav file: fileNav(fp) */
-		CycleBufInit(&((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[OrderNumber])->RinexInfo.CycleBufCtrl[RINEX_FILE_INDEX_MUTIEPH],
-			"RinexCycle", RINEX_DATA_CYCLE_BUF_SIZE, (char*)((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[OrderNumber])->RinexInfo.RinexDataBuf[RINEX_FILE_INDEX_MUTIEPH], 0, MsgRecv);
-		OpenRinexInfo(&((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[OrderNumber])->RinexInfo, fp, RINEX_FILE_INDEX_MUTIEPH);
-		pCodecInfo->fpInputFile = fp;
-		pCodecInfo->MsgConvertRinexIndex = RINEX_FILE_INDEX_MUTIEPH;
-		pCodecInfo->StreamFormat = GNSS_STRFMT_RINEX;
-		pCodecInfo->EpochWait = 1;
-		if (OrderNumber<7)
+		fp = OpenNavVariant(fileNav, s_NavSuffix[i]);
+		if (fp == NULL)
 		{
-			pQcReader->AntID[OrderNumber] = VERIQC_ANT_ID_ROVER;
+			fp = OpenNavVariant(fileNav, s_NavSuffix[i + 1]);
 		}
-		else
+		if (fp != NULL)
 		{
-			pQcReader->AntID[OrderNumber] = VERIQC_ANT_ID_BASE;
-		}
-	}
-	else
-	{
-		for (i = 2; i < 10; i++)
-		{
-			ord_num = OrderNumber + (int)(i / 2);
-			len = strlen(fileNav);
-			fileNav[len - 1] = navType[i];
-			if ((fp = fopen(fileNav, "rb")))
-			{
-				pCodecInfo = (QC_CODEC_INFO_T*)pQcReader->pCodecInfo[ord_num];
-				/** there is nav file: fileNav(fp) */
-				CycleBufInit(&((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[ord_num])->RinexInfo.CycleBufCtrl[FileIndex[i]],
-					"RinexCycle", RINEX_DATA_CYCLE_BUF_SIZE, (char*)((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[ord_num])->RinexInfo.RinexDataBuf[FileIndex[i]], 0, MsgRecv);
-				OpenRinexInfo(&((QC_CODEC_INFO_T*)pQcReader->pCodecInfo[ord_num])->RinexInfo, fp, FileIndex[i]);
-				pCodecInfo->fpInputFile = fp;
-				pCodecInfo->MsgConvertRinexIndex = FileIndex[i];
-				pCodecInfo->StreamFormat = GNSS_STRFMT_RINEX;
-				pCodecInfo->EpochWait = 1;
-				invail_nav = TRUE;
-				if (OrderNumber < 7)
-				{
-					pQcReader->AntID[ord_num] = VERIQC_ANT_ID_ROVER;
-				}
-				else
-				{
-					pQcReader->AntID[ord_num] = VERIQC_ANT_ID_BASE;
-				}
-			}
-			else
-			{
-			}
+			InitOpenedNavCodec(pQcReader, OrderNumber + (i / 2), s_NavFileIndex[i], fp, OrderNumber);
+			NavFound = TRUE;
 		}
 	}
 
-	return invail_nav;
+	return NavFound;
 }
 
 /*********************************************************************
@@ -412,53 +780,35 @@ BOOL SyncGNSSQCState(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader)/**< S
 #endif
 	InitObsCodec(pGNSSCfg->RoverFile, pQCReader, 0, 0, Time);
 #ifdef _DEBUG
-	PrintfQC("<GNSSQC info>: initCodec  base:[%s]\n", pGNSSCfg->BaseFile);
+	PrintfQC("<GNSSQC info>: initCodec base:[%s]\n", pGNSSCfg->BaseFile);
 #endif
 	InitObsCodec(pGNSSCfg->BaseFile, pQCReader, 1, 1, Time);
 	/** find and decode navigation file in rinex format*/
-	if (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[0])->StreamFormat == GNSS_STRFMT_RINEX)
+	if ((pGNSSCfg->EphMode != QC_EPH_MODE_NONE) && ((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[0])->StreamFormat == GNSS_STRFMT_RINEX)
 	{
-		invail_nav_r = InitNavCodec(pGNSSCfg->RoverFile, pQCReader, 2);/**< 2~6 p n g i c for rover*/
+		invail_nav_r = InitNavCodec(pGNSSCfg->RoverFile, pQCReader, 2,
+			(pGNSSCfg->EphMode == QC_EPH_MODE_SPECIFIED) ? pGNSSCfg->RinexEphFile : NULL);/**< 2~6 p n g l c for rover*/
 		if (invail_nav_r == FALSE)
 		{
 			PrintfQC("<GNSSQC error>: Rover station navigation file is missing.\n");
+			SetQCExceptionCode(&pQCReader->QcRes.FileException[0], QC_EXCEPTION_NAV_FILE_MISSING);
 		}
 	}
 	else
 	{
 	}
-	if (((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[1])->StreamFormat == GNSS_STRFMT_RINEX)
+	if ((pGNSSCfg->EphMode != QC_EPH_MODE_NONE) && ((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[1])->StreamFormat == GNSS_STRFMT_RINEX)
 	{
-		invail_nav_b = InitNavCodec(pGNSSCfg->BaseFile, pQCReader, 7);/**< 7~11 p n g i c for base*/
+		invail_nav_b = InitNavCodec(pGNSSCfg->BaseFile, pQCReader, 7,
+			(pGNSSCfg->EphMode == QC_EPH_MODE_SPECIFIED) ? pGNSSCfg->RinexEphFile : NULL);/**< 7~11 p n g l c for base*/
 		if (invail_nav_b == FALSE)
 		{
 			PrintfQC("<GNSSQC error>: Base station navigation file is missing.\n");
+			SetQCExceptionCode(&pQCReader->QcRes.FileException[1], QC_EXCEPTION_NAV_FILE_MISSING);
 		}
 	}
 	else
 	{
-	}
-
-	/** get file interval */
-	if (pGNSSCfg->Interval < QC_MIN_SAMPLE_INTERVAL)
-	{
-#ifdef _DEBUG
-		PrintfQC("<GNSSQC info>: getting file interval...\r\n");
-#endif
-		while (TRUE)
-		{
-			if (QCProcessCore(pGNSSCfg, pQCReader, QC_PRE_PROCESS_FUNC_INDEX) < 0)
-			{
-				break;
-			}
-		}
-		pQCReader->pOpt->Interval = (pQCReader->QcRes.Interval[0] > pQCReader->QcRes.Interval[1]) ? pQCReader->QcRes.Interval[1] : pQCReader->QcRes.Interval[0];
-		ResetQCReader(pQCReader);
-	}
-	else
-	{
-		pQCReader->QcRes.Interval[0] = pGNSSCfg->Interval;
-		pQCReader->QcRes.Interval[1] = pGNSSCfg->Interval;
 	}
 
 	return TRUE;
@@ -482,6 +832,8 @@ extern void DetectMissSat(QC_OBS_T* pObs, int AntID, QC_RESULT_T* pQcRes, QC_OPT
 	int iSat;
 	int iAllSat;
 	int SatNo;
+	int QCSys;
+	unsigned int Prn = 0;
 	double EleMask = pOpt->EleDeg * D2R - 1E-4;
 	double MPos[3] = { 0 }, E[3] = { 0 }, Azel[2] = { 0 };
 	double Distance = 0;
@@ -501,6 +853,12 @@ extern void DetectMissSat(QC_OBS_T* pObs, int AntID, QC_RESULT_T* pQcRes, QC_OPT
 	for (iAllSat = 0; iAllSat < QC_MAX_NUM_SAT; iAllSat++)
 	{
 		if (bSatList[iAllSat] == TRUE)
+		{
+			continue;
+		}
+
+		QCSys = GetQCSatSys((iAllSat + 1), &Prn);
+		if (!(QCSys & pOpt->Sys))
 		{
 			continue;
 		}
@@ -548,6 +906,13 @@ void QCPreProcessCallBack(void* pObj, int32_t Status, int DataID, void* pData, v
 
 	ant_id = Status;/**<@TODO:: Ant info */
 
+	/** get option Interval */
+	if (pobj->pOpt->Interval > QC_MIN_SAMPLE_INTERVAL)
+	{
+		pobj->QcRes.Interval[ant_id] = pobj->pOpt->Interval;
+		return;
+	}
+
 	switch (DataID)
 	{
 	case RINEX_ID_OBS:
@@ -559,27 +924,19 @@ void QCPreProcessCallBack(void* pObj, int32_t Status, int DataID, void* pData, v
 	}
 
 	dt = obsTime.Time - pobj->LastTime[ant_id].Time + obsTime.Sec - pobj->LastTime[ant_id].Sec;
-	/** Only observation files can be QC */
+	/** Only observation files can be QC, get interval by Obs data */
 	if ((ant_id == VERIQC_ANT_ID_ROVER || ant_id == VERIQC_ANT_ID_BASE) && DataID == RINEX_ID_OBS
 		&& IsInvailQCTimeRange(pobj, &obsTime, Status) && (dt - pobj->pOpt->Interval > -FLT_EPSILON))
 	{
 		pobj->LastTime[ant_id].Time = obsTime.Time;
 		pobj->LastTime[ant_id].Sec = obsTime.Sec;
-
-		/** get Interval */
-		if (pobj->pOpt->Interval > QC_MIN_SAMPLE_INTERVAL)
+		
+		if (dt < pobj->QcRes.Interval[ant_id])
 		{
-			pobj->QcRes.Interval[ant_id] = pobj->pOpt->Interval;
-		}
-		else
-		{
-			if (dt < pobj->QcRes.Interval[ant_id])
+			FracDeltaTime = fabs(dt * 100 - round(dt * 100));
+			if ((FracDeltaTime < 1e-7) && (dt > QC_MIN_SAMPLE_INTERVAL))
 			{
-				FracDeltaTime = fabs(dt * 100 - round(dt * 100));
-				if ((FracDeltaTime < 1e-7) && (dt > QC_MIN_SAMPLE_INTERVAL))
-				{
-					pobj->QcRes.Interval[ant_id] = (float)dt;
-				}
+				pobj->QcRes.Interval[ant_id] = (float)dt;
 			}
 		}
 	}
@@ -622,6 +979,11 @@ void QCScanStationCallBack(void* pObj, int32_t Status, int DataID, void* pData, 
 
 	ant_id = Status;/**<@TODO:: Ant info */
 
+	if ((ant_id != VERIQC_ANT_ID_BASE) && (ant_id != VERIQC_ANT_ID_ROVER))
+	{
+		return;
+	}
+
 	switch (DataID)
 	{
 	case RINEX_ID_OBS:
@@ -630,15 +992,37 @@ void QCScanStationCallBack(void* pObj, int32_t Status, int DataID, void* pData, 
 		GetEpochResultSPP(&((GNSS_OBS_T*)pData)->RangeData, ant_id);
 		break;
 	case RINEX_ID_GPSEPH:
+		AddEphSPPCore((UNI_EPHEMERIS_T*)pData);
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GPS - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GPS - 1].IsHaveEph = TRUE;
+		}
+		break;
 	case RINEX_ID_GALEPH:
 	case RINEX_ID_GALEPH_FNAV:
 	case RINEX_ID_GALEPH_INAV:
+		AddEphSPPCore((UNI_EPHEMERIS_T*)pData);
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GAL - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GAL - 1].IsHaveEph = TRUE;
+		}
+		break;
 	case RINEX_ID_BDSEPH:
 	case RINEX_ID_BDSEPH_CNAV1:
 	case RINEX_ID_BDSEPH_CNAV2:
 	case RINEX_ID_BDSEPH_CNAV3:
+		AddEphSPPCore((UNI_EPHEMERIS_T*)pData);
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_BDS - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_BDS - 1].IsHaveEph = TRUE;
+		}
+		break;
 	case RINEX_ID_QZSSEPH:
 		AddEphSPPCore((UNI_EPHEMERIS_T*)pData);
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_QZS - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_QZS - 1].IsHaveEph = TRUE;
+		}
 		break;
 	case RINEX_ID_GLOEPH:
 		AddGephSPPCore((GLO_EPHEMERIS_T*)pData);
@@ -646,6 +1030,17 @@ void QCScanStationCallBack(void* pObj, int32_t Status, int DataID, void* pData, 
 		if (glo_prn >= QC_MIN_PRN_GLO && glo_prn <= QC_MAX_PRN_GLO)
 		{
 			s_FreqGLO[glo_prn] = ((GLO_EPHEMERIS_T*)pData)->Freq;
+		}
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GLN - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_GLN - 1].IsHaveEph = TRUE;
+		}
+		break;
+	case RINEX_ID_LEOEPH:
+		AddLEOEphRTKCore((XW_LEO_EPHEMERIS_T*)pData);
+		if (!pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_XW1 - 1].IsHaveEph)
+		{
+			pobj->QcRes.SysException[ant_id][QC_GNSS_SYSID_XW1 - 1].IsHaveEph = TRUE;
 		}
 		break;
 	default:
@@ -664,15 +1059,24 @@ void QCScanStationCallBack(void* pObj, int32_t Status, int DataID, void* pData, 
 		/* obs convert funtion for one epoch */
 		ConvertObsEpoch(&pobj->pObs[ant_id][0], (GNSS_OBS_T*)pData, GetSPPRes(ant_id), pobj, ant_id, Week, WeekMsCount / 1000.0);
 
+		/** Record Break */
+		if ((dt > QC_BREAK_TIME_LIMIT) && (pobj->QcRes.MaxEpochNum[ant_id] != 0))/**< 60s limit */
+		{
+			InsertObsBreakTop(&pobj->QcRes, ant_id, &pobj->LastTime[ant_id], (float)dt);
+		}
+
 		/** check loss epoch */
-		while (((dt - 2.0 * pobj->pOpt->Interval) > -FLT_EPSILON) && (pobj->QcRes.MaxEpochNum[ant_id] != 0))
+		while (((dt - 2.0 * pobj->pOpt->Interval) > -FLT_EPSILON) && (pobj->QcRes.MaxEpochNum[ant_id] != 0) && (dt < QC_MAX_GAP_EPOCH))
 		{
 			/** set temp observation */
-			LossTempObsData.Time = QCTimeAdd(&pobj->LastTime[ant_id], ((float)dt - pobj->pOpt->Interval));
+			LossTempObsData.Time = QCTimeAdd(&pobj->LastTime[ant_id], ((double)dt - pobj->pOpt->Interval));
 			LossTempObsData.ObsNum = 0;
 			memcpy(LossTempObsData.StaPos, pobj->pObs[ant_id][0].StaPos, sizeof(double) * 3);
 			/** detect miss sat in loss epoch */
-			DetectMissSat(&LossTempObsData, ant_id, &pobj->QcRes, pobj->pOpt);
+			if (!IsNoEphModeEnabled(pobj->pOpt))
+			{
+				DetectMissSat(&LossTempObsData, ant_id, &pobj->QcRes, pobj->pOpt);
+			}
 
 			dt -= pobj->pOpt->Interval;
 		}
@@ -682,7 +1086,10 @@ void QCScanStationCallBack(void* pObj, int32_t Status, int DataID, void* pData, 
 
 		/* execute "chcdata" function */
 		QCRecordEpoch(&pobj->pObs[ant_id][0], ant_id, &pobj->QcRes, pobj->pOpt);
-		DetectMissSat(&pobj->pObs[ant_id][0], ant_id, &pobj->QcRes, pobj->pOpt);
+		if (!IsNoEphModeEnabled(pobj->pOpt))
+		{
+			DetectMissSat(&pobj->pObs[ant_id][0], ant_id, &pobj->QcRes, pobj->pOpt);
+		}
 
 		/* print MP file */
 		PrintEpochMP(&pobj->pObs[ant_id][0].Time, pobj->fpOutFileMP[ant_id], &pobj->QcRes, ant_id, E_LOG_HEADTYPE_2);
@@ -731,6 +1138,10 @@ int GetDataRinexID(MSG_DECODE_T* pMsgDecode, int SourceType)
 	{
 		DataID = pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo->HRCXInterimData.LastTypeID;
 	}
+	else if (SourceType == MSG_DECODE_TYPE_HRC)
+	{
+		DataID = pMsgDecode->ProtocolFilterInfo.pHRCParseInfo->HRCInterimData.LastTypeID;
+	}
 	else if (SourceType == MSG_DECODE_TYPE_CHCRAWMSGB)
 	{
 		CHC_RAWMSG_BINARY_FILTER_INFO_T* pCHCRawMsgBinaryFilterInfo =
@@ -745,6 +1156,58 @@ int GetDataRinexID(MSG_DECODE_T* pMsgDecode, int SourceType)
 	}
 
 	return GetDecodeMsgRinexID(SourceType, DataID);
+}
+
+
+/**********************************************************************//**
+@brief get Raw File Data Type
+
+@param SourceType  [In]      Source Type
+@param RinexDataID [In]      decode msg Rinex Data ID
+@param pDataType   [Out]     Raw File Data Type
+
+@return 1 success
+
+@author CHC
+@date 2026/02/06
+@note
+History:\n
+**************************************************************************/
+int DetectFileFormatByData(int SourceType, int RinexDataID, int* pDataType)
+{
+	/** File Data Type properity */
+	int iLoop;
+	int FileDataTypeProp[][2] =
+	{
+		{ MSG_DECODE_TYPE_RAWMSGA,    GNSS_STRFMT_RAWMSGA},
+		{ MSG_DECODE_TYPE_RAWMSGB,    GNSS_STRFMT_RAWMSGB},
+		{ MSG_DECODE_TYPE_CHCRAWMSGB, GNSS_STRFMT_CHCRAWMSGB},
+		{ MSG_DECODE_TYPE_UNRAWMSGB,  GNSS_STRFMT_UNRAWMSGB},
+		{ MSG_DECODE_TYPE_RTCM3,      GNSS_STRFMT_RTCM3},
+		{ MSG_DECODE_TYPE_RTCM2,      GNSS_STRFMT_RTCM2},
+		{ MSG_DECODE_TYPE_HRCX,       GNSS_STRFMT_HRCX},
+		{ MSG_DECODE_TYPE_HRC,        GNSS_STRFMT_HRC}
+	};
+
+	if (RinexDataID != RINEX_ID_OBS)
+	{
+		return 0;
+	}
+
+	for (iLoop = 0; iLoop < ARRAY_SIZE(FileDataTypeProp); iLoop++)
+	{
+		if (*pDataType == FileDataTypeProp[iLoop][1])
+		{
+			break;
+		}
+		if (SourceType == FileDataTypeProp[iLoop][0])
+		{
+			*pDataType = FileDataTypeProp[iLoop][1];
+			break;
+		}
+	}
+
+	return 1;
 }
 
 /**********************************************************************//**
@@ -776,6 +1239,7 @@ void* GetDataInfo(MSG_DECODE_T* pMsgDecode, int SourceType, int RinexID)
 	case RINEX_ID_BDSEPH:
 	case RINEX_ID_QZSSEPH:
 	case RINEX_ID_GLOEPH:
+	case RINEX_ID_LEOEPH:
 		if ((SourceType == MSG_DECODE_TYPE_RTCM2) || (SourceType == MSG_DECODE_TYPE_RTCM3))
 		{
 			pDataInfo = (void*)pMsgDecode->ProtocolFilterInfo.pRTCMParseInfo->ParsedDataBuf.pBaseAddr;
@@ -791,6 +1255,10 @@ void* GetDataInfo(MSG_DECODE_T* pMsgDecode, int SourceType, int RinexID)
 		else if (SourceType == MSG_DECODE_TYPE_HRCX)
 		{
 			pDataInfo = (void*)pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo->ParsedDataBuf.pBaseAddr;
+		}
+		else if (SourceType == MSG_DECODE_TYPE_HRC)
+		{
+			pDataInfo = (void*)pMsgDecode->ProtocolFilterInfo.pHRCParseInfo->ParsedDataBuf.pBaseAddr;
 		}
 		else if (SourceType == MSG_DECODE_TYPE_CHCRAWMSGB)
 		{
@@ -879,7 +1347,7 @@ int8_t QCProcessCore(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader, uint8
 	unsigned int FilterOffset = 0, FuncIndex;
 	unsigned int ErrMask = 0;
 	unsigned int WaitConfirmMask = 0;
-	unsigned int ProtocolMask = ((1 << 8) - 1);/** same with protocol size !!! */
+	unsigned int ProtocolMask = ((1 << 9) - 1);/** same with protocol size !!! */
 	unsigned char DecodeData = 0;
 	unsigned int DataSize = 0;
 	unsigned char* pBufIn = NULL;
@@ -937,6 +1405,10 @@ int8_t QCProcessCore(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader, uint8
 					(CycleBufGetDataSize(&pCodecInfo->RinexInfo.CycleBufCtrl[pCodecInfo->MsgConvertRinexIndex]) > 0)))
 				{
 					Result = InputRinexInfo(&pCodecInfo->RinexInfo, pCodecInfo->fpInputFile, pCodecInfo->MsgConvertRinexIndex, &UTCTime, &RinexID);
+					if ((Result < 0) && (i < QC_MAX_NUM_OBS_FILE))
+					{
+						SetQCExceptionCode(&pQCReader->QcRes.FileException[i], QC_EXCEPTION_PARSE_EPOCH_FAILED);
+					}
 					Result = (Result == 0) ? RinexID : Result;
 					pDataInfo = GetDataInfoRinex(&pCodecInfo->RinexInfo, pCodecInfo->MsgConvertRinexIndex, Result);
 
@@ -1000,9 +1472,10 @@ int8_t QCProcessCore(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader, uint8
 
 				while (DecodeDataSize > 0)
 				{
-					for (FuncIndex = 0; FuncIndex < 8; FuncIndex++)
+					for (FuncIndex = 0; FuncIndex < 9; FuncIndex++)
 					{
-						if (!(DecodeType & s_ProtocolDecodeFuncTabl[FuncIndex].DecodeType))
+						if (!(DecodeType & s_ProtocolDecodeFuncTabl[FuncIndex].DecodeType) && (ID != QC_PRE_PROCESS_FUNC_INDEX)
+							|| (s_ProtocolDecodeFuncTabl[FuncIndex].DecodeType == MSG_DECODE_TYPE_RINEX))
 						{
 							ErrMask |= (1 << FuncIndex);
 							continue;
@@ -1021,6 +1494,11 @@ int8_t QCProcessCore(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader, uint8
 								pDataInfo = GetDataInfo(pMsgDecode, s_ProtocolDecodeFuncTabl[FuncIndex].DecodeType, RinexID);
 
 								pQCCallBack(pQCReader, pQCReader->AntID[i], RinexID, pDataInfo, NULL);
+								if ((ID == QC_PRE_PROCESS_FUNC_INDEX) && (i < QC_MAX_NUM_OBS_FILE) && (pQCReader->QcRes.FileDataType[i] == STRFMT_NONE))
+								{
+									/** update stream format */
+									DetectFileFormatByData(s_ProtocolDecodeFuncTabl[FuncIndex].DecodeType, RinexID, (int*)&pCodecInfo->StreamFormat);
+								}
 							}
 
 							CycleBufUpdateReadAddr(&pMsgDecode->pMsgPort->CycleBuffCtrl, FilterOffset);
@@ -1078,6 +1556,11 @@ int8_t QCProcessCore(CHCQC_GNSSCFG_T* pGNSSCfg, CHCQC_READER_T* pQCReader, uint8
 	}
 	else
 	{
+		if (ID == QC_SCAN_STATION_FUNC_INDEX)
+		{
+			FinalizeFileExceptionBySysState(pQCReader, 0);
+			InitQCExceptionInfo(&pQCReader->QcRes.FileException[1]);
+		}
 		return -1;//break
 	}
 }
@@ -1145,12 +1628,45 @@ int InitQCReader(CHCQC_READER_T* pQCReader)
 	for (iFile = 0; iFile < QC_MAX_NUM_OBS_FILE; iFile++)
 	{
 		pQCReader->QcRes.Interval[iFile] = 86400;
+		pQCReader->QcRes.FileDataType[iFile] = STRFMT_NONE;
+		InitQCExceptionInfo(&pQCReader->QcRes.FileException[iFile]);
 		((QC_CODEC_INFO_T*)pQCReader->pCodecInfo[iFile])->StreamFormat = STRFMT_NONE;
 		for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
 		{
+			InitQCExceptionInfo(&pQCReader->QcRes.SysException[iFile][iSys]);
 			for (iSig = 0; iSig < QC_MAX_SIG_TYPE; iSig++)
 			{
 				pQCReader->QcRes.SysSigType[iFile][iSys][iSig] = 0;
+			}
+		}
+		pQCReader->QcRes.AvgHealthyArcDurationSec[iFile] = 0.0f;
+		pQCReader->QcRes.MaxHealthyArcDurationSec[iFile] = 0.0f;
+		pQCReader->QcRes.HealthyArcEpochCountTemp[iFile] = 0;
+		memset(&pQCReader->QcRes.HealthyArcStartTimeTemp[iFile], 0, sizeof(QC_TIME_T));
+		pQCReader->QcRes.HealthyArcDurationSumSec[iFile] = 0.0;
+		pQCReader->QcRes.HealthyArcCount[iFile] = 0;
+		pQCReader->QcRes.SlipOutlierWindowCount[iFile] = 0;
+		pQCReader->QcRes.ObsBreakCount[iFile] = 0;
+		pQCReader->QcRes.LowCN0SatRatio[iFile] = 0.0f;
+		pQCReader->QcRes.LowCN0EpochRatio[iFile] = 0.0f;
+		pQCReader->QcRes.CN0DropWindowCount[iFile] = 0;
+		for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+		{
+			for (iSig = 0; iSig < QC_NUM_FREQ; iSig++)
+			{
+				int iGroup;
+				for (iGroup = 0; iGroup < MP_GROUP_PERCENT_SIZE; iGroup++)
+				{
+					if (iSys == 0)
+					{
+						pQCReader->QcRes.MPGroupPercentAve[iFile][iSig][iGroup] = 0.0f;
+					}
+				}
+				for (iGroup = 0; iGroup < MP_GROUP_PERCENT_SIZE; iGroup++)
+				{
+					pQCReader->QcRes.MPGroupPercent[iFile][iSys][iSig][iGroup] = 0.0f;
+					pQCReader->QcRes.MPGroupNum[iFile][iSys][iSig][iGroup] = 0;
+				}
 			}
 		}
 	}
@@ -1301,6 +1817,7 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 	int isFind = 0;
 	VERIQC_SIMPLIFY_RESULT_T* pDynamicRes = NULL;
 	QC_TIME_T Time = { 0 };
+	QC_TIME_T SatTransTime = { 0 };
 	unsigned int RangeSysID = 0;
 	unsigned int RangeSigID = 0;
 	unsigned int RangeSatID = 0;
@@ -1312,6 +1829,12 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 	int QCSigID = 0;
 	int QCCode = 0;
 	int PhaseLock = 0;
+	int iFre;
+	BOOL bNoEphMode = FALSE;
+	BOOL bHasTruePos = FALSE;
+	int Toe = 0;
+	double SatPosVel[6] = { 0 };
+	double SatClk[3] = { 0 };
 
 #if 0
 	char tstr[64] = { 0 };
@@ -1322,6 +1845,7 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 	{
 		return;
 	}
+	bNoEphMode = IsNoEphModeEnabled(pQcReader->pOpt);
 
 	memset(pObs, 0, sizeof(QC_OBS_T));
 	memcpy(invail, pQcReader->pOpt->BanPRN, sizeof(unsigned char) * QC_MAX_NUM_SAT);
@@ -1333,25 +1857,46 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 
 	/** save UsedSatNum and Dop for UI */
 	pQcReader->EpochSolInfo.Time = pObs->Time;
-	pQcReader->EpochSolInfo.UsedSatNum = pRes->UsedSatNum;
-	memcpy(pQcReader->EpochSolInfo.Dop, pRes->Dop, sizeof(float) * 5);
+	if (!bNoEphMode)
+	{
+		pQcReader->EpochSolInfo.UsedSatNum = pRes->UsedSatNum;
+		memcpy(pQcReader->EpochSolInfo.Dop, pRes->Dop, sizeof(float) * 5);
+	}
+	else
+	{
+		pQcReader->EpochSolInfo.UsedSatNum = 0;
+		memset(pQcReader->EpochSolInfo.Dop, 0, sizeof(float) * 5);
+	}
 
 	if (pQcReader->pOpt->IsInputTrueXYZ == 0)
 	{
+		if (bNoEphMode)
+		{
+			memset(pRes->Pos, 0, sizeof(double) * 3);
+		}
 	}
 	else
 	{
 		if ((AntID == VERIQC_ANT_ID_ROVER) && fabs(pQcReader->pOpt->RoverTrueXYZ[0]) > 1 && fabs(pQcReader->pOpt->RoverTrueXYZ[1]) > 1 && fabs(pQcReader->pOpt->RoverTrueXYZ[2]) > 1)
 		{
 			memcpy(&pRes->Pos, &pQcReader->pOpt->RoverTrueXYZ, sizeof(double) * 3);
+			bHasTruePos = TRUE;
 		}
 
 		if ((AntID == VERIQC_ANT_ID_BASE) && fabs(pQcReader->pOpt->BaseTrueXYZ[0]) > 1 && fabs(pQcReader->pOpt->BaseTrueXYZ[1]) > 1 && fabs(pQcReader->pOpt->BaseTrueXYZ[2]) > 1)
 		{
 			memcpy(&pRes->Pos, &pQcReader->pOpt->BaseTrueXYZ, sizeof(double) * 3);
+			bHasTruePos = TRUE;
+		}
+		if (bNoEphMode && !bHasTruePos)
+		{
+			memset(pRes->Pos, 0, sizeof(double) * 3);
 		}
 	}
-	PosXYZ2LLH(pRes->Pos, m_pos);/**< realtime position */
+	if (!bNoEphMode)
+	{
+		PosXYZ2LLH(pRes->Pos, m_pos);/**< realtime position */
+	}
 
 	for (iObs = 0; iObs < pObsSrc->RangeData.ObsNum; iObs++)
 	{
@@ -1377,6 +1922,11 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 		{
 			SatIndex[QCSatNo - 1] = pObs->ObsNum + 1;
 			pObs->ObsNum++;
+
+			if (!pQcReader->QcRes.SysException[AntID][QCSysID - 1].IsHaveObs)
+			{
+				pQcReader->QcRes.SysException[AntID][QCSysID - 1].IsHaveObs = TRUE;
+			}
 		}
 
 		iSat = SatIndex[QCSatNo - 1] - 1;
@@ -1386,6 +1936,10 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 
 		if (QCSysID == QC_GNSS_SYSID_GLN)
 		{
+			if (bNoEphMode)
+			{
+				s_FreqGLO[QCSatID] = pObsSrc->RangeData.ObsData[iObs].FreqNum - 7;
+			}
 			pObs->Data[iSat].GLOFreq = s_FreqGLO[QCSatID];
 		}
 		pObs->Data[iSat].PRN = QCSatID;
@@ -1470,8 +2024,18 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 
 	for (iSat = 0; iSat < pObs->ObsNum; iSat++)
 	{
+		if (bNoEphMode)
+		{
+			pObs->Data[iSat].Azel[0] = QC_INVALID_AZEL_VALUE;
+			pObs->Data[iSat].Azel[1] = QC_INVALID_AZEL_VALUE;
+			if (!(pObs->Data[iSat].Sys & pQcReader->pOpt->Sys))
+			{
+				invail[pObs->Data[iSat].Sat - 1] = 1;
+			}
+			continue;
+		}
 		isFind = 0;
-		for (iSat0 = 0; iSat0 < (int)pRes->Num; iSat0++)
+		for (iSat0 = 0; (iSat0 < (int)pRes->Num) && (iSat0 < QC_MAX_NUM_SAT); iSat0++)
 		{
 			/** find sat position for obs */
 			if (pRes->pSatNo[iSat0] == pObs->Data[iSat].Sat)
@@ -1486,22 +2050,63 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 				{
 					invail[pObs->Data[iSat].Sat - 1] = 1;
 				}
+				else
+				{
+					QCSysID = QCSys2Id(pObs->Data[iSat].Sys);
+					if (pQcReader->QcRes.SysException[AntID][QCSysID - 1].IsAllEpochSPPUnsolved)
+					{
+						pQcReader->QcRes.SysException[AntID][QCSysID - 1].IsAllEpochSPPUnsolved = FALSE;
+					}
+				}
+
 				QCSatAzEl(m_pos, e, pObs->Data[iSat].Azel);
 				if (!(pObs->Data[iSat].Sys & pQcReader->pOpt->Sys))
 				{
 					invail[pObs->Data[iSat].Sat - 1] = 1;
 				}
-				if (pObs->Data[iSat].Azel[1] <= pQcReader->pOpt->EleDeg * D2R - 1E-4)
-				{
-					invail[pObs->Data[iSat].Sat - 1] = 1;
-				}
+
 				isFind = 1;
 				break;
 			}
 		}
+
+		if (!isFind && ((pObs->Data[iSat].Sys == QC_SYS_XW1) && (pRes->Num != 0)) && (pObs->Data[iSat].Sys & pQcReader->pOpt->Sys))/** XW1 Special */
+		{
+			for (iFre = 0; iFre < QC_NUM_FREQ; iFre++)
+			{
+				if (pObs->Data[iSat].P[iFre] != 0.0)
+				{
+					SatTransTime = QCTimeAdd(&pObs->Time, -(float)(pObs->Data[iSat].P[iFre] / CLIGHT));
+					break;
+				}
+			}
+			if (iFre < QC_NUM_FREQ)
+			{
+				/** calculate LEO pos */
+				if (GetLEOSatPosVelClk(SatTransTime, pObs->Time, AntID, pObs->Data[iSat].Sat, SatPosVel, SatClk, &Toe) == 0)
+				{
+					pObs->Data[iSat].R = GeoDist(SatPosVel, pObs->StaPos, e);
+					QCSatAzEl(m_pos, e, pObs->Data[iSat].Azel);
+					memcpy(pObs->Data[iSat].Dts, SatClk, sizeof(double) * 2);
+					memcpy(pObs->Data[iSat].E, e, sizeof(double) * 3);
+					memcpy(pObs->Data[iSat].SatVelXYZ, SatPosVel + 3, sizeof(double) * 3);
+
+					if (pObs->Data[iSat].R < 0)
+					{
+						invail[pObs->Data[iSat].Sat - 1] = 1;
+					}
+
+					isFind = 1;
+				}
+			}
+		}
+
 		if (isFind)
 		{
-			//find ok
+			if (pObs->Data[iSat].Azel[1] <= pQcReader->pOpt->EleDeg * D2R - 1E-4)
+			{
+				invail[pObs->Data[iSat].Sat - 1] = 1;
+			}
 		}
 		else
 		{
@@ -1522,65 +2127,106 @@ void ConvertObsEpoch(QC_OBS_T* pObs, const GNSS_OBS_T* pObsSrc, VERIQC_SIMPLIFY_
 			iSat--;
 		}
 	}
-	pObs->ObsNum += 0;
 }
 
 /** Extract file type according to file suffix */
-int DetectFileFormat(const char* pFile)
+int DetectFileFormatBySuffix(const char* pFile)
 {
 	FILE* fp;
 	char buff[1025];
-	int ver;
+	char LowerSuffix[16];
+	int Ver;
+	unsigned int Index;
+	const char* pSuffix;
 
 	if (!pFile)
 	{
 		return STRFMT_NONE;
 	}
+
+	/*match exact file suffix (case-insensitive)*/
+	pSuffix = strrchr(pFile, '.');
+	if ((pSuffix != NULL) && (strlen(pSuffix) < sizeof(LowerSuffix)))
+	{
+		for (Index = 0; pSuffix[Index] != '\0'; Index++)
+		{
+			LowerSuffix[Index] = (char)tolower((unsigned char)pSuffix[Index]);
+		}
+		LowerSuffix[Index] = '\0';
+
+		if (strcmp(LowerSuffix, ".rtcm3") == 0)
+		{
+			return GNSS_STRFMT_RTCM3;
+		}
+		else if (strcmp(LowerSuffix, ".hrc") == 0)
+		{
+			return GNSS_STRFMT_HRC;
+		}
+		else if (strcmp(LowerSuffix, ".rtcm2") == 0)
+		{
+			return GNSS_STRFMT_RTCM2;
+		}
+	}
+
 	if (!(fp = fopen(pFile, "rb")))
 	{
 		PrintfQC("<GNSSQC error>: fopen fail:%s.\n", pFile);
 		//PrintfQC("<GNSSQC error>: fopen fail Error: %d (%s)\n", errno, strerror(errno));
 		return STRFMT_NONE;
 	}
+	buff[0] = '\0';
 	fgets(buff, 1024, fp);
-	if (strstr(pFile, ".rtcm3"))
+
+	if (strstr(buff, "HUACENAV COLLECTED DATA FILE"))/*HCN file*/
 	{
-		fclose(fp);
-		return GNSS_STRFMT_RTCM3;
-	}
-	else if (strstr(pFile, ".rtcm2"))
-	{
-		fclose(fp);
-		return GNSS_STRFMT_RTCM2;
-	}
-	else if (strstr(buff, "HUACENAV COLLECTED DATA FILE"))/*HCN file*/
-	{
+		buff[0] = '\0';
 		fgets(buff, 1024, fp);
-		ver = (int)atof(buff + 4);
-		fclose(fp);
-		return GetOemType(ver);
+		if (strlen(buff) > 4U)
+		{
+			Ver = (int)atof(buff + 4);
+			fclose(fp);
+			return GetOemType(Ver);
+		}
 	}
 	else if (strstr(buff, "RINEX VERSION / TYPE"))/*Rinex*/
 	{
 		fclose(fp);
 		return GNSS_STRFMT_RINEX;
 	}
-	else if (strstr(pFile, ".log1"))
-	{
-		fclose(fp);
-		return GNSS_STRFMT_RAWMSGB;
-	}
-	else if (strstr(pFile, ".log2"))
-	{
-		fclose(fp);
-		return GNSS_STRFMT_CHCRAWMSGB;
-	}
-	else if (strstr(pFile, ".log"))
-	{
-		fclose(fp);
-		return GNSS_STRFMT_RAWMSGA;
-	}
 
 	fclose(fp);
-	return STRFMT_NONE;
+	return STRFMT_TEMP;
 }
+
+/**********************************************************************//**
+@brief  set GNSS pre-process progress
+
+@param Value   [In] progress value
+
+@author CHC
+@date 2026/02/09
+@note
+**************************************************************************/
+void SetGNSSPreProcessProgress(double Value)
+{
+	if ((Value >= 0.0) && ((Value <= 100.0)))
+	{
+		s_GNSSPreProcessProgress = Value;
+	}
+}
+
+/**********************************************************************//**
+@brief  get GNSS pre-process progress
+
+@return progress
+
+@author CHC
+@date 2026/02/09
+@note
+**************************************************************************/
+double GetGNSSPreProcessProgress()
+{
+	return	s_GNSSPreProcessProgress;
+}
+
+
