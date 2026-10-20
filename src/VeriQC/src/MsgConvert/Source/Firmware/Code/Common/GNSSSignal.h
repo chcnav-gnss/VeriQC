@@ -78,9 +78,10 @@ MSB                                                                             
 #define SBA				4
 #define QZS				5
 #define NIC				6	/**< NavIC*/
-#define BD3				7
+#define XW1				7	/**< XW1 SatNet*/
+#define BD3				8
 
-#define LAST_EX_SYS		NIC
+#define LAST_EX_SYS		XW1
 #define TOTAL_EX_GNSS_SYSTEM_NUM	(LAST_EX_SYS +1)
 
 #define LBA             16    /**< LBand */
@@ -94,8 +95,9 @@ MSB                                                                             
 #define SYS_MASK_SBAS	(1 << SBA)
 #define SYS_MASK_QZSS	(1 << QZS)
 #define SYS_MASK_NAVIC	(1 << NIC)
+#define SYS_MASK_XW1	(1 << XW1)
 #define SYS_MASK_BD3	(1 << BD3)
-#define SYS_MASK_ALL	(SYS_MASK_GPS|SYS_MASK_BDS|SYS_MASK_GAL|SYS_MASK_GLO|SYS_MASK_SBAS|SYS_MASK_QZSS|SYS_MASK_NAVIC|SYS_MASK_BD3)
+#define SYS_MASK_ALL	(SYS_MASK_GPS|SYS_MASK_BDS|SYS_MASK_GAL|SYS_MASK_GLO|SYS_MASK_SBAS|SYS_MASK_QZSS|SYS_MASK_NAVIC|SYS_MASK_XW1|SYS_MASK_BD3)
 
 /** FreqIndex in one system (8bit) */
 #define L1				0		/**< 1575.42*/
@@ -128,9 +130,15 @@ MSB                                                                             
 #define I5				0		/**< 1176.45, NavIC */
 #define S9				1		/**< 2492.028,NavIC */
 
+#define XWCNL			0		/**< 1522.224, XW1 CNL */
+#define XWB2B			1		/**< 1202.025, XW1 B2b */
+#define XWCNLH			2		/**< only use for XW1 CNL HNav signal index */
+#define XWB2BH			3		/**< only use for XW1 B2b HNav signal index */
+
 #define RX				3
 
 #define MAX_FREQ_INDEX_NUM	5	/**< for all */
+#define MAX_OBS_SIGNAL_NUM	32	/**< max observation signal slots per satellite */
 
 /** FreqIndex in Rinex */
 #define RNX_G1				1		/**< 1602*/
@@ -226,6 +234,9 @@ MSB                                                                             
 #define NIC_B			1u		/**< IRNSS L5 B RS D */
 #define NIC_C			2u		/**< IRNSS L5 C RS P */
 
+#define XW1_LNAV		0u		/**< XW1 TD1 BPSK Low-Nav */
+#define XW1_HNAV		1u		/**< XW1 TD2 CSK High-Nav */
+
 /** FreqIDs */
 #define GPSL1			(GPS	| (L1 << SID_BIT_POS_FREQ))
 #define GPSL2			(GPS	| (L2 << SID_BIT_POS_FREQ))
@@ -262,6 +273,9 @@ MSB                                                                             
 
 #define NICL5			(NIC	| (I5 << SID_BIT_POS_FREQ))
 #define NICS9			(NIC	| (S9 << SID_BIT_POS_FREQ))
+
+#define XW1CNL			(XW1	| (XWCNL << SID_BIT_POS_FREQ))
+#define XW1B2B			(XW1	| (XWB2B << SID_BIT_POS_FREQ))
 
 /** Signal ID */
 #define GPSL1CA			(GPSL1	| SID_I |(GPS_BPSK << SID_BIT_POS_SIGNAL))							/**< actually in branch Q */
@@ -380,6 +394,11 @@ MSB                                                                             
 #define NICS9C			(NICS9	| SID_I |(NIC_C	   << SID_BIT_POS_SIGNAL)|SID_DP_PILOT)
 #define NICS9X			(NICS9	| SID_I |(NIC_B	   << SID_BIT_POS_SIGNAL)|SID_DP_PILOT|SID_COMB_DP)
 
+#define XW1CNLL			(XW1CNL	| SID_I |(XW1_LNAV << SID_BIT_POS_SIGNAL))
+#define XW1CNLH			(XW1CNL	| SID_I |(XW1_HNAV << SID_BIT_POS_SIGNAL))
+#define XW1B2BL			(XW1B2B	| SID_I |(XW1_LNAV << SID_BIT_POS_SIGNAL))
+#define XW1B2BH			(XW1B2B	| SID_I |(XW1_HNAV << SID_BIT_POS_SIGNAL))
+
 
 /** Macros */
 #define SYSTEM(Signal)         SID_GET_SECTION(Signal, SYS)
@@ -401,6 +420,9 @@ MSB                                                                             
 
 /** judge pilot signal */
 #define  IS_PILOT_SIGNAL(Signal)    ((Signal) & SID_DP_PILOT)
+
+/** judge leo signal */
+#define IS_LEO_SIGNAL(Signal)      (SYSTEM(Signal) == XW1)
 
 /** check if is GLONASS FDMA (G1 or G2) */
 #define IS_GLO_FDMA(Signal)         (((Signal) & (SID_BIT_MASK(SIGNAL) | SID_BIT_MASK(SYS))) == (GLO | (GLO_FDMA << SID_BIT_POS_SIGNAL)))
@@ -435,6 +457,8 @@ MSB                                                                             
 #define IS_NIC_I5(FreqID)      (((FreqID) & BIT_MASK(SID_BIT_LEN_FREQID)) == NICL5)
 #define IS_NIC_S9(FreqID)      (((FreqID) & BIT_MASK(SID_BIT_LEN_FREQID)) == NICS9)
 
+#define IS_XW1_CNL(FreqID)     (((FreqID) & BIT_MASK(SID_BIT_LEN_FREQID)) == XW1CNL)
+#define IS_XW1_B2B(FreqID)     (((FreqID) & BIT_MASK(SID_BIT_LEN_FREQID)) == XW1B2B)
 
 #define IS_GPS(System)        ((System) == GPS)
 #define IS_GLO(System)        ((System) == GLO)
@@ -443,6 +467,7 @@ MSB                                                                             
 #define IS_QZSS(System)       ((System) == QZS)
 #define IS_SBAS(System)       ((System) == SBA)
 #define IS_NAVIC(System)      ((System) == NIC)
+#define IS_XW1(System)        ((System) == XW1)
 
 #define IS_GPS_FREQID(FreqID)     (SYSTEM(FreqID) == GPS)
 #define IS_GLO_FREQID(FreqID)     (SYSTEM(FreqID) == GLO)
@@ -451,10 +476,14 @@ MSB                                                                             
 #define IS_QZSS_FREQID(FreqID)    (SYSTEM(FreqID) == QZS)
 #define IS_SBAS_FREQID(FreqID)    (SYSTEM(FreqID) == SBA)
 #define IS_NIC_FREQID(FreqID)     (SYSTEM(FreqID) == NIC)
+#define IS_XW1_FREQID(FreqID)     (SYSTEM(FreqID) == XW1)
 
 #define IS_BDS_P_SIGNAL(Signal)      ( (BDSB1P==(Signal))||(BDSB2P==(Signal))||(BDSB3P==(Signal)) )
 #define IS_BDS2_SIGNAL(Signal)   	 ( (BDS == SYSTEM(Signal)) && (SIGNAL(Signal) < BDS_BOC) )
 #define IS_BDS3_SIGNAL(Signal)       ( (BDS == SYSTEM(Signal)) && (SIGNAL(Signal) >= BDS_BOC) )
+
+#define IS_XW1_LNAV(Signal)       ( (XW1 == SYSTEM(Signal)) && (SIGNAL(Signal) == XW1_LNAV) )
+#define IS_XW1_HNAV(Signal)       ( (XW1 == SYSTEM(Signal)) && (SIGNAL(Signal) == XW1_HNAV) )
 
 
 /** signal branch type */
@@ -489,6 +518,9 @@ MSB                                                                             
 #define MIN_NIC_PRN             1
 #define MAX_NIC_PRN             14
 
+#define MIN_XW1_PRN             1
+#define MAX_XW1_PRN             168
+
 
 /** judge BDS GEO */
 #define IS_BDS_GEO_PRN(PRN)          (((PRN) <= 5) || ((PRN) >= 59))
@@ -510,6 +542,7 @@ MSB                                                                             
 #define MAX_BDS_SAT_NUM         (MAX_BDS_PRN - MIN_BDS_PRN + 1)
 #define MAX_GAL_SAT_NUM         (MAX_GAL_PRN - MIN_GAL_PRN + 1)
 #define MAX_NIC_SAT_NUM         (MAX_NIC_PRN - MIN_NIC_PRN + 1)
+#define MAX_XW1_SAT_NUM         (MAX_XW1_PRN - MIN_XW1_PRN + 1)
 
 /** Max number of satellite for SBAS*/
 #define MAX_SBAS_GEO_SAT_NUM    (MAX_SBAS_GEO_PRN - MIN_SBAS_GEO_PRN + 1)
@@ -517,8 +550,8 @@ MSB                                                                             
 #define MAX_SBAS_ALL_SAT_NUM    (MAX_SBAS_GEO_SAT_NUM  + MAX_QZSBAS_SAT_NUM)
 #define MAX_QZSS_SAT_NUM        (MAX_QZSS_PRN - MIN_QZSS_PRN + 1)
 
-#define MAX_SAT_NUM               (MAX_GPS_SAT_NUM + MAX_GLO_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM + MAX_NIC_SAT_NUM + MAX_SBAS_ALL_SAT_NUM + MAX_QZSS_SAT_NUM)
-#define MAX_SAT_NUM_EACH_SYSTEM   V_MAX(MAX_GPS_SAT_NUM, MAX_GLO_SAT_NUM, MAX_BDS_SAT_NUM, MAX_GAL_SAT_NUM, MAX_NIC_SAT_NUM)
+#define MAX_SAT_NUM               (MAX_GPS_SAT_NUM + MAX_GLO_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM + MAX_NIC_SAT_NUM + MAX_SBAS_ALL_SAT_NUM + MAX_QZSS_SAT_NUM + MAX_XW1_SAT_NUM)
+#define MAX_SAT_NUM_EACH_SYSTEM   V_MAX(MAX_GPS_SAT_NUM, MAX_GLO_SAT_NUM, MAX_BDS_SAT_NUM, MAX_GAL_SAT_NUM, MAX_NIC_SAT_NUM, MAX_XW1_SAT_NUM)
 
 /** Max number of Freq for each GNSS */
 #define MAX_GPS_FREQ_NUM         (3)		/**< L1 L2 L5 */
@@ -528,6 +561,7 @@ MSB                                                                             
 #define MAX_SBA_FREQ_NUM         (2)		/**< L1 L5 */
 #define MAX_QZS_FREQ_NUM         (3)		/**< L1 L2 L5 Lex */
 #define MAX_NIC_FREQ_NUM         (2)		/**< L5 S */
+#define MAX_XW1_FREQ_NUM         (2)		/**< XWCNL XWB2b */
 
 #define MAX_FREQ_NUM_ONE_SAT     (5)
 
@@ -583,9 +617,15 @@ MSB                                                                             
 #endif
 #define MAX_NIC_SVID             (MIN_NIC_SVID + MAX_NIC_SAT_NUM - 1)
 
+/** XW1 SatNet */
+#define MIN_XW1_SVID             (275)
+#if MIN_XW1_SVID <= MAX_NIC_SVID
+	#error ERROR: SvID overlap
+#endif
+#define MAX_XW1_SVID             (MIN_XW1_SVID + MAX_XW1_SAT_NUM - 1)
 
 /** Max SvID of all GNSS */
-#define MAX_GNSS_SVID            (MAX_NIC_SVID)
+#define MAX_GNSS_SVID            (MAX_XW1_SVID)
 #if MAX_GNSS_SVID > 65535
 	#error ERROR: SvID overflow (some SvID var type are U16)
 #endif
@@ -627,6 +667,10 @@ MSB                                                                             
 #define MIN_NAVIC_RANGE_PRN    	(MIN_NIC_PRN)
 #define MAX_NAVIC_RANGE_PRN    	(MAX_NIC_PRN)
 
+/** XW1(SatNet) PRN start from 1 - 168 in Range*/
+#define MIN_XW1_RANGE_PRN    	 (MIN_XW1_PRN)
+#define MAX_XW1_RANGE_PRN    	 (MAX_XW1_PRN)
+
 /** SvID for NMEA (V3.X) message */
 /** GPS*/
 #define MIN_GPS_NMEA_SVID        (1)
@@ -659,6 +703,10 @@ MSB                                                                             
 /** NavIC*/
 #define MIN_NIC_NMEA_SVID        (1)
 #define MAX_NIC_NMEA_SVID        (MAX_NIC_SAT_NUM)  /**< 14 */
+
+/** XW1(SatNet)*/
+#define MIN_XW1_NMEA_SVID    	 (1)
+#define MAX_XW1_NMEA_SVID    	 (MAX_XW1_SAT_NUM)  /**< 168 */
 
 
 /** mask of QZSS satellites as PRN, only for constant */
@@ -706,6 +754,9 @@ MSB                                                                             
 #define NIC_FREQ_I5       GPS_FREQ_L5  /**< in unit of Hz*/
 #define NIC_FREQ_S9       2492028000.0 /**< in unit of Hz*/
 
+#define XW1_FREQ_CNL      1522224000.0 /**< in unit of Hz*/
+#define XW1_FREQ_B2B      GLO_FREQ_G3  /**< in unit of Hz*/
+
 #define GPS_WAVELENGTH_L1 (LIGHT_SPEED / GPS_FREQ_L1)       /**< 0.19029367279836488*/
 #define GPS_WAVELENGTH_L2 (LIGHT_SPEED / GPS_FREQ_L2)       /**< 0.24421021342456826*/
 #define GPS_WAVELENGTH_L5 (LIGHT_SPEED / GPS_FREQ_L5)       /**< 0.25482804879085386*/
@@ -725,6 +776,9 @@ MSB                                                                             
 
 #define NIC_WAVELENGTH_I5   (LIGHT_SPEED / NIC_FREQ_I5)     /**< 0.25482804879085386*/
 #define NIC_WAVELENGTH_S9   (LIGHT_SPEED / NIC_FREQ_S9)
+
+#define XW1_WAVELENGTH_CNL  (LIGHT_SPEED / XW1_FREQ_CNL)
+#define XW1_WAVELENGTH_B2B  (LIGHT_SPEED / XW1_FREQ_B2B)
 
 #define QZS_WAVELENGTH_LEX   (LIGHT_SPEED / QZS_FREQ_LEX )
 

@@ -266,8 +266,8 @@ color:black;</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton {
- width:128px;
-height: 32px;
+ width:8em;
+height: 2em;
 }</string>
        </property>
        <property name="text">

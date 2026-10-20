@@ -27,7 +27,7 @@ public:
         unsigned int freqIndex;             // sat freq index of result data
     };
 public:
-    SNRAndMPTimePlot(int qcObjectId,QWidget *parent = nullptr);
+    SNRAndMPTimePlot(int qcObjectId,bool hasEphemeris = true,QWidget *parent = nullptr);
     void addFilter(QCResultManager::QCSysTypeEnum sys, unsigned int prn, unsigned int freqIndex);
     void clearFilters();
     void updatePlot();
@@ -41,7 +41,7 @@ private:
     int m_qcObjectId;
     QCPAxisRect *m_snrAxisRect;
     QCPAxisRect *m_mpAxisRect;
-    QCPAxisRect *m_eleAxisRect;
+    QCPAxisRect *m_eleAxisRect = nullptr;
     QMap<QCResultManager::QCSysTypeEnum,TimePlotGraph*> m_snrGraphMap;
     QMap<QCResultManager::QCSysTypeEnum,TimePlotGraph*> m_mpGraphMap;
     QMap<QCResultManager::QCSysTypeEnum,TimePlotGraph*> m_eleGraphMap;

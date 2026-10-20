@@ -99,6 +99,7 @@ double GetCarrierWaveLength(unsigned int FreqID, unsigned int GloFreqNum)
 		[QZS] = {LIGHT_SPEED / GPS_FREQ_L1,      LIGHT_SPEED / GPS_FREQ_L2,      LIGHT_SPEED / GPS_FREQ_L5,      0,                       LIGHT_SPEED / GPS_FREQ_L6 },
 		[SBA] = {LIGHT_SPEED / GPS_FREQ_L1,      0,                            LIGHT_SPEED / GPS_FREQ_L5,      0,                       0 },
 		[NIC] = {LIGHT_SPEED / NIC_FREQ_I5,      0,                            						0,      0,                       0 },
+		[XW1] = {LIGHT_SPEED / XW1_FREQ_CNL,     LIGHT_SPEED / XW1_FREQ_B2B,      0,      0,                       0 },
 	};
 
 	const static double s_GloWaveLengthMap[2][14] = {
@@ -152,6 +153,7 @@ const char* GetSystemNameString(unsigned int ExSystemID)
 		[SBA] = "SBA",
 		[QZS] = "QZS",
 		[NIC] = "NIC",
+		[XW1] = "XW1",
 	};
 
 	if (ExSystemID >= TOTAL_EX_GNSS_SYSTEM_NUM)

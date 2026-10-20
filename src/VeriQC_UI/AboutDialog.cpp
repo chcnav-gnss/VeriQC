@@ -31,7 +31,7 @@ void AboutDialog::onCheckUpdate()
 void AboutDialog::onLearnMore()
 {
     QDesktopServices::openUrl(
-        QUrl("https://newwww.huace.cn/home.html", QUrl::TolerantMode));
+        QUrl("https://www.huace.cn", QUrl::TolerantMode));
 }
 
 void AboutDialog::onHistoricalVersion()

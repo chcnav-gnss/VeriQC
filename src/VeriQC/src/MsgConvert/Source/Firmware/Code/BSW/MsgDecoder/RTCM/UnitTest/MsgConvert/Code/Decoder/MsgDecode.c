@@ -22,6 +22,7 @@
 #include "./Rinex/RinexFilter.h"
 
 #include "./HRCX/HRCXFilter.h"
+#include "./HRC/HRCFilter.h"
 
 #include "./CHCRawMsgBinary/CHCRawMsgBinaryFilter.h"
 #include "./UNRawMsgBinary/UNRawMsgBinaryFilter.h"
@@ -33,6 +34,7 @@ PROTOCOL_DECODE_FUNC_T s_ProtocolDecodeFuncTabl[] = {
 	{MSG_DECODE_TYPE_RTCM2,			RTCM2Filter,			RTCM2FilterClear,			RTCM2Decode},
 	{MSG_DECODE_TYPE_RINEX,			RinexFilter,			RinexFilterClear,			RinexDecode},
 	{MSG_DECODE_TYPE_HRCX,			HRCXFilter,				HRCXFilterClear,			HRCXDecode},
+	{MSG_DECODE_TYPE_HRC,			HRCFilter,				HRCFilterClear,				HRCDecode},
 	{MSG_DECODE_TYPE_UNRAWMSGB,	    UNRawMsgBinaryFilter,	UNRawMsgBinaryFilterClear,	UNRawMsgBinaryDecode},
 	{MSG_DECODE_TYPE_CHCRAWMSGB,	CHCRawMsgBinaryFilter,	CHCRawMsgBinaryFilterClear,	CHCRawMsgBinaryDecode},
 };
@@ -303,6 +305,7 @@ MSG_DECODE_T* MsgDecodeInit(PROTOCOL_FILTER_INFO_T* pProtocolFilterInfo,
 	pDecode->ProtocolFilterInfo.pRawMsgBinaryFilterInfo = pProtocolFilterInfo->pRawMsgBinaryFilterInfo;
 	pDecode->ProtocolFilterInfo.pRinexFilterInfo = pProtocolFilterInfo->pRinexFilterInfo;
 	pDecode->ProtocolFilterInfo.pHRCXFilterInfo = pProtocolFilterInfo->pHRCXFilterInfo;
+	pDecode->ProtocolFilterInfo.pHRCFilterInfo = pProtocolFilterInfo->pHRCFilterInfo;
 	pDecode->ProtocolFilterInfo.pUNRawMsgBinaryFilterInfo = pProtocolFilterInfo->pUNRawMsgBinaryFilterInfo;
 	pDecode->ProtocolFilterInfo.pCHCRawMsgBinaryFilterInfo = pProtocolFilterInfo->pCHCRawMsgBinaryFilterInfo;
 	pDecode->ProtocolFilterInfo.pRTCMParseInfo = pProtocolFilterInfo->pRTCMParseInfo;
@@ -310,6 +313,7 @@ MSG_DECODE_T* MsgDecodeInit(PROTOCOL_FILTER_INFO_T* pProtocolFilterInfo,
 	pDecode->ProtocolFilterInfo.pRawMsgBinaryParseInfo = pProtocolFilterInfo->pRawMsgBinaryParseInfo;
 	pDecode->ProtocolFilterInfo.pRinexParseInfo = pProtocolFilterInfo->pRinexParseInfo;
 	pDecode->ProtocolFilterInfo.pHRCXParseInfo = pProtocolFilterInfo->pHRCXParseInfo;
+	pDecode->ProtocolFilterInfo.pHRCParseInfo = pProtocolFilterInfo->pHRCParseInfo;
 	pDecode->ProtocolFilterInfo.pUNRawMsgBinaryParseInfo = pProtocolFilterInfo->pUNRawMsgBinaryParseInfo;
 	pDecode->ProtocolFilterInfo.pCHCRawMsgBinaryParseInfo = pProtocolFilterInfo->pCHCRawMsgBinaryParseInfo;
 	pDecode->ProtocolFilterInfo.DecodeCallbackInfo = pProtocolFilterInfo->DecodeCallbackInfo;

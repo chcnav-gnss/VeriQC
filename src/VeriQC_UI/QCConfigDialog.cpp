@@ -2,7 +2,11 @@
 #include "ui_QCConfigDialog.h"
 #include "Components/MyMessageBox.h"
 #include <QFileDialog>
+#include <QButtonGroup>
+#include <QRadioButton>
 #include <QListView>
+#include <QScreen>
+#include <QGuiApplication>
 
 QCConfigDialog::QCConfigDialog(QWidget *parent) :
     MyDialog(parent),
@@ -10,7 +14,16 @@ QCConfigDialog::QCConfigDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setMinimumWidth(600);
+    /** Minimum width in logical pixels — Qt AA_EnableHighDpiScaling handles
+     *  DPI scaling; do NOT multiply by devicePixelRatio(). */
+    this->setMinimumWidth(500);
+
+    /**< Sample interval supports sub-second values (e.g. 0.005s for 200Hz);
+     *  0 means "derive from the raw file". QDoubleSpinBox defaults to 2
+     *  decimals and a 0..99.99 range, which is too coarse and too narrow. */
+    ui->intervalSpinBox->setDecimals(3);
+    ui->intervalSpinBox->setMinimum(0.0);
+    ui->intervalSpinBox->setMaximum(3600.0);
 
     connect(ui->stationInfoToolButton,&QToolButton::clicked,this,&QCConfigDialog::onStationInfoToolButtonClicked);
     connect(ui->satelliteSysToolButton,&QToolButton::clicked,this,&QCConfigDialog::onSatelliteSysToolButtonClicked);
@@ -22,10 +35,31 @@ QCConfigDialog::QCConfigDialog(QWidget *parent) :
     connect(ui->endTimeEnabledCheckBox,&QCheckBox::toggled,ui->endDateTimeEdit,&QDateTimeEdit::setEnabled);
     connect(ui->workDirComboBox,&QComboBox::currentTextChanged,this,&QCConfigDialog::onWorkDirModeChanged);
     connect(ui->otherWorkDirOpenButton,&QToolButton::clicked,this,&QCConfigDialog::onOtherWorkDirOpenButtonClicked);
+    /**< Ephemeris mode radio group (mutually exclusive); any toggle updates
+     *  the enabled state of the file edit + browse controls. */
+    m_ephButtonGroup = new QButtonGroup(this);
+    m_ephButtonGroup->setExclusive(true);
+    m_ephButtonGroup->addButton(ui->rbEphDefault);
+    m_ephButtonGroup->addButton(ui->rbEphNone);
+    m_ephButtonGroup->addButton(ui->rbEphCustom);
+    connect(m_ephButtonGroup, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
+            this, &QCConfigDialog::onEphModeChanged);
+    connect(ui->btnEphBrowse, &QToolButton::clicked, this, &QCConfigDialog::onEphBrowseClicked);
+    /**< Default selection is applied here; onEphModeChanged() disables the
+     *  file controls until "Specify ephemeris file" is chosen. */
+    setEphemerisModeRadio(QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisDefault);
+    onEphModeChanged();
 
 
-    ui->startDateTimeEdit->setDateTime(QDateTime::currentDateTime());
-    ui->endDateTimeEdit->setDateTime(QDateTime::currentDateTime());
+    /**< Time-range placeholder: when a time-range checkbox is unchecked and no
+     *   real observation time is available, the edits hold minimumDateTime(),
+     *   which is rendered as "--" via specialValueText instead of a misleading
+     *   concrete date. */
+    const QString timePlaceholder = QStringLiteral("--");
+    ui->startDateTimeEdit->setSpecialValueText(timePlaceholder);
+    ui->endDateTimeEdit->setSpecialValueText(timePlaceholder);
+    ui->startDateTimeEdit->setDateTime(ui->startDateTimeEdit->minimumDateTime());
+    ui->endDateTimeEdit->setDateTime(ui->endDateTimeEdit->minimumDateTime());
 
     QString maxStr = tr("Max");
     QString minStr = tr("Min");
@@ -53,7 +87,7 @@ QCConfigDialog::~QCConfigDialog()
     delete ui;
 }
 
-void QCConfigDialog::setConfig(const QCConfigurator::QCConfigData &config, const QCConfigurator::QCCheckConfigData &checkConfig)
+void QCConfigDialog::setConfig(const QCConfigurator::QCConfigData &config, const QCConfigurator::QCCheckConfigData &checkConfig, const QDateTime &obsStartTime, const QDateTime &obsEndTime)
 {
     m_config = config;
     m_checkConfig = checkConfig;
@@ -61,21 +95,28 @@ void QCConfigDialog::setConfig(const QCConfigurator::QCConfigData &config, const
     // station info
     ui->intervalSpinBox->setValue(m_config.interval);
     ui->elevationMaskSpinBox->setValue(m_config.eleDeg);
-    if(m_config.startTime.isValid())
-    {
-        ui->startDateTimeEdit->setDateTime(m_config.startTime);
-        ui->startTimeEnabledCheckBox->setChecked(true);
-    }
-    if(m_config.endTime.isValid())
-    {
-        ui->endDateTimeEdit->setDateTime(m_config.endTime);
-        ui->endTimeEnabledCheckBox->setCheckable(true);
-    }
+    /**< Start/end time: a valid config time enables editing; otherwise the edit
+     *   is read-only and falls back to the object's real observation time, then
+     *   to the "--" placeholder. Delegated to applyTimeRange() to avoid the
+     *   symmetric start/end copy. The end branch also fixes a typo where the
+     *   original code called setCheckable(true) (a no-op here) instead of
+     *   setChecked(true), which left a valid end time's checkbox permanently
+     *   unchecked/disabled. */
+    applyTimeRange(ui->startTimeEnabledCheckBox, ui->startDateTimeEdit,
+                   m_config.startTime, obsStartTime);
+    applyTimeRange(ui->endTimeEnabledCheckBox, ui->endDateTimeEdit,
+                   m_config.endTime, obsEndTime);
     ui->sysGPSCheckBox->setChecked(m_config.sysGPSEnable);
     ui->sysBDSCheckBox->setChecked(m_config.sysBDSEnable);
     ui->sysGLOCheckBox->setChecked(m_config.sysGLOEnable);
     ui->sysGALCheckBox->setChecked(m_config.sysGALEnable);
     ui->sysQZSSCheckBox->setChecked(m_config.sysQZSSEnable);
+    ui->sysXW1CheckBox->setChecked(m_config.sysXW1Enable);
+    /**< Map the ephemeris mode enum to the radio group; the file edit mirrors
+     *  the stored paths and is enabled only in custom-file mode. */
+    setEphemerisModeRadio(m_config.ephemerisMode);
+    ui->leEphFilePaths->setText(m_config.ephemerisFilePaths);
+    onEphModeChanged();
 
     ui->banPrnEdit->setText(m_config.banPrn);
 
@@ -113,12 +154,57 @@ void QCConfigDialog::setConfig(const QCConfigurator::QCConfigData &config, const
         ui->workDirComboBox->setCurrentIndex(0);
         break;
     case QCConfigurator::WorkDirModeEnum::OtherDir:
-        ui->workDirComboBox->setCurrentIndex(2);
+        ui->workDirComboBox->setCurrentIndex(1);
         ui->otherWorkDirEdit->setText(config.otherWorkDirPath);
         break;
     default:
         break;
     }
+}
+
+void QCConfigDialog::applyTimeRange(QCheckBox *checkBox,
+                                    QDateTimeEdit *edit,
+                                    const QDateTime &configTime,
+                                    const QDateTime &obsTime)
+{
+    if(configTime.isValid())
+    {
+        edit->setDateTime(configTime);
+        checkBox->setChecked(true);
+    }
+    else
+    {
+        /**< Prefer the object's real observation time for reference; fall back to
+         *   the "--" placeholder (minimumDateTime()) when it is unavailable. */
+        edit->setDateTime(obsTime.isValid() ? obsTime : edit->minimumDateTime());
+        checkBox->setChecked(false);
+    }
+}
+
+void QCConfigDialog::setEphemerisModeRadio(QCConfigurator::QCConfigData::EphemerisModeEnum mode)
+{
+    QRadioButton *radio = nullptr;
+    switch (mode)
+    {
+        case QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisNone:       radio = ui->rbEphNone;   break;
+        case QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisCustomFile: radio = ui->rbEphCustom; break;
+        case QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisDefault:
+        default:                                                                    radio = ui->rbEphDefault; break;
+    }
+    radio->setChecked(true);
+}
+
+QCConfigurator::QCConfigData::EphemerisModeEnum QCConfigDialog::getEphemerisModeFromRadio() const
+{
+    if (ui->rbEphNone->isChecked())
+    {
+        return QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisNone;
+    }
+    if (ui->rbEphCustom->isChecked())
+    {
+        return QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisCustomFile;
+    }
+    return QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisDefault;
 }
 
 const QCConfigurator::QCConfigData &QCConfigDialog::getQCConfig() const
@@ -174,6 +260,11 @@ void QCConfigDialog::onSave()
     m_config.sysGLOEnable = ui->sysGLOCheckBox->isChecked();
     m_config.sysGALEnable = ui->sysGALCheckBox->isChecked();
     m_config.sysQZSSEnable = ui->sysQZSSCheckBox->isChecked();
+    m_config.sysXW1Enable = ui->sysXW1CheckBox->isChecked();
+    /**< Map the selected radio back to the ephemeris mode enum; capture the
+     *  nav file path regardless (kept for the next mode switch). */
+    m_config.ephemerisMode = getEphemerisModeFromRadio();
+    m_config.ephemerisFilePaths = ui->leEphFilePaths->text();
 
     // QC check settings
     m_checkConfig.gpsUseRate = ui->useRateGPSSpinBox->value();
@@ -266,4 +357,28 @@ void QCConfigDialog::onOtherWorkDirOpenButtonClicked()
         return;
     }
     ui->otherWorkDirEdit->setText(path);
+}
+
+void QCConfigDialog::onEphModeChanged()
+{
+    /**< The file edit + browse button are only meaningful when the user opts
+     *  to specify ephemeris files; disable them otherwise to signal that. */
+    const bool customEnabled = ui->rbEphCustom->isChecked();
+    ui->leEphFilePaths->setEnabled(customEnabled);
+    ui->btnEphBrowse->setEnabled(customEnabled);
+}
+
+void QCConfigDialog::onEphBrowseClicked()
+{
+    /**< Single RINEX nav file. Patterns cover the short YYx form
+     *  (e.g. 25n/25p/25g/25l/25c, case-insensitive) and the long .nav/.rinex
+     *  forms; an all-files fallback is always available so non-matching
+     *  suffixes are still selectable. */
+    const QString filter = tr("RINEX Nav (*.?n *.?N *.?p *.?P *.?g *.?G *.?l *.?L *.?c *.?C *.??n *.??N *.??p *.??P *.??g *.??G *.??l *.??L *.??c *.??C *.nav *.NAV *.rinex *.RINEX);;All Files (*.*)");
+    const QString selectedFile = QFileDialog::getOpenFileName(this, tr("Select RINEX Ephemeris File"), QString(), filter);
+    if (selectedFile.isEmpty())
+    {
+        return;
+    }
+    ui->leEphFilePaths->setText(selectedFile);
 }

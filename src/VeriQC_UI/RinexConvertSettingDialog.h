@@ -26,12 +26,11 @@ class RinexConvertSettingDialog : public MyDialog
 public:
     explicit RinexConvertSettingDialog(QWidget *parent = nullptr);
     ~RinexConvertSettingDialog();
+   /**< Fill the dialog from the stored settings. */
    void setRinexConvertSettings(const QCConfigurator::RinexConvertSettings &settings);
    const QCConfigurator::RinexConvertSettings &getRinexConvertSettings()const;
 protected:
     void onSave();
-    void onStartDateTimeChanged();
-    void onEndDateTimeChanged();
 private:
     Ui::RinexConvertSettingDialog *ui;
     QCConfigurator::RinexConvertSettings m_settings;

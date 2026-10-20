@@ -10,6 +10,7 @@
 #include <QFontDatabase>
 #include "AppSettingsManagement.h"
 #include "CommandLineProcessor.h"
+#include "PathUtils.h"
 
 #define AUTO_UPGRADE_FILE_NAME  "AutoUpgradePlug.exe"
 
@@ -66,18 +67,20 @@ int main(int argc, char *argv[])
 #ifdef APP_VERSION
         a.setApplicationVersion(APP_VERSION);
 #endif // APP_VERSION
-        SetExePath(a.applicationFilePath().toLocal8Bit().data());
+        QByteArray exePathBytes = PathUtils::toLocalFilePathBytes(a.applicationFilePath());
+        SetExePath(exePathBytes.data());
         CommandLineProcessor processor;
         return processor.exec(a);
 #else
+    qputenv("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough");
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    //QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     QApplication a(argc, argv);
 #ifdef APP_VERSION
     a.setApplicationVersion(APP_VERSION);
 #endif // APP_VERSION
-    SetExePath(a.applicationFilePath().toLocal8Bit().data());
+    QByteArray exePathBytes = PathUtils::toLocalFilePathBytes(a.applicationFilePath());
+    SetExePath(exePathBytes.data());
     loadAppFont();
     copyUpgradeProc();
 

@@ -44,6 +44,16 @@ protected:
     void addFileRow(const QString &file);
     static QString formatFileSize(qint64 fileSize);
     static QCConfigurator::RawFileDataFormatEnum getFormatFromSuffix(const QString& suffix);
+    /**
+     * @brief Whether a format display name requires an RTCM reference time.
+     *
+     * Shared by the batch-apply format combo box and the per-row format combo
+     * boxes; update this single predicate when a new time-tagged format is added.
+     *
+     * @param formatName Display name from QCConfigurator::getFileDataFormatName().
+     * @return True for RTCM2, RTCM3 and HRC.
+     */
+    static bool isRtcmTimeFormatName(const QString &formatName);
     void onImport();
     void onApply();
     void onInputFormatComboBoxChanged(const QString &text);

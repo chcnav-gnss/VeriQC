@@ -14,6 +14,7 @@
 
 #include <QList>
 #include <QDateTime>
+#include <QColor>
 #include "VeriQC.h"
 
 #define SYS_INDEX_GPS   0
@@ -22,8 +23,9 @@
 #define SYS_INDEX_GAL   3
 #define SYS_INDEX_QZSS  4
 #define SYS_INDEX_BDS   5
+#define SYS_INDEX_XW1   6
 
-#define SYS_INDEX_MAX   (SYS_INDEX_BDS + 1)
+#define SYS_INDEX_MAX   (SYS_INDEX_XW1 + 1)
 
 #define FREQ_INDEX_GPS_L1   0
 #define FREQ_INDEX_GPS_L2C  1
@@ -56,6 +58,11 @@
 #define FREQ_INDEX_BDS_B2A  4
 #define FREQ_INDEX_BDS_B2B  5
 
+#define FREQ_INDEX_XW1_L1L  0
+#define FREQ_INDEX_XW1_L1H  1
+#define FREQ_INDEX_XW1_L2L  2
+#define FREQ_INDEX_XW1_L2H  3
+
 
 class QCResultManager
 {
@@ -68,6 +75,7 @@ public:
         QCSysGLO,
         QCSysGAL,
         QCSysQZSS,
+        QCSysXW1,   /**< appended last: the i<=QCSysQZSS range loops extend by this */
     };
 
     enum FreqTypeEnum
@@ -99,6 +107,11 @@ public:
         QZSSL5,
         QZSSL1CP,
         QZSSL6,
+
+        XW1L1L,
+        XW1L1H,
+        XW1L2L,
+        XW1L2H,
     };
 
     enum UiComplexTypeEnum
@@ -125,8 +138,9 @@ public:
 
     struct QCEpochSatObsData
     {
-        unsigned char sat;			        /**< satellite/receiver number, sat index == sat - 1 */
-        unsigned char sys, prn;
+        unsigned short sat;		            /**< satellite/receiver number, sat index == sat - 1; ushort mirrors engine QC_OBSD_T (XW1 PRN up to 620) */
+        unsigned short prn;                 /**< ushort mirrors engine QC_OBSD_T; downstream containers are unsigned int */
+        unsigned char sys;
         unsigned char nfre;
         int frq;                            /**< GLONASS frq */
 
@@ -190,13 +204,23 @@ public:
     static int getSystemIndex(QCSysTypeEnum systemType);
     static bool isSatValid(const QCEpochSatObsData &satData);
     static QString getSatName(QCSysTypeEnum sys, unsigned int prn);
+    static QColor getSystemGraphColor(QCSysTypeEnum sys);
     static QString getFreqName(QCSysTypeEnum sys, unsigned int freqIndex);
     static QString getFreqName(FreqTypeEnum type);
     static QString getUIComplexFreqsName(UiComplexTypeEnum type);
     static QVector<FreqTypeEnum> getUIComplexFreqTypes(UiComplexTypeEnum type);
     static GNSSSysFreqIndexInfoStruct getFreqIndexInfo(FreqTypeEnum type);
+    /** Per-frequency MP RMS and mean SNR for one system, read straight from the
+     *  engine result arrays (freq-index semantics -- NOT the UiComplex bucket
+     *  semantics of getSysStatisticResult, whose bucket loop cannot reach the
+     *  PlotExtend-only freqs and reorders per-freq columns). The engine writes
+     *  -1 when a freq has no data; consumers treat value <= 0 as "--".
+     *  No-op (leaves 0.0) for QCSysComplex or a @p freq not belonging to @p sys. */
+    void getSysFreqMPAndSNR(QCSysTypeEnum sys, FreqTypeEnum freq, double &mp, double &snr) const;
     static QDateTime qcTime2DateTime(QC_TIME_T t);
-    QList<unsigned int> getValidSysSatPrns(QCSysTypeEnum sys);
+    QList<unsigned int> getValidSysSatPrns(QCSysTypeEnum sys) const;
+    /** True when at least one valid PRN was recorded for @p sys. Cheaper than getValidSysSatPrns (no QList copy/sort). */
+    bool hasValidSysSatPrns(QCSysTypeEnum sys) const;
     StationAttributeInfo getStationAttributeInfo()const;
     void updateStationAttributeInfo(const StationAttributeInfo &info);
 protected:

@@ -409,6 +409,12 @@ static int RTCM3DecodeToSignalOverTimeCallback(int TypeID, RTCM_PARSE_INFO_T* pP
 	{
 		RawObsDataType = RAW_OBS_DATA_TYPE_RTCM_RTKDATA;
 	}
+	
+	GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+	if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+	{
+		return 0;
+	}
 
 	return SignalDecodeObsConvert(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RawObsDataType);
 }
@@ -533,7 +539,7 @@ static int RTCM3DecodeToSignal(unsigned TypeID, MSG_DECODE_T* pDecode, RTCM_PARS
 		{RTCM3DecodeType1304, NULL, NULL},
 	};
 
-	if ((pParseInfo == NULL) || (SourceType != GNSS_STRFMT_RTCM3))
+	if (pParseInfo == NULL)
 	{
 		return -1;
 	}
@@ -550,10 +556,14 @@ static int RTCM3DecodeToSignal(unsigned TypeID, MSG_DECODE_T* pDecode, RTCM_PARS
 		}
 		if (Result > 0)
 		{
-#if (RTCM3_DECODE_OBS_FILTER_ENABLE != 0)
 			GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+#if (RTCM3_DECODE_OBS_FILTER_ENABLE != 0)
 			RTCM3DecodeObsDataFilter(&pObsData->RangeData, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj);
 #endif
+			if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+			{
+				return -1;
+			}
 			SignalDecodeObsConvert(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM_MSM);
 		}
 	}
@@ -575,6 +585,16 @@ static int RTCM3DecodeToSignal(unsigned TypeID, MSG_DECODE_T* pDecode, RTCM_PARS
 			}
 			if ((Result > 0) && (NULL != RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc))
 			{
+				if (RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc == SignalDecodeObsConvert)
+				{
+					GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+
+					if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+					{
+						return -1;
+					}
+				}
+
 				RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RawObsDataType);
 			}
 		}
@@ -633,6 +653,12 @@ static int RTCM3DecodeToRINEXOverTimeCallback(int TypeID, RTCM_PARSE_INFO_T* pPa
 	if (((TypeID >= 1001) && (TypeID <= 1004)) ||((TypeID >= 1009) && (TypeID <= 1012)))
 	{
 		RawObsDataType = RAW_OBS_DATA_TYPE_RTCM_RTKDATA;
+	}
+
+	GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+	if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+	{
+		return 0;
 	}
 
 	return DataDecodeObsConvertRINEX(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RawObsDataType);
@@ -749,10 +775,14 @@ static int RTCM3DecodeToRINEX(unsigned TypeID, MSG_DECODE_T* pDecode, RTCM_PARSE
 		Result = RTCM3DecodeTypeMSM(RTCMSysID, TypeID, pParseInfo, pDecode, RTCM3DecodeToRINEXOverTimeCallback);
 		if (Result > 0)
 		{
-#if (RTCM3_DECODE_OBS_FILTER_ENABLE != 0)
 			GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+#if (RTCM3_DECODE_OBS_FILTER_ENABLE != 0)
 			RTCM3DecodeObsDataFilter(&pObsData->RangeData, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj);
 #endif
+			if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+			{
+				return -1;
+			}
 			DataDecodeObsConvertRINEX(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RAW_OBS_DATA_TYPE_RTCM_MSM);
 		}
 	}
@@ -769,6 +799,16 @@ static int RTCM3DecodeToRINEX(unsigned TypeID, MSG_DECODE_T* pDecode, RTCM_PARSE
 			Result = RTCM3DecodeFuncsMap[FuncsIndex].RTCM3DecodeByTypeIDFunc(pParseInfo, pDecode, RTCM3DecodeToRINEXOverTimeCallback);
 			if ((Result > 0) && (NULL != RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc))
 			{
+				if (RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc == DataDecodeObsConvertRINEX)
+				{
+					GNSS_OBS_T* pObsData = (GNSS_OBS_T*)pParseInfo->ParsedDataBuf.pBaseAddr;
+
+					if (!ObsDataPassesRINEXLimits(pDecode, pObsData))
+					{
+						return -1;
+					}
+				}
+
 				RTCM3DecodeFuncsMap[FuncsIndex].ConvertFunc(RAW_DATA_TYPE_RTCM3, TypeID, pDecode->ProtocolFilterInfo.DecodeCallbackInfo.pSrcObj, pParseInfo->ParsedDataBuf.pBaseAddr, RawObsDataType);
 			}
 		}

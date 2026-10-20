@@ -30,6 +30,7 @@ extern int g_RangeToQCSysID[] = { /**< Range System order */
 	QC_GNSS_SYSID_BDS,	/**< BDS */
 	QC_GNSS_SYSID_QZS,	/**< QZS */
 	QC_GNSS_SYSID_NUL,  /**< NIC, QC2 reserved */
+	QC_GNSS_SYSID_XW1,  /**< LEO */
 };
 
 int g_RangeToQCSatPRN[] = { /**< Range System order */
@@ -40,6 +41,7 @@ int g_RangeToQCSatPRN[] = { /**< Range System order */
 	0,      /**< BDS */
 	-160,   /**< QZS */
 	0,      /**< NIC, QC2 reserved */
+	0,      /**< XW1 */
 };
 
 int g_RangeToQCSysMask[] = { /**< Range System order */
@@ -50,6 +52,7 @@ int g_RangeToQCSysMask[] = { /**< Range System order */
 	QC_SYS_CMP,	  /**< BDS */
 	QC_SYS_QZS,	  /**< QZS */
 	QC_SYS_NONE,  /**< NIC, QC2 reserved */
+	QC_SYS_XW1,   /**< XW1 */
 };
 
 /**********************************************************************//**
@@ -69,6 +72,10 @@ extern int RangeToQCSatNo(int RangeSys, int RangeSat)
 {
 	int QCSysMask = g_RangeToQCSysMask[RangeSys];
 	int QCSatPRN = RangeSat + g_RangeToQCSatPRN[RangeSys];
+	if (QCSysMask == QC_SYS_NONE)
+	{
+		return 0;
+	}
 
 	return GetQCSatNo(QCSysMask, QCSatPRN);
 }
@@ -135,9 +142,9 @@ extern int RangeToQCSigID(int RangeSys, int RangeSig)
 		{
 			/**  0 -  6 */
 			QC_CODE_L1C, -1,          -1,          -1,          -1,          -1,          QC_CODE_L5I,
-			/**  7 - 13 */										             
+			/**  7 - 13 */
 			-1,          -1,          -1,          QC_CODE_L5X, -1,          QC_CODE_L1S, QC_CODE_L2L,
-			/** 14 - 20 */										             
+			/** 14 - 20 */
 			QC_CODE_L5Q, -1,          QC_CODE_L1L, QC_CODE_L2S, -1,          -1,          QC_CODE_L1X,
 			/** 21 - 27 */
 			QC_CODE_L2X, -1,          -1,          -1,          -1,          -1,          QC_CODE_L6L,
@@ -167,7 +174,24 @@ extern int RangeToQCSigID(int RangeSys, int RangeSig)
 			-1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1,
 		},
+		[QC_GNSS_SYSID_XW1] =
+		{
+			/**  0 -  6 */
+			QC_CODE_L1L, QC_CODE_L2L, -1, -1, QC_CODE_L1H, QC_CODE_L2H, -1,
+			/**  7 - 13 */
+			-1, -1, -1, -1, -1, -1, -1,
+			/** 14 - 20 */
+			-1, -1, -1, -1, -1, -1, -1,
+			/** 21 - 27 */
+			-1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1,
+		},
 	};
+
+	if ((QCSysIndex <= QC_GNSS_SYSID_NUL) || (QCSysIndex > QC_MAX_NUM_SYS))
+	{
+		return -1;
+	}
 
 	return s_RangSigToQCCodeTable[QCSysIndex][RangeSig];
 }
@@ -257,6 +281,13 @@ int GetDecodeMsgRinexID(int SourceType, int DecodeTypeID)
 		case 1125:
 		case 1126:
 		case 1127:
+		case 1131:
+		case 1132:
+		case 1133:
+		case 1134:
+		case 1135:
+		case 1136:
+		case 1137:
 			RinexID = RINEX_ID_OBS;
 			break;
 		case 1019:
@@ -276,6 +307,38 @@ int GetDecodeMsgRinexID(int SourceType, int DecodeTypeID)
 			break;
 		case 1045:
 		case 1046:
+			RinexID = RINEX_ID_GALEPH;
+			break;
+		default:
+			break;
+		}
+	}
+	else if (SourceType == MSG_DECODE_TYPE_HRC)
+	{
+		switch (DecodeTypeID)
+		{
+		case 2074:
+		case 2075:
+		case 2084:
+		case 2085:
+		case 2094:
+		case 2095:
+		case 2124:
+		case 2125:
+			RinexID = RINEX_ID_OBS;
+			break;
+		case 2019:
+			RinexID = RINEX_ID_GPSEPH;
+			break;
+		case 2020:
+			RinexID = RINEX_ID_GLOEPH;
+			break;
+		case 2042:
+		case 2047:
+			RinexID = RINEX_ID_BDSEPH;
+			break;
+		case 2045:
+		case 2046:
 			RinexID = RINEX_ID_GALEPH;
 			break;
 		default:
@@ -345,11 +408,14 @@ int GetDecodeMsgRinexID(int SourceType, int DecodeTypeID)
 		case RAWMSG_DECODE_ID_NICEPH:
 			RinexID = RINEX_ID_NICEPH;
 			break;
+		case RAWMSG_DECODE_ID_EPH_XWLEO:
+			RinexID = RINEX_ID_LEOEPH;
+			break;
 		default:
 			break;
 		}
 	}
-	else if (SourceType == GNSS_STRFMT_HRCX)
+	else if (SourceType == MSG_DECODE_TYPE_HRCX)
 	{
 		switch (DecodeTypeID)
 		{

@@ -15,12 +15,12 @@
 #include "Common/GNSSConstants.h"
 
 
-const static unsigned int s_1Mask[] = {0, 1, (1 << 2) - 1, (1 << 3) - 1, (1 << 4) - 1, (1 << 5) - 1, (1 << 6) - 1, (1 << 7) - 1,
+const static unsigned int s_1Mask[] = { 0, 1, (1 << 2) - 1, (1 << 3) - 1, (1 << 4) - 1, (1 << 5) - 1, (1 << 6) - 1, (1 << 7) - 1,
 						  (1 << 8) - 1, (1 << 9) - 1, (1 << 10) - 1, (1 << 11) - 1, (1 << 12) - 1, (1 << 13) - 1,
 						  (1 << 14) - 1, (1 << 15) - 1, (1 << 16) - 1, (1 << 17) - 1, (1 << 18) - 1, (1 << 19) - 1,
 						  (1 << 20) - 1, (1 << 21) - 1, (1 << 22) - 1, (1 << 23) - 1, (1 << 24) - 1, (1 << 25) - 1,
 						  (1 << 26) - 1, (1 << 27) - 1, (1 << 28) - 1, (1 << 29) - 1, (1 << 30) - 1, (1u << 31) - 1,
-						  0xffffffff};
+						  0xffffffff };
 
 #define GetMultiBit(OutputData, SrcData, SrcStartBit, BitNum)	((OutputData) = ((OutputData) << (BitNum)) + (((SrcData) >> (SrcStartBit)) & s_1Mask[BitNum]))
 
@@ -37,7 +37,7 @@ const static unsigned int s_1Mask[] = {0, 1, (1 << 2) - 1, (1 << 3) - 1, (1 << 4
 @date 2022/05/17
 @note
 **************************************************************************/
-unsigned int GetUnsignedBits(const unsigned char *pBuf, int Pos, int Len)
+unsigned int GetUnsignedBits(const unsigned char* pBuf, int Pos, int Len)
 {
 	unsigned int Bits = 0;
 	unsigned int MsgIndex;
@@ -76,7 +76,7 @@ unsigned int GetUnsignedBits(const unsigned char *pBuf, int Pos, int Len)
 @date 2022/05/17
 @note
 **************************************************************************/
-int GetSignedBits(const unsigned char *pBuf, int Pos, int Len)
+int GetSignedBits(const unsigned char* pBuf, int Pos, int Len)
 {
 	unsigned int Bits = GetUnsignedBits(pBuf, Pos, Len);
 
@@ -100,9 +100,9 @@ int GetSignedBits(const unsigned char *pBuf, int Pos, int Len)
 @date 2022/05/17
 @note
 **************************************************************************/
-double Get38Bits(const unsigned char *pBuf, int Pos)
+double Get38Bits(const unsigned char* pBuf, int Pos)
 {
-	return (double)GetSignedBits(pBuf, Pos, 32)*64.0 + GetUnsignedBits(pBuf, Pos + 32, 6);
+	return (double)GetSignedBits(pBuf, Pos, 32) * 64.0 + GetUnsignedBits(pBuf, Pos + 32, 6);
 }
 
 /**********************************************************************//**
@@ -117,7 +117,7 @@ double Get38Bits(const unsigned char *pBuf, int Pos)
 @date 2022/05/17
 @note
 **************************************************************************/
-UINT64 GetUnsigned40Bits(const unsigned char *pBuf, int Pos)
+UINT64 GetUnsigned40Bits(const unsigned char* pBuf, int Pos)
 {
 	return (((UINT64)GetUnsignedBits(pBuf, Pos, 32)) << 8) + GetUnsignedBits(pBuf, Pos + 32, 8);
 }
@@ -134,9 +134,9 @@ UINT64 GetUnsigned40Bits(const unsigned char *pBuf, int Pos)
 @date 2022/05/17
 @note
 **************************************************************************/
-double Get64Bits(const unsigned char *pBuf, int Pos)
+double Get64Bits(const unsigned char* pBuf, int Pos)
 {
-	return (double)GetSignedBits(pBuf, Pos, 32)* 4294967296.0 + GetUnsignedBits(pBuf, Pos + 32, 32);
+	return (double)GetSignedBits(pBuf, Pos, 32) * 4294967296.0 + GetUnsignedBits(pBuf, Pos + 32, 32);
 }
 
 /**********************************************************************//**
@@ -152,7 +152,7 @@ double Get64Bits(const unsigned char *pBuf, int Pos)
 @date 2022/05/17
 @note
 **************************************************************************/
-int GetSignedMagBits(const unsigned char *pBuf, int Pos, int Len)
+int GetSignedMagBits(const unsigned char* pBuf, int Pos, int Len)
 {
 	int Value = GetUnsignedBits(pBuf, Pos + 1, Len - 1);
 	return GetUnsignedBits(pBuf, Pos, 1) ? -Value : Value;
@@ -186,7 +186,7 @@ UINT64 GetUINT64Bits(const unsigned char* pBuf, int Pos)
 **************************************************************************/
 UTC_TIME_T RTCMGetUTCTime(void)
 {
-	UTC_TIME_T TempUTCTime = {0};
+	UTC_TIME_T TempUTCTime = { 0 };
 #ifdef WIN32
 	SYSTEMTIME SysTime;
 
@@ -202,7 +202,7 @@ UTC_TIME_T RTCMGetUTCTime(void)
 
 #elif defined(__linux)
 	struct timeval TimeVal;
-	struct tm *TempTime;
+	struct tm* TempTime;
 
 	if (!gettimeofday(&TimeVal, NULL) && (TempTime = gmtime(&TimeVal.tv_sec)))
 	{
@@ -251,7 +251,7 @@ UTC_TIME_T RTCMGetUTCTime(void)
 @note
 **************************************************************************/
 int GetPerSatObsDataIndex(OBS_DATA_SAT_T* pSatObsData, unsigned int ExSystemID, unsigned int SatID,
-										unsigned int SignalType, unsigned int* pSatIndex, unsigned int* pObsIndex)
+	unsigned int SignalType, unsigned int* pSatIndex, unsigned int* pObsIndex)
 {
 	unsigned int SatIndex, ObsIndex;
 	OBS_DATA_PER_SAT_T* pPerSatObsData;
@@ -283,7 +283,7 @@ int GetPerSatObsDataIndex(OBS_DATA_SAT_T* pSatObsData, unsigned int ExSystemID, 
 				}
 			}
 
-			if ((ObsIndex == pPerSatObsData->ObsNum) && (ObsIndex < MAX_FREQ_INDEX_NUM))
+			if ((ObsIndex == pPerSatObsData->ObsNum) && (ObsIndex < MAX_OBS_SIGNAL_NUM))
 			{
 				*pSatIndex = SatIndex;
 				*pObsIndex = ObsIndex;
@@ -350,7 +350,7 @@ int PerSatObsDataObsNumAdd(OBS_DATA_PER_SAT_T* pPerSatObsData, unsigned int ExSy
 
 	pPerSatObsData->SystemID = ExSystemID;
 	pPerSatObsData->SatID = SatID;
-	if (pPerSatObsData->ObsNum < MAX_FREQ_INDEX_NUM)
+	if (pPerSatObsData->ObsNum < MAX_OBS_SIGNAL_NUM)
 	{
 		pPerSatObsData->ObsNum++;
 	}
@@ -384,11 +384,15 @@ int SatObsDataToGNSSObsData(OBS_DATA_SAT_T* pSatObsData, GNSS_OBS_T* pObsData)
 	for (SatIndex = 0; SatIndex < pSatObsData->SatNum; SatIndex++)
 	{
 		pPerSatObsData = &pSatObsData->ObsDataPerSat[SatIndex];
-		for (PserSatObsIndex = 0; PserSatObsIndex < pPerSatObsData->ObsNum; PserSatObsIndex++)
+		for (PserSatObsIndex = 0; PserSatObsIndex < pPerSatObsData->ObsNum && ObsIndex < RM_RANGE_MAX_OBS_NUM; PserSatObsIndex++)
 		{
 			pObsData->RangeData.ObsData[ObsIndex] = pPerSatObsData->ObsData[PserSatObsIndex];
 			pObsData->RangeData.ObsNum++;
 			ObsIndex++;
+		}
+		if (ObsIndex >= RM_RANGE_MAX_OBS_NUM)
+		{
+			break;
 		}
 	}
 
@@ -583,7 +587,7 @@ unsigned int RMRangeSignalToRTCM3Signal(int RMRangeSystem, unsigned int RMRangeS
 			RTCM3_SIGNAL_QZS_L1CD,      RTCM3_SIGNAL_QZS_L2CL,      RTCM3_SIGNAL_QZS_L5Q,       0,
 			RTCM3_SIGNAL_QZS_L1CP,      RTCM3_SIGNAL_QZS_L2CM,      0,                          0,
 			RTCM3_SIGNAL_QZS_L1CX,      RTCM3_SIGNAL_QZS_L2CX,      0,                          0,
-			0,                          0,                          RTCM3_SIGNAL_QZS_L6E,       RTCM3_SIGNAL_QZS_L6D,
+			0,                          0,                          RTCM3_SIGNAL_QZS_L6D,       RTCM3_SIGNAL_QZS_L6E,
 			RTCM3_SIGNAL_QZS_L6X,       0,                          0,                          0,
 		},
 		[RM_RANGE_SYS_NIC] = {
@@ -772,7 +776,7 @@ unsigned int RMRangeSystemToRTCMMSMSystem(int RMSystem)
 **************************************************************************/
 unsigned int RMRangeSystemToExSystem(int RMRangeSystem)
 {
-	const static unsigned int s_ExSystemMap[RM_RANGE_SYS_OTHER] =
+	const static unsigned int s_ExSystemMap[RM_RANGE_SYS_NUM] =
 	{
 		GPS,
 		GLO,
@@ -781,9 +785,10 @@ unsigned int RMRangeSystemToExSystem(int RMRangeSystem)
 		BDS,
 		QZS,
 		NIC,
+		XW1,
 	};
 
-	if (RMRangeSystem < RM_RANGE_SYS_OTHER)
+	if (RMRangeSystem < RM_RANGE_SYS_NUM)
 	{
 		return s_ExSystemMap[RMRangeSystem];
 	}
@@ -1213,7 +1218,7 @@ const static char* s_VendorTypeStrMap[REFSTATION_VENDOR_NUM_MAX] =
 @date 2024/12/02
 @note
 **************************************************************************/
-const char * GetVendorTypeString(unsigned int VendorID)
+const char* GetVendorTypeString(unsigned int VendorID)
 {
 	const static char* s_VendorTypeString[REFSTATION_VENDOR_NUM_MAX] = {
 			"UNKNOWN",
@@ -1233,7 +1238,7 @@ const char * GetVendorTypeString(unsigned int VendorID)
 			"SEPT",
 	};
 
-	if(VendorID < REFSTATION_VENDOR_NUM_MAX)
+	if (VendorID < REFSTATION_VENDOR_NUM_MAX)
 	{
 		return s_VendorTypeString[VendorID];
 	}
@@ -1321,7 +1326,7 @@ static void SecToHMS(double Secs, int* pHour, int* pMinu, double* pSec)
 @date 2024/04/24
 @note
 **************************************************************************/
-int EpochTimeToGPSTime(int EpochTime, int * pGPSWeek, int * pWeekMsCount)
+int EpochTimeToGPSTime(int EpochTime, int* pGPSWeek, int* pWeekMsCount)
 {
 	int Hour, Minu;
 	double Sec;
@@ -1342,7 +1347,7 @@ int EpochTimeToGPSTime(int EpochTime, int * pGPSWeek, int * pWeekMsCount)
 	TempUTCTime.Hour = Hour;
 	TempUTCTime.Minute = Minu;
 	TempUTCTime.Second = (int)Sec;
-	TempUTCTime.Millisecond = (int)((Sec - TempUTCTime.Second)*1000+0.5);
+	TempUTCTime.Millisecond = (int)((Sec - TempUTCTime.Second) * 1000 + 0.5);
 
 	TimeDiff = UTCDiff(&UTCTime, &TempUTCTime) / 1000;
 
@@ -1381,14 +1386,14 @@ unsigned int GetSatIndexStart(unsigned int System)
 	const static unsigned int s_SatIndexStartMap[TOTAL_EX_GNSS_SYSTEM_NUM] = {
 		[GPS] = 0,
 		[BDS] = MAX_GPS_SAT_NUM,
-		[GAL] = MAX_GPS_SAT_NUM+MAX_BDS_SAT_NUM,
-		[GLO] = MAX_GPS_SAT_NUM+MAX_BDS_SAT_NUM+MAX_GAL_SAT_NUM,
-		[QZS] = MAX_GPS_SAT_NUM+MAX_BDS_SAT_NUM+MAX_GAL_SAT_NUM+MAX_GLO_SAT_NUM,
-		[SBA] = MAX_GPS_SAT_NUM+MAX_BDS_SAT_NUM+MAX_GAL_SAT_NUM+MAX_GLO_SAT_NUM+MAX_QZSS_SAT_NUM,
-		[NIC] = MAX_GPS_SAT_NUM+MAX_BDS_SAT_NUM+MAX_GAL_SAT_NUM+MAX_GLO_SAT_NUM+MAX_QZSS_SAT_NUM+MAX_SBAS_ALL_SAT_NUM,
+		[GAL] = MAX_GPS_SAT_NUM + MAX_BDS_SAT_NUM,
+		[GLO] = MAX_GPS_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM,
+		[QZS] = MAX_GPS_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM + MAX_GLO_SAT_NUM,
+		[SBA] = MAX_GPS_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM + MAX_GLO_SAT_NUM + MAX_QZSS_SAT_NUM,
+		[NIC] = MAX_GPS_SAT_NUM + MAX_BDS_SAT_NUM + MAX_GAL_SAT_NUM + MAX_GLO_SAT_NUM + MAX_QZSS_SAT_NUM + MAX_SBAS_ALL_SAT_NUM,
 	};
 
-	if(System >= TOTAL_EX_GNSS_SYSTEM_NUM)
+	if (System >= TOTAL_EX_GNSS_SYSTEM_NUM)
 	{
 		return 0;
 	}

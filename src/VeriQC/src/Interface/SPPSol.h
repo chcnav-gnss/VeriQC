@@ -34,10 +34,12 @@ typedef struct _VERIQC_SIMPLIFY_RESULT_T
 
 extern void AddEphSPPCore(const UNI_EPHEMERIS_T* pEPH);
 extern void AddGephSPPCore(const GLO_EPHEMERIS_T* pGEPH);
+extern void AddLEOEphRTKCore(const XW_LEO_EPHEMERIS_T* pEPH);
 extern void InitRTKRes();
 extern void ResetRTKRes(int AntID);
 extern int GetEpochResultSPP(RM_RANGE_LOG_T* pObs, int AntID);
 extern VERIQC_SIMPLIFY_RESULT_T* GetSPPRes(int AntID);
 extern int CalSatPosSpecifyTime(QC_TIME_T Time, int AntID, int SatNO, double SatPosVel[6], double SatClock[2]);
+extern int GetLEOSatPosVelClk(QC_TIME_T TransTime, QC_TIME_T Time, int AntID, int SatNO, double SatPosVel[6], double SatClock[2], int* pToe);
 
 #endif

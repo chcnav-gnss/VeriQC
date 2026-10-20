@@ -105,6 +105,20 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxXW1">
+       <property name="text">
+        <string>XW1</string>
+       </property>
+       <property name="icon">
+        <iconset resource="QuiCkResource.qrc">
+         <normaloff>:/icons/Resources/Icons/xw1_20x20.png</normaloff>:/icons/Resources/Icons/xw1_20x20.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

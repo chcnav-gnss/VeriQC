@@ -14,8 +14,12 @@
 #include "QCProgressDialog.h"
 #include "ImportFileDialog.h"
 #include "QCConfigDialog.h"
+#include "QCExceptionDialog.h"
 #include "QCResultExporter.h"
+#include "QCDiagnoseReportExporter.h"
 #include "RinexConvertSettingDialog.h"
+#include "QCConfigFileEditorDialog.h"
+#include "RinexConfigFileEditorDialog.h"
 #include "AppSettingsManagement.h"
 #include "AboutDialog.h"
 #include "upgrade/UpgradeHelp.h"
@@ -81,9 +85,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionQC,&QAction::triggered,this,&MainWindow::onRunQC);
     connect(ui->actionExportQCResult,&QAction::triggered,this,&MainWindow::onExportSelectedQCResults);
     connect(ui->actionExportQCReport,&QAction::triggered,this,&MainWindow::onExportSelectedQCReports);
+    connect(ui->actionExportQCDiagnose,&QAction::triggered,this,&MainWindow::onExportSelectedQCDiagnosis);
     connect(ui->actionRinexConvertSetting,&QAction::triggered,this,&MainWindow::onRinexConvertSetting);
     connect(ui->actionRinexConvert,&QAction::triggered,this,&MainWindow::onRinexConvert);
     connect(ui->actionQCSetting,&QAction::triggered,this,&MainWindow::onGlobalQCSetting);
+    connect(ui->actionQCConfigFileEditor,&QAction::triggered,this,&MainWindow::onQCConfigFileEditor);
+    connect(ui->actionRinexConfigFileEditor,&QAction::triggered,this,&MainWindow::onRinexConfigFileEditor);
     connect(ui->actionAbout,&QAction::triggered,this,&MainWindow::onAbout);
     connect(ui->actionUserManual, &QAction::triggered, this, &MainWindow::onShowUserManual);
     connect(ui->actionObsTimePlot,&QAction::triggered,this,&MainWindow::onDrawObsTimePlot);
@@ -129,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->actionExportQCResult->setToolTip(tr("Batch export of quality check results to Excel"));
     ui->actionExportQCReport->setToolTip(tr("HTML quality check report for a single file"));
+    ui->actionExportQCDiagnose->setToolTip(tr("Template-based diagnostic summary covering cycle slip, SNR, multipath, and availability"));
 }
 
 MainWindow::~MainWindow()
@@ -152,6 +160,7 @@ void MainWindow::onTableMenuRequested(const QPoint &pos)
     QAction *convertRinexAction = menu.addAction(tr("Rinex Convert"));
     QAction *stationAttributeInfoAction = menu.addAction(tr("Station Attribute Information"));
     QAction *exportQCResultAction = menu.addAction(tr("Export QC Result"));
+    QAction *exportQCDiagnosisAction = menu.addAction(tr("Export QC Diagnosis"));
     QAction *deleteAction = menu.addAction(tr("Delete"));
     menu.addSeparator();
     QAction* batchDeleteAction = menu.addAction(tr("Batch Delete"));
@@ -159,20 +168,51 @@ void MainWindow::onTableMenuRequested(const QPoint &pos)
     QAction * selected = menu.exec(ui->tableView->viewport()->mapToGlobal(pos));
     if(selected == qcAction)
     {
-        QCProgressDialog progressDialog;
-        progressDialog.execProcess({qcObject,},QCProcessThread::QCMode);
-
-        m_tableModel->updateQCObject(qcObject->getID());
-        this->onTableViewCurrentRowChanged();   // check whether qc object of current row is plotable
+        this->runQCAndRefresh({qcObject,});
     }
     else if(selected == qcConfigAction)
     {
+        const auto &configurator = qcObject->getQCConfigurator();
         QCConfigDialog dialog(this);
-        dialog.setConfig(qcObject->getQCConfigurator()->getQCConfig(),qcObject->getQCConfigurator()->getCheckConfig());
+        /**< Pull the right-clicked object's real observation times so that any
+         *   unchecked time-range checkbox can auto-show them read-only (only
+         *   meaningful once QC has run; stays invalid otherwise -> "--"). */
+        QDateTime obsStartTime, obsEndTime;
+        getQCObjectObsTimeRange(qcObject, obsStartTime, obsEndTime);
+        dialog.setConfig(configurator->getQCConfig(),
+                         configurator->getCheckConfig(),
+                         obsStartTime, obsEndTime);
         if(QDialog::Accepted == dialog.exec())
         {
-            qcObject->getQCConfigurator()->setQCConfig(dialog.getQCConfig());
-            qcObject->getQCConfigurator()->setCheckConfig(dialog.getQCCheckConfig());
+            /**< Compare before writing back: the re-QC prompt must only fire
+             *  on an actual config change (opening and saving untouched
+             *  values stays silent). */
+            const bool configChanged =
+                configurator->getQCConfig() != dialog.getQCConfig()
+                || configurator->getCheckConfig() != dialog.getQCCheckConfig();
+            configurator->setQCConfig(dialog.getQCConfig());
+            configurator->setCheckConfig(dialog.getQCCheckConfig());
+            /**< Mark the object as ephemeris-customized when its ephemeris mode
+             *  (or, in custom-file mode, the file paths) diverge from the
+             *  current global default; this prevents a later global save from
+             *  overwriting it. Re-selecting the global default clears the flag
+             *  so the object follows the global default again. */
+            const bool ephCustomized = isEphemerisCustomized(
+                dialog.getQCConfig(),
+                AppSettingsManagement::getInstance()->getDefaultQCConfig());
+            configurator->setEphemerisModeCustomized(ephCustomized);
+            /**< Only already-QC'd objects have stale results worth re-running;
+             *  never-QC'd ones simply pick up the new config on their first QC. */
+            if (configChanged && QCObject::QCStatusNotExecuted != qcObject->getQCStatus())
+            {
+                const auto ret = MyMessageBox::question(this, tr("Re-QC"),
+                    tr("Configuration has been modified. Re-run QC for \"%1\" with the new configuration?")
+                        .arg(qcObject->getName()));
+                if (QMessageBox::Yes == ret)
+                {
+                    this->runQCAndRefresh({qcObject,});
+                }
+            }
         }
     }
     else if(selected == convertRinexAction)
@@ -188,6 +228,10 @@ void MainWindow::onTableMenuRequested(const QPoint &pos)
     else if(selected == exportQCResultAction)
     {
         this->exportQCResults({qcObject->getID()});
+    }
+    else if(selected == exportQCDiagnosisAction)
+    {
+        this->exportQCDiagnosis({qcObject->getID()});
     }
     else if(selected == deleteAction)
     {
@@ -244,6 +288,36 @@ void MainWindow::onImportButtonClicked()
     this->importFiles(filePaths);
 }
 
+void MainWindow::runQCAndRefresh(const QVector<QSharedPointer<QCObject>> &qcObjects)
+{
+    /**< Null entries cannot occur via current call sites (model and manager
+     *   are mutated in lockstep on the GUI thread), but filter once here so
+     *   every consumer (worker thread, exception dialog, table refresh)
+     *   sees the same null-free list. */
+    QVector<QSharedPointer<QCObject>> validObjects;
+    for (const auto &obj : qcObjects)
+    {
+        if (obj)
+        {
+            validObjects.append(obj);
+        }
+    }
+    QCProgressDialog progressDialog(this);
+    progressDialog.execProcess(validObjects, QCProcessThread::QCMode);
+
+    if (QCExceptionDialog::hasAnyExceptions(validObjects)) {
+        QCExceptionDialog dialog(validObjects, this);
+        dialog.exec();
+    }
+
+    for (const auto &obj : validObjects)
+    {
+        m_tableModel->updateQCObject(obj->getID());
+    }
+    // check whether qc object of current row is plotable
+    this->onTableViewCurrentRowChanged();
+}
+
 void MainWindow::onRunQC()
 {
     QVector<int> selectedObjs = m_tableModel->getSelectedQcObjects();
@@ -256,15 +330,7 @@ void MainWindow::onRunQC()
     {
         qcObjects.append(QCObjectManager::getInstance()->getQCObjectByID(id));
     }
-    QCProgressDialog progressDialog;
-    progressDialog.execProcess(qcObjects,QCProcessThread::QCMode);
-
-    for(int id : selectedObjs)
-    {
-        m_tableModel->updateQCObject(id);
-    }
-    // check whether qc object of current row is plotable
-    this->onTableViewCurrentRowChanged();
+    this->runQCAndRefresh(qcObjects);
 }
 
 void MainWindow::onExportSelectedQCResults()
@@ -316,6 +382,18 @@ void MainWindow::onRinexConvertSetting()
     }
 }
 
+void MainWindow::onQCConfigFileEditor()
+{
+    QCConfigFileEditorDialog dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::onRinexConfigFileEditor()
+{
+    RinexConfigFileEditorDialog dialog(this);
+    dialog.exec();
+}
+
 void MainWindow::onRinexConvert()
 {
     QVector<int> selectedObjs = m_tableModel->getSelectedQcObjects();
@@ -348,17 +426,95 @@ void MainWindow::onRinexConvert()
 void MainWindow::onGlobalQCSetting()
 {
     QCConfigDialog configDialog(this);
+    /**< Mirror the per-object entry: auto-show the current-row object's real
+     *   observation times on unchecked time-range checkboxes, for reference only.
+     *   The dialog still edits/saves the global default config. */
+    QDateTime obsStartTime, obsEndTime;
+    getQCObjectObsTimeRange(this->getCurrentQCObject(), obsStartTime, obsEndTime);
     configDialog.setConfig(AppSettingsManagement::getInstance()->getDefaultQCConfig(),
-                           AppSettingsManagement::getInstance()->getDefaultQCCheckConfig());
+                           AppSettingsManagement::getInstance()->getDefaultQCCheckConfig(),
+                           obsStartTime, obsEndTime);
     if(QDialog::Accepted == configDialog.exec())
     {
+        /**< Copy the current defaults before saving: the getters return
+         *   references into the singleton that saveDefaultQCConfig mutates. */
+        const QCConfigurator::QCConfigData oldCfg = AppSettingsManagement::getInstance()->getDefaultQCConfig();
+        const QCConfigurator::QCCheckConfigData oldChk = AppSettingsManagement::getInstance()->getDefaultQCCheckConfig();
+        const bool configChanged = oldCfg != configDialog.getQCConfig()
+                                || oldChk != configDialog.getQCCheckConfig();
         AppSettingsManagement::getInstance()->saveDefaultQCConfig(configDialog.getQCConfig(),configDialog.getQCCheckConfig());
-        for(auto obj : QCObjectManager::getInstance()->getAllQCObjects())
+        const QCConfigurator::QCConfigData &globalCfg = AppSettingsManagement::getInstance()->getDefaultQCConfig();
+        const QCConfigurator::QCCheckConfigData &globalChk = AppSettingsManagement::getInstance()->getDefaultQCCheckConfig();
+        const QVector<QSharedPointer<QCObject>> allObjects = QCObjectManager::getInstance()->getAllQCObjects();
+        for(auto obj : allObjects)
         {
-            obj->getQCConfigurator()->setQCConfig(AppSettingsManagement::getInstance()->getDefaultQCConfig());
-            obj->getQCConfigurator()->setCheckConfig(AppSettingsManagement::getInstance()->getDefaultQCCheckConfig());
+            const auto &configurator = obj->getQCConfigurator();
+            /**< Skip objects whose ephemeris mode was explicitly customized via
+             *  the per-object dialog: their ephemeris override survives a global
+             *  save (session lifetime). Non-ephemeris fields are still refreshed
+             *  from the new global default for objects that follow it. */
+            if (configurator->isEphemerisModeCustomized())
+            {
+                /**< Preserve the object's customized ephemeris fields on top of
+                 *  the refreshed global default. */
+                QCConfigurator::QCConfigData cfg = globalCfg;
+                const QCConfigurator::QCConfigData &objCfg = configurator->getQCConfig();
+                cfg.ephemerisMode = objCfg.ephemerisMode;
+                cfg.ephemerisFilePaths = objCfg.ephemerisFilePaths;
+                configurator->setQCConfig(cfg);
+            }
+            else
+            {
+                configurator->setQCConfig(globalCfg);
+            }
+            configurator->setCheckConfig(globalChk);
+        }
+        /**< Offer a full re-run whenever the defaults actually changed and
+         *  anything is imported. Scope is every imported object, including
+         *  never-QC'd ones (SRS v1.1 decision); the question dialog defaults
+         *  to "No" so the batch run is never triggered by accident. */
+        if (configChanged && !allObjects.isEmpty())
+        {
+            const auto ret = MyMessageBox::question(this, tr("Re-QC"),
+                tr("Global configuration has been modified and applied to all objects. "
+                   "Re-run QC for all imported data (%1 objects)?").arg(allObjects.size()));
+            if (QMessageBox::Yes == ret)
+            {
+                this->runQCAndRefresh(allObjects);
+            }
         }
     }
+}
+
+void MainWindow::getQCObjectObsTimeRange(const QSharedPointer<QCObject> &qcObject,
+                                         QDateTime &obsStartTime,
+                                         QDateTime &obsEndTime)
+{
+    /**< Stay invalid until QC has produced a real time range for this object. */
+    if (!qcObject || QCObject::QCStatusNotExecuted == qcObject->getQCStatus())
+    {
+        return;
+    }
+    obsStartTime = qcObject->getQCResultManager()->getStartTime();
+    obsEndTime   = qcObject->getQCResultManager()->getEndTime();
+}
+
+bool MainWindow::isEphemerisCustomized(const QCConfigurator::QCConfigData &objCfg,
+                                       const QCConfigurator::QCConfigData &globalCfg)
+{
+    /**< A different mode always counts as customized. The path only matters
+     *  when both sides are in custom-file mode (the path is ignored by the
+     *  engine in the other modes), so it is checked only in that branch. */
+    if (objCfg.ephemerisMode != globalCfg.ephemerisMode)
+    {
+        return true;
+    }
+    if (objCfg.ephemerisMode == QCConfigurator::QCConfigData::EphemerisModeEnum::EphemerisCustomFile
+        && objCfg.ephemerisFilePaths != globalCfg.ephemerisFilePaths)
+    {
+        return true;
+    }
+    return false;
 }
 
 void MainWindow::onAbout()
@@ -450,6 +606,7 @@ void MainWindow::onTableDataChanged()
     ui->actionRinexConvert->setEnabled(existsNonRinexObj);
     ui->actionExportQCReport->setEnabled(existsDoneQCObj);
     ui->actionExportQCResult->setEnabled(existsDoneQCObj);
+    ui->actionExportQCDiagnose->setEnabled(existsDoneQCObj);
     this->onTableViewCurrentRowChanged();
 }
 
@@ -511,9 +668,20 @@ void MainWindow::retranslateUi()
 void MainWindow::setPlotable(bool plotable)
 {
     ui->actionObsTimePlot->setEnabled(plotable);
-    ui->actionSkyPlot->setEnabled(plotable);
     ui->actionSNRAndMPPlot->setEnabled(plotable);
     ui->actionSatNumAndDOPPlot->setEnabled(plotable);
+
+    /** sky plot is unavailable in no-ephemeris mode (azel cannot be computed without nav) */
+    bool skyPlotEnabled = plotable;
+    if (plotable)
+    {
+        QSharedPointer<QCObject> qcObject = getCurrentQCObject();
+        if (qcObject && qcObject->getQCConfigurator()->getQCConfig().noEphEnable())
+        {
+            skyPlotEnabled = false;
+        }
+    }
+    ui->actionSkyPlot->setEnabled(skyPlotEnabled);
 }
 
 QSharedPointer<QCObject> MainWindow::getCurrentQCObject()
@@ -547,6 +715,9 @@ void MainWindow::importFiles(QStringList filePaths)
     for(const QCConfigurator::QCConfigRawFileInfo &config : configs)
     {
         auto newObject = QCObjectManager::getInstance()->addQCObject();
+        // Per-row no-ephemeris override is applied inside setRawFileInfo
+        // (a ticked row promotes the object to no-ephemeris mode; unticked
+        // rows keep the configured default, no INI write-back).
         newObject->getQCConfigurator()->setRawFileInfo(config);
         qcObjectIds.append(newObject->getID());
     }
@@ -561,15 +732,7 @@ void MainWindow::importFiles(QStringList filePaths)
     {
         qcObjects.append(QCObjectManager::getInstance()->getQCObjectByID(id));
     }
-    QCProgressDialog progressDialog;
-    progressDialog.execProcess(qcObjects, QCProcessThread::QCMode);
-
-    for (int id : qcObjectIds)
-    {
-        m_tableModel->updateQCObject(id);
-    }
-    // check whether qc object of current row is plotable
-    this->onTableViewCurrentRowChanged();
+    this->runQCAndRefresh(qcObjects);
 }
 
 void MainWindow::exportQCResults(const QVector<int> &qcObjects)
@@ -586,6 +749,93 @@ void MainWindow::exportQCResults(const QVector<int> &qcObjects)
     else
     {
         MyMessageBox::information(this,tr("Success"),tr("Export success     "));
+    }
+}
+
+void MainWindow::onExportSelectedQCDiagnosis()
+{
+    QVector<int> selectedObjs = m_tableModel->getSelectedQcObjects();
+    QVector<int> doneQCObjs;
+    for(int id : selectedObjs)
+    {
+        QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(id);
+        if(!qcObject)
+        {
+            continue;
+        }
+        if(QCObject::QCResultStatusEnum::QCStatusNotExecuted == qcObject->getQCStatus())
+        {
+            continue;
+        }
+        doneQCObjs.append(id);
+    }
+    if(doneQCObjs.isEmpty())
+    {
+        return;
+    }
+    this->exportQCDiagnosis(doneQCObjs);
+}
+
+void MainWindow::exportQCDiagnosis(const QVector<int> &qcObjects)
+{
+    if(qcObjects.isEmpty())
+    {
+        return;
+    }
+
+    // Default-output model: each report goes to its data directory as
+    // <basename>_QCDiag.html (same naming the exporter already uses), with
+    // no path dialog. Single-file export also opens the report in the
+    // default browser; batch export asks whether to open the first folder.
+    const bool singleFile = (qcObjects.size() == 1);
+    int written = 0;
+    QString firstOutPath;   // first successfully written report (reused to open it / its folder)
+    QString firstWorkDir;
+
+    for(int id : qcObjects)
+    {
+        QSharedPointer<QCObject> obj = QCObjectManager::getInstance()->getQCObjectByID(id);
+        if(!obj ||
+           QCObject::QCResultStatusEnum::QCStatusNotExecuted == obj->getQCStatus())
+        {
+            // Unify the "skip not-executed" filter for both the menu path and
+            // the context-menu path (the latter used to bypass it).
+            continue;
+        }
+        const QString outPath = obj->getQCConfigurator()->getDiagnoseHtmlFilePath();
+        if(QCDiagnoseReportExporter::exportToHtml(outPath, {id}) > 0)
+        {
+            ++written;
+            if(firstOutPath.isEmpty())
+            {
+                firstOutPath = outPath;
+                firstWorkDir = obj->getQCConfigurator()->getWorkDirPath();
+            }
+        }
+    }
+
+    if(written <= 0)
+    {
+        MyMessageBox::critical(this, tr("Error"), tr("Export failed     "));
+        return;
+    }
+
+    if(singleFile)
+    {
+        if(!firstOutPath.isEmpty())
+        {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(firstOutPath));
+        }
+    }
+    else
+    {
+        auto ret = MyMessageBox::question(
+            this, tr("Success"),
+            tr("%1 report(s) exported to their data directories. Open the first one's folder?").arg(written));
+        if(QMessageBox::Yes == ret && !firstWorkDir.isEmpty())
+        {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(firstWorkDir));
+        }
     }
 }
 
@@ -684,7 +934,17 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             QVector<QAction*> plotActions = { ui->actionObsTimePlot,ui->actionSkyPlot,ui->actionSatNumAndDOPPlot,ui->actionSNRAndMPPlot };
             if (action && !action->isEnabled() && plotActions.contains(action))
             {
-                m_alertMessageBox->setText(tr("Please click [QC] first, and this function will be activated after the QC is completed"));
+                QString alertMsg = tr("Please click [QC] first, and this function will be activated after the QC is completed");
+                /** sky plot disabled by no-ephemeris mode deserves a distinct hint */
+                if (action == ui->actionSkyPlot)
+                {
+                    QSharedPointer<QCObject> qcObject = getCurrentQCObject();
+                    if (qcObject && qcObject->getQCConfigurator()->getQCConfig().noEphEnable())
+                    {
+                        alertMsg = tr("Sky plot is disabled in No-Ephemeris mode (azel unavailable)");
+                    }
+                }
+                m_alertMessageBox->setText(alertMsg);
                 m_alertMessageBox->show();
                 m_alertMessageBox->raise();
             }
@@ -700,4 +960,5 @@ void MainWindow::resetWindow()
     ui->actionRinexConvert->setEnabled(false);
     ui->actionExportQCReport->setEnabled(false);
     ui->actionExportQCResult->setEnabled(false);
+    ui->actionExportQCDiagnose->setEnabled(false);
 }

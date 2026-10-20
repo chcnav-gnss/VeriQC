@@ -25,6 +25,10 @@
         <file>Resources/Icons/Calendar.png</file>
         <file>Resources/Icons/DownArrow.png</file>
         <file>Resources/Icons/RightArrow.png</file>
+        <file>Resources/Icons/SpinUp.png</file>
+        <file>Resources/Icons/SpinDown.png</file>
+        <file>Resources/Icons/SpinUp_Disable.png</file>
+        <file>Resources/Icons/SpinDown_Disable.png</file>
         <file>Resources/Icons/CheckboxChecked.png</file>
         <file>Resources/Icons/CheckboxChecked_Disable.png</file>
         <file>Resources/Icons/CheckboxUnchecked.png</file>
@@ -39,6 +43,7 @@
         <file>Resources/Icons/glo_20x20.png</file>
         <file>Resources/Icons/gps_20x20.png</file>
         <file>Resources/Icons/qzss_20x20.png</file>
+        <file>Resources/Icons/xw1_20x20.png</file>
         <file>Resources/Icons/CheckedWhite.png</file>
         <file>Resources/Icons/FileMerge.png</file>
     </qresource>

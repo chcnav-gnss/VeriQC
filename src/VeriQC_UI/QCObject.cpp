@@ -19,6 +19,7 @@ int QCObject::getID() const
 bool QCObject::doQC(QCProcessCallbackFun callback, bool &cancelQC)
 {
     bool ret = m_processor->doQC(this->getName(), callback,cancelQC);
+    m_lastRunOK = ret;
     if(ret)
     {
         this->updateQCStatus();
@@ -38,6 +39,26 @@ bool QCObject::doRinexConvert(QCProcessCallbackFun callback, bool &cancel)
 const QString &QCObject::getLastErrorMsg()const
 {
     return m_processor->getLastErrorMsg();
+}
+
+bool QCObject::isQCRunSucceeded() const
+{
+    return m_lastRunOK;
+}
+
+const QString &QCObject::getDataExceptionMsg() const
+{
+    return m_processor->getDataExceptionMsg();
+}
+
+const QStringList &QCObject::getConvertOutputFiles() const
+{
+    return m_processor->getConvertOutputFiles();
+}
+
+bool QCObject::isConvertSucceeded() const
+{
+    return m_processor->isConvertSucceeded();
 }
 
 QCObject::QCResultStatusEnum QCObject::getQCStatus() const

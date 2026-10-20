@@ -18,7 +18,8 @@ void MyProgressCustomPlot::execProgress()
     delayTimer.setInterval(500);
     delayTimer.setSingleShot(true);
     MyWaterProgressBar *progressBar = new MyWaterProgressBar(&progressDialog);
-    progressBar->setFixedSize(200,200);
+    qreal dpr = devicePixelRatioF();
+    progressBar->setFixedSize(static_cast<int>(200 * dpr), static_cast<int>(200 * dpr));
     QVBoxLayout *dialogLayout = new QVBoxLayout();
     dialogLayout->addWidget(progressBar);
     progressDialog.setLayout(dialogLayout);

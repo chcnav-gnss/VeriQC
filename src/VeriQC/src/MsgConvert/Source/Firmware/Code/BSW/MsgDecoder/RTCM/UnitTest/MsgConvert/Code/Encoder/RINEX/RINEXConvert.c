@@ -245,7 +245,7 @@ int ScreenTime(UTC_TIME_T * pTime, UTC_TIME_T * pTimeStart, UTC_TIME_T * pTimeEn
 {
 	return (TimeInt <= 0.0 || fmod((double)(UTCToMillisecond(pTime) + DTTOL), TimeInt*1000) <= (double)DTTOL * 2) &&
 		(pTimeStart->Year == 0 || UTCDiff(pTime, pTimeStart) >= -DTTOL) &&
-		(pTimeStart->Year == 0 || UTCDiff(pTime, pTimeEnd) < DTTOL);
+		(pTimeEnd->Year == 0 || UTCDiff(pTime, pTimeEnd) < DTTOL);
 }
 
 /**********************************************************************//**
@@ -539,9 +539,19 @@ static int SetSingleObsDataHeaderStaTime(SINGLE_OBS_CONVERT_DATA_T* pSingleObsCo
 	return 0;
 }
 
+static SINGLE_OBS_CONVERT_DATA_T* GetCurrentObsConvertData(MSG_CONVERT_DATA_T* pMsgConvertData, int RawDataType)
+{
+	if (pMsgConvertData->RawObsDataType == 0)
+	{
+		return &pMsgConvertData->GlobalObsConvertData;
+	}
+
+	return &pMsgConvertData->SingleObsConvertData[RawDataType];
+}
+
 static int SetHeaderStaTime(MSG_CONVERT_DATA_T* pMsgConvertData, GNSS_OBS_SAT_DATA_T* pObsSatData, int RawDataType)
 {
-	return SetSingleObsDataHeaderStaTime(&pMsgConvertData->SingleObsConvertData[RawDataType], pObsSatData);
+	return SetSingleObsDataHeaderStaTime(GetCurrentObsConvertData(pMsgConvertData, RawDataType), pObsSatData);
 }
 
 /**********************************************************************//**
@@ -1521,12 +1531,12 @@ static void SetSingleObsDataTimeInfo(GNSS_OBS_T* pObsData, unsigned int ObsNum, 
 
 static void SetObsDataTimeInfo(GNSS_OBS_T* pObsData, MSG_CONVERT_DATA_T* pMsgConvertData, int RawDataType)
 {
-	SetSingleObsDataTimeInfo(pObsData, pObsData->RangeData.ObsNum, &pMsgConvertData->SingleObsConvertData[RawDataType]);
+	SetSingleObsDataTimeInfo(pObsData, pObsData->RangeData.ObsNum, GetCurrentObsConvertData(pMsgConvertData, RawDataType));
 }
 
 static void SetGNSSObsDataTimeInfo(GNSS_OBS_T* pObsData, MSG_CONVERT_DATA_T* pMsgConvertData, int RawDataType)
 {
-	SetSingleObsDataTimeInfo(pObsData, pObsData->GNSSObsData.ObsNum, &pMsgConvertData->SingleObsConvertData[RawDataType]);
+	SetSingleObsDataTimeInfo(pObsData, pObsData->GNSSObsData.ObsNum, GetCurrentObsConvertData(pMsgConvertData, RawDataType));
 }
 
 /**********************************************************************//**
@@ -1989,7 +1999,7 @@ static void SingleObsDataConvertRinex(MSG_CONVERT_DATA_T* pMsgConvertData, unsig
 					OutRINEXObsHeader(pSingleObsConvertData->RinexObsFileFp, &pSingleObsConvertData->RINEXObsOpt, &pSingleObsConvertData->RINEXObsHeader, &pMsgConvertData->EncodeDataBuf);
 				}
 			}
-			pMsgConvertData->Rece++;
+			pSingleObsConvertData->Rece++;
 		}
 	}
 
@@ -2159,9 +2169,22 @@ int DataDecodeObsConvertRINEX(int RawDataType, int DecodeID, void* pSrcObj, void
 
 	RangeDataToObsSatData(pObsData, pObsSatData);
 
-	if (pMsgConvertData->AllFreqFlag <= 0)
 	{
-		SetSysSigType(pMsgConvertData, pObsSatData, RawObsDataType);
+		SINGLE_OBS_CONVERT_DATA_T* pCurrentObsConvertData = GetCurrentObsConvertData(pMsgConvertData, RawObsDataType);
+		if (!ScreenTime(&pObsSatData->ObsTime, &pCurrentObsConvertData->RINEXObsOpt.TimeStart, &pCurrentObsConvertData->RINEXObsOpt.TimeEnd, 0.0))
+		{
+			return 0;
+		}
+
+		if (pMsgConvertData->AllFreqFlag <= 0)
+		{
+			SetSysSigType(pMsgConvertData, pObsSatData, RawObsDataType);
+		}
+		else
+		{
+			SetHeaderStaTime(pMsgConvertData, pObsSatData, RawObsDataType);
+			SetObsDataTimeInfo(pObsData, pMsgConvertData, RawObsDataType);
+		}
 	}
 
 	ObsDataConvertRinex(pMsgConvertData, pObsSatData, RawObsDataType);
@@ -2218,9 +2241,22 @@ int DataDecodeGNSSObsConvertRINEX(int RawDataType, int DecodeID, void* pSrcObj, 
 
 	GNSSObsDataToObsSatData(pObsData, pObsSatData);
 
-	if (pMsgConvertData->AllFreqFlag <= 0)
 	{
-		SetSysSigTypeEx(pMsgConvertData, pObsSatData, RawObsDataType);
+		SINGLE_OBS_CONVERT_DATA_T* pCurrentObsConvertData = GetCurrentObsConvertData(pMsgConvertData, RawObsDataType);
+		if (!ScreenTime(&pObsSatData->ObsTime, &pCurrentObsConvertData->RINEXObsOpt.TimeStart, &pCurrentObsConvertData->RINEXObsOpt.TimeEnd, 0.0))
+		{
+			return 0;
+		}
+
+		if (pMsgConvertData->AllFreqFlag <= 0)
+		{
+			SetSysSigTypeEx(pMsgConvertData, pObsSatData, RawObsDataType);
+		}
+		else
+		{
+			SetHeaderStaTime(pMsgConvertData, pObsSatData, RawObsDataType);
+			SetGNSSObsDataTimeInfo(pObsData, pMsgConvertData, RawObsDataType);
+		}
 	}
 
 	ObsDataConvertRinex(pMsgConvertData, pObsSatData, RawObsDataType);

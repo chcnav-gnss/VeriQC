@@ -1,0 +1,53 @@
+Version: V1.0.17.0
+Release date: 2026.9.20
+New Feature
+  1. Added XW1 (SatNet LEO) satellite quality check support
+  2. Added QC config file / Rinex convert config file editors under the Settings menu; custom config files enable personalized batch quality check from the command line
+Optimization
+  1. Improved the VeriQC command-line tool: VeriQC_Console.exe now batch-runs quality check or RINEX conversion for all data under a given input path; see the user manual or run "VeriQC_Console.exe -h" for quick usage help
+Bug fix
+  1. Fixed misaligned per-frequency MP and SNR columns for GPS/BDS/GAL/QZSS in the Excel QC summary (some frequencies always showed "--"); values now match the QC report HTML cell-for-cell
+
+Version: V1.0.16.0
+Release date: 2026.8.21
+New Feature
+  1. Added HRC format support for quality check
+  2. Added compact layout option for the observation sequence plot: when enabled, it reduces the row spacing between satellites and hides frequencies without data, increasing the number of satellites visible per page
+Optimization
+  1. Optimized the prompt for re-running quality check after modifying and saving the configuration panel when data has already been imported
+Bug fix
+  1. Fixed the "Learn more" product information and historical version information content in the Help => About dialog
+
+Version: V1.0.15.0
+Release date: 2026.8.7
+New Feature
+  1. Added specified ephemeris mode configuration: Settings => QC Settings => Ephemeris Configuration; takes effect after being checked; when batch-processing same-day RINEX files, or when the ephemeris and observation files have different names, a specified ephemeris file can be used for quality check
+Optimization
+  1. Improved the alignment inconsistency of home page icons and text under different resolutions and scaling factors
+  2. Adjusted the time settings in QC Settings / RINEX Convert Settings to the first and last times of the imported data
+  3. Refined the ephemeris mode options, providing three parallel modes: Default / No Ephemeris / Specified Ephemeris
+Bug fix
+  1. Fixed the defect that RINEX data failed to import when there was no trailing space at the end of records
+  2. Fixed the defect that the sampling interval in RINEX conversion settings only accepted integer values
+
+Version: V1.0.14.0
+Release date: 2026.7.24
+New Feature
+  1. Added no-ephemeris mode configuration: Settings => QC Settings => No Ephemeris Mode; takes effect after being checked; when the imported data contains no ephemeris, observation sequence plots and height-angle-independent information such as cycle slips can still be output normally
+Optimization
+  1. Adjusted the satellite ID colors on the sky plot: different systems are distinguished by different colors for better clarity
+Bug fix
+  1. Fixed the defect that frequency points exceeding the configured limit were not imported successfully
+  2. Fixed the defect that the time-segment splitting in RTCM conversion did not take effect for RawMsgBinary and RTCM formats
+  3. Fixed the defect that data could not be imported when the file path contained Chinese characters
+
+Version: V1.0.13.0
+Release date: 2026.7.17
+New Feature
+  1. Added data import error prompts: when a data import error occurs, a dialog shows the relevant issues (precise down to the system), helping users quickly and accurately identify the cause
+  2. Added data quality anomaly diagnostic report: supports preliminary summary and analysis of data quality anomalies from four dimensions: cycle slip, SNR, multipath, and data availability
+  3. Added adaptive time recognition for RTCM data: when importing RTCM data, the data time is recognized adaptively, improving data import convenience
+Bug fix
+  1. Fixed the issue of abnormal UI window sizes and DPI scaling in some windows
+  2. Fixed the issue that some data could not be imported successfully, improving data import stability
+  3. Fixed the defect that the default QC configuration only checked satellites below 30 degrees elevation angle

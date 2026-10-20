@@ -34,7 +34,7 @@ extern "C" {
 typedef struct _RANGE_DATA_PER_SAT_T
 {
 	unsigned int ObsNum;
-	RM_RANGE_DATA_T ObsData[MAX_FREQ_INDEX_NUM+1]; /**< obs data*/
+	RM_RANGE_DATA_T ObsData[MAX_OBS_SIGNAL_NUM]; /**< obs data*/
 } RANGE_DATA_PER_SAT_T;
 
 typedef struct _OBS_DATA_PER_SYS_T

@@ -34,9 +34,19 @@
 #define EPH_DATA_TYPE_QZS               10
 #define EPH_DATA_TYPE_NIC               11
 #define EPH_DATA_TYPE_SBA               12
-#define EPH_DATA_TYPE_GAL_REDUCED_CED   13
+#define EPH_DATA_TYPE_GAL_RCED   		13
+#define EPH_DATA_TYPE_XW_LEO            18
 #define ALM_DATA_TYPE_SBA               24
 
+
+/** max valid time of navigation data */
+#define NAV_EXPIRE_THR_UNI_EPH      (4 * 3600)		/**< threshold of UNI eph expired, 3600*4 sec */
+#define NAV_EXPIRE_THR_GLO_EPH	      3600          /**< threshold of GLO eph expired, 3600 sec */
+#define NAV_EXPIRE_THR_GAL_REDCED      600          /**< threshold of GAL Reduced CED expired, 10 minutes */
+#define NAV_EXPIRE_THR_UNI_ALM           7			/**< threshold of UNI Alm expired, 7 days */
+#define NAV_EXPIRE_THR_GLO_ALM           7			/**< threshold of GLO Alm expired, 7 days */
+#define NAV_EXPIRE_THR_SBA_EPH          12          /**< threshold of SBA GEO eph expired, 12 weeks */
+#define NAV_EXPIRE_THR_SBA_ALM          24          /**< threshold of SBA GEO Alm expired, 24 weeks */
 
 /** satellite type defined in the BDS 3 nav data*/
 #define BD3_SAT_TYPE_NONE             0
@@ -110,6 +120,9 @@ typedef struct _GLO_EPHEMERIS_T   /**< ephemeris type for glonass satellite */
 	unsigned int      IODE;       /**< IODE (0-6 bit of tb field) */
 	unsigned int      TOE;        /**< epoch of ephemeris (gpst) */
 }GLO_EPHEMERIS_T;
+
+/** judge GLONASS satellite health by Bn */
+#define  GLO_EPH_IS_HEALTH(Bn)      ( 0 == ((Bn) & (1<<2)) )
 
 typedef struct _UNI_EPHEMERIS_T       /**< ephemeris type for non-glonass satellite */
 {
@@ -191,5 +204,93 @@ typedef struct _UNI_EPHEMERIS_T       /**< ephemeris type for non-glonass satell
 	double            OmegaDelta;       /**< Delta Between OmegaDot and OMEGDOTE, (OmegaDot - OMEGDOTE), radiant/seconds */
 	double            Ek;               /**< Eccentric Anomaly, will be changed every epoch, radiant */
 }UNI_EPHEMERIS_T;
+
+typedef struct _XW_LEO_EPHEMERIS_T       /**< ephemeris type for non-glonass satellite */
+{
+	unsigned char     EphState;         /**< NAV_DATA_STATUS_X */
+	unsigned char     EphDataType;      /**< data type, not used at present, EPH_DATA_TYPE_X */
+	unsigned char     SystemID;         /**< SystemID, as defined in GNSSSignal.h  */
+	unsigned short    SatID;            /**< all system based on 1, GPS(1-32), GAL(1-36), BDS(1-64), QZS(1-10) */
+	unsigned short    PRN;          
+
+	unsigned char     SatType;          /**< Special for BDS CNAV,, BD3_SAT_TYPE_XXX,  0 -- GEO, 1 -- IGSO, 3 -- METO */
+	unsigned char     Health;           /**< GPS/QZS          :bit0, 1-unhealthy,0-OK
+											 GAL              :bit0-1 for E1b, bit2-3 for E5b, bit4-5 for E5a
+											 BDS              :bit0, satH1(1-unhealthy,0-OK)
+											 BDS CNAV         :bit0-1, 0 for OK, 1 for unhealthy or test, 2 - reserved, 3 - reserved
+											 NavIC            :bit0 for L5 SPS, bit1 for S SPS;  (1-unhealthy,0-OK)
+											 GPS CNAV         :bit0:L1; bit1:L2; bit2:L5 */
+	unsigned char     DataValidStatus;  /**< special for GAL, Data Valid Status, 0 -- Nav data valid, 1 -- working without guarantee
+											 bit 0 for E1B, bit 1 for E5b, bit 2 for E5a */
+	unsigned char     NavDataSource;    /**< Special for GAL INav, bit0 for E1B, bit1 for E5b; 0 -- unknown, 1 -- E1B, 2 -- E5b, 3 -- E1B and E5b
+											 Special for BDS CNAV, bit 0 for CNVA1(B1C), bit 1 for CNAV2(B2a), bit 2 for CNAV3(B2b) */
+
+	unsigned char     FitInterval;      /**< special for GPS/QZSS, Curve fit interval,
+											 0 -- eph data are effective for 2hours, 1 -- eph data are effective for > 2hours */
+	unsigned char     URA;              /**< GPS/QZS/BDS: URA, GAL:SISA Index, NIC:URA, BDS CNAV: SISMAI */
+	unsigned char     IntegrityIndicator;         
+	unsigned char     FreqFlag;         
+	unsigned short    Reserved;         /**< special for NAVIC, 10 bit reserved in subframe1
+											 special for BDS CNAV, bit 0-2, for B1C DIF, SIF, AIF, bit 3-5 for B2a DIF, SIF, AIF, bit 6-8 for B2b DIF, SIF, AIF */
+
+	unsigned char     NICSpare1;        /**< special for NAVIC, 2 bit spare in subframe1 */
+	unsigned char     NICSpare2;        /**< special for NAVIC, 2 bit spare in subframe2 */
+	unsigned char  	  AlertFlag;        /**< special for NAVIC, the utilization of navigation data shall be at the user's own risk, 1 -- alert, 0 -- OK */
+	unsigned char 	  AutoNav;          /**< special for NAVIC */
+
+	int               TOW;              /**< Special for GPS/QZS, Time Stamp of subframe1 (s) */
+
+	unsigned short    Week;             /**< Week Number of TOE, GPS/QZS: GPS week; BDS: BDS week; GAL: GAL week, NIC: NIC Week */
+	unsigned short    ZWeek;            /**< week count, decoded from navdata, GPS/QZS: GPS week; BDS: BDS week; GAL: GAL week, NIC: NIC Week */
+
+	unsigned short    Reserved0;        /**< for 8 byte align */
+	unsigned short    IODC;             /**< GPS/QZS IODC, BDS AODC, GAL/NIC -- */
+	int               TOC;              /**< Reference time of clock parameters, second in week, GAL T0C */
+	double            Af0;              /**< SV clock bias, seconds */
+	double            Af1;              /**< SV clock drift, seconds/seconds */
+	double            Af2;              /**< SV clock drift rate, seconds/seconds^2 */
+
+
+	double            Tgd[3];           /**< GPS/QZS/GPS CNAV :Tgd[0]=TGD
+											 GAL              :Tgd[0]=BGD E5a/E1,Tgd[1]=BGD E5b/E1
+											 BDS              :Tgd[0]=BGD1,Tgd[1]=BGD2
+											 BDS CNAV         :Tgd[0]=TgdB1cP,Tgd[1]=TgdB2aP,Tgd[2]=TgdB2bI */
+	double            Isc[4];           /**< GPS CNAV         :Isc[0]=IscL1CA,Isc[1]=IscL2C,Isc[2]=IscL5I5,Isc[3]=IscL5Q5
+											 BDS CNAV         :Isc[0]=ISCB1cd,Isc[1]=ISCB2ad */
+
+	unsigned short    IODE1;            /**< GPS IODE1, QZS IODE, GAL IODnav, BDS AODE, BDS CNAV IODE, NIC IODEC */
+	unsigned short    IODE2;            /**< GPS IODE2 */
+	int               TOE;              /**< Reference time for ephemeris, second in week, GAL T0E */
+	double            SqrtAorDeltaA;    /**< SqrtA for non-CNAV Eph, Square Root of the Semi-Major Axis, sqrt(meters)
+											 DeltaA for CNAV Eph, semo-major axis difference at reference time, for BDS CNAV, GPS CNAV */
+	double            Adot;             /**< correction for A (GPS/BDS CNAV) */
+	double            DeltaN;           /**< Mean Motion Difference from Computed Value, radiant/second */
+	double            Ndot;             /**< correction for deltN (GPS/BDS CNAV) */
+	double            M0;               /**< Mean Anomaly at Reference Time, radiant */
+	double            Ecc;              /**< Eccentricity */
+	double            Omega;            /**< Argument of Perigee, radiant */
+	double            Cuc;              /**< Amplitude of the Cosine Harmonic Correction Term to the Argument of Latitude, radiant */
+	double            Cus;              /**< Amplitude of the Sine Harmonic Correction Term to the Argument of Latitude, radiant */
+	double            Crc;              /**< Amplitude of the Cosine Harmonic Correction Term to the Orbit Radius, meters */
+	double            Crs;              /**< Amplitude of the Sine Harmonic Correction Term to the Orbit Radius, meters */
+	double            Cic;              /**< Amplitude of the Cosine Harmonic Correction Term to the Angle of Inclination, radiant */
+	double            Cis;              /**< Amplitude of the Sine Harmonic Correction Term to the Angle of Inclination, radiant */
+	double            I0;               /**< Inclination Angle at Reference Time, radiant */
+	double            IDot;             /**< Rate of Inclination Angle, radiant/seconds */
+	double            Omega0;           /**< Longitude of Ascending Node of Orbit Plane at Weekly Epoch, radiant */
+	double            OmegaDot;         /**< Rate of Right Ascension, radiant/second */
+
+/** interim variables from basic ephemeris parameter, avoid unnecessary calculation every time */
+	double            A;                /**< the Semi-Major Axis, meters */
+	double            RootEcc;          /**< Square Root of One Minus Ecc Square, sqrt(1-Ecc^2)*/
+	double            N;                /**< Corrected Mean Angular Rate, (sqrt(GM/A^3) + DeltaN), radiant/seconds*/
+	double            OmegaT;           /**< Longitude of Ascending Node of Orbit Plane at toe, (Omega0 + OMEGDOTE*toe), radiant */
+	double            OmegaDelta;       /**< Delta Between OmegaDot and OMEGDOTE, (OmegaDot - OMEGDOTE), radiant/seconds */
+	double            Ek;               /**< Eccentric Anomaly, will be changed every epoch, radiant */
+	double            DeltaCrs;         /**< Delta Crs (m) */
+	double            DeltaCrc;         /**< Delta Crc (m) */
+	double            DeltaCis;         /**< Delta Cis (rad) */
+	double            DeltaCic;         /**< Delta Cic (rad) */
+}XW_LEO_EPHEMERIS_T;
 
 #endif

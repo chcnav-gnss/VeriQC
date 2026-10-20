@@ -9,6 +9,9 @@ int main(int argc, char* argv[])
 	//QString serverVersion = "1.0.0.38";
 	//QString url = "http://122.112.214.242:8090/fileStorage/download/03f09882a7713e00118bdd8702c2a9fa";
 	//int totalSize = 7935369;
+	qputenv("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough");
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	QApplication a(argc, argv);
     QString currentVersion;
     QString serverVersion;

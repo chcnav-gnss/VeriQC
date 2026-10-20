@@ -29,6 +29,7 @@ protected:
 private:
     Qt::CheckState m_checkState = Qt::Unchecked;
     bool m_checkable = true;
+    QSize m_checkIconSize;   ///< Cached DPI-scaled icon size for paint performance
 };
 
 #endif // MYHEADERVIEW_H

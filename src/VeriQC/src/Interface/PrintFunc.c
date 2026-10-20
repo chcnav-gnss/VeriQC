@@ -334,7 +334,8 @@ static int8_t g_SigType[QC_MAX_NUM_SYS][QC_NUM_FREQ][8]={
 	{"G1","G2","", "",   "",""},/*GLONASS*/
 	{"E1","E5a","E5b","E5(a+b)","E6",""},/*Galileo*/
 	{"L1","L2","L5","L1C(P)","L6","-"},/*QZSS*/
-	{"B1","B2","B3","B1C","B2a","B2b"}/*BDS*/
+	{"B1","B2","B3","B1C","B2a","B2b"},/*BDS*/
+	{"L1L","L1H","L2L","L2H","",""}/*XW1*/
 };
 
 extern BOOL SetExePath(char* pExePath)
@@ -365,6 +366,7 @@ static char* QCGetSysStr(int Id)
 	case QC_GNSS_SYSID_GAL :pHead = " GAL"; break;
 	case QC_GNSS_SYSID_QZS :pHead = " QZS"; break;
 	case QC_GNSS_SYSID_BDS :pHead = " BDS"; break;
+	case QC_GNSS_SYSID_XW1 :pHead = " XW1"; break;
 	default:
 		break;
 	}
@@ -373,17 +375,16 @@ static char* QCGetSysStr(int Id)
 
 void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int AntID)
 {
-	float* MAX_mp[QC_MAX_NUM_SYS] = { pOpt->GMpMAX,pOpt->SMpMAX,pOpt->RMpMAX,pOpt->EMpMAX,pOpt->JMpMAX,pOpt->CMpMAX };
-	int* MIN_snr[QC_MAX_NUM_SYS] = { pOpt->GSnrMIN,pOpt->SSnrMIN,pOpt->RSnrMIN,pOpt->ESnrMIN,pOpt->JSnrMIN,pOpt->CSnrMIN };
+	float* MAX_mp[QC_MAX_NUM_SYS] = { pOpt->GMpMAX,pOpt->SMpMAX,pOpt->RMpMAX,pOpt->EMpMAX,pOpt->JMpMAX,pOpt->CMpMAX, pOpt->LMpMAX };
+	int* MIN_snr[QC_MAX_NUM_SYS] = { pOpt->GSnrMIN,pOpt->SSnrMIN,pOpt->RSnrMIN,pOpt->ESnrMIN,pOpt->JSnrMIN,pOpt->CSnrMIN, pOpt->LSnrMIN };
 	int iSys, iFre, iSat, iDeg;
 	BOOL invail_sys = FALSE;
 	char ts_str[20] = { 0 };
 	char te_str[20] = { 0 };
-	char prn_str[4] = { 0 }, * File_str[2] = { "QC Result ","QC Result " };
+	char prn_str[6] = { 0 }, * File_str[2] = { "QC Result ","QC Result " };
 	char* buff_t = (char*)VERIQC_CALLOC(MAX_HTML_STR_LEN, sizeof(char));
 	char buff[3000] = { 0 };
-	int len = 0, GoodNum = 0, BadNum = 0, sys, prn;
-	int m_SlipNum[QC_MAX_NUM_SYS] = { 0 }, m_DetectNum[QC_MAX_NUM_SYS] = { 0 };
+	int len = 0, BadNum = 0;
 
 	len += sprintf(buff_t + len, "<table class=\"Table\">\n<h1 class=\"Title_1\"><a id=\"T%d\">%s</a></h1>\n", AntID + 1, File_str[AntID]);
 	len += sprintf(buff_t + len, "<tr>");
@@ -455,33 +456,7 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Cycle Slip Number");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Detect Number");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th></tr>\n", "Cycle Slip Ratio");
-	for (iSat = 0; iSat < QC_MAX_NUM_SAT; iSat++)
-	{
-		invail_sys = FALSE;
-		if (pQcRes->SatPossibleNum[AntID][iSat] > 0)
-		{
-			invail_sys = TRUE;
-		}
-		if (!invail_sys)
-		{
-			continue;
-		}
-		sys = GetQCSatSys(iSat + 1, &prn);
-		iSys = QCSys2Id(sys) - 1;
-		for (iFre = 0; iFre < QC_NUM_FREQ; iFre++)
-		{
-			if (pQcRes->DetectNum[AntID][iSat][iFre] < 0.1)
-			{
-
-			}
-			else
-			{
-				m_SlipNum[iSys] += pQcRes->SlipNum[AntID][iSat][iFre];
-				m_DetectNum[iSys] += pQcRes->DetectNum[AntID][iSat][iFre];
-			}
-		}
-		
-	}
+	
 	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
 	{
 		if (pQcRes->UseRateSys[AntID][iSys] >= 0)
@@ -494,18 +469,18 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 		}
 		len += sprintf(buff_t + len, "<tr><td class = \"ColumnFirstTotalTwo\">%s:</td>\n", QCGetSysStr(iSys + 1));
 		len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.1f</td>\n", pQcRes->UseRateSys[AntID][iSys] * 100.0);
-		len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", m_SlipNum[iSys]);
-		len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", m_DetectNum[iSys]);
+		len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", pQcRes->SysSlipNum[AntID][iSys]);
+		len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", pQcRes->SysDetectNum[AntID][iSys]);
 
-		if (m_DetectNum[iSys] > 0 && m_SlipNum[iSys] > 0)
+		if ((pQcRes->SysDetectNum[AntID][iSys] > 0) && (pQcRes->SysSlipNum[AntID][iSys] > 0))
 		{
-			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.1f</td>\n", 1.0 * m_DetectNum[iSys] / m_SlipNum[iSys]);
+			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.1f</td>\n", 1.0 * pQcRes->SysDetectNum[AntID][iSys] / pQcRes->SysSlipNum[AntID][iSys]);
 		}
-		else if (m_DetectNum[iSys] > 0 && m_SlipNum[iSys] < 0.1)
+		else if ((pQcRes->SysDetectNum[AntID][iSys] > 0) && (pQcRes->SysSlipNum[AntID][iSys] < 0.1))
 		{
 			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%.1f</td>\n", 99999.0);
 		}
-		else if (m_DetectNum[iSys] < 0.1)
+		else if (pQcRes->SysDetectNum[AntID][iSys] < 0.1)
 		{
 			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%.1f</td>\n", 99999.0);
 		}
@@ -519,14 +494,12 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Possible Obs");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Complete Obs");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Use Ratio");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L1/R:G1/E:E1/<br>J:L1/C:B1");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L2C/R:G2/E:E5a<br>J:L2/C:B2");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L5/E:E5b/<br>J:L5/C:B3");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L1/R:G1/E:E1/<br>J:L1/C:B1/L:L1L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L2C/R:G2/E:E5a<br>J:L2/C:B2/L:L1H");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L5/E:E5b/<br>J:L5/C:B3/L:L2L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C/L:L2H");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>G:L2P/E:E6/<br>J:L6/C:B2a");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "CS<br>C:B2b");
-	/** len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "Detect Number"); */
-	/** len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th></tr>\n", "Cycle Slip Ratio"); */
 	UpdateString2File(fpOut, buff_t, &len);
 	for (iSat = 0; iSat < QC_MAX_NUM_SAT; iSat++)
 	{
@@ -548,33 +521,18 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 		for (iFre = 0; iFre < QC_NUM_FREQ; iFre++)
 		{
 			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", pQcRes->SlipNum[AntID][iSat][iFre]);
-			/** len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%d</td>\n", QcRes->DetectNum[ant_id][iSat][iFre]); */
 		}
 
-		/**
-		if (QcRes->DetectNum[ant_id][iSat] > 0 && QcRes->SlipNum[ant_id][iSat] > 0)
-		{
-			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.1f</td>\n", 1.0 * QcRes->DetectNum[ant_id][iSat] / QcRes->SlipNum[ant_id][iSat]);
-		}
-		else if (QcRes->DetectNum[ant_id][iSat] > 0 && QcRes->SlipNum[ant_id][iSat] < 0.1)
-		{
-			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%.1f</td>\n", 99999.0);
-		}
-		else if (QcRes->DetectNum[ant_id][iSat] < 0.1)
-		{
-			len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%.1f</td>\n", 99999.0);
-		}*/
 		len += sprintf(buff_t + len, "</tr>\n");
 	}
 	len += sprintf(buff_t + len, "</table>\n");
 	UpdateString2File(fpOut, buff_t, &len);
 	/** 2 #AVE SNR(dBHz) */
-	//len += sprintf(buff_t + len, "<table class=\"Table\">\n<h2 class=\"Title_1\">%s</h2>\n", "Average CN0(dBHz)");
 	len += sprintf(buff_t + len, "<tr class=\"TableHeader\"><th class=\"NotAZIColum\">%s</th>\n", "System");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1/L:L1L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2/L:L1H");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3/L:L2L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C/L:L2H");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2P/E:E6/<br>J:L6/C:B2a");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "C:B2b");
 	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
@@ -596,11 +554,7 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 			if (pQcRes->SNR[AntID][iSys][iFre] > 0)
 			{
 				len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.1f</td>\n", pQcRes->SNR[AntID][iSys][iFre]);
-				if (pQcRes->SNR[AntID][iSys][iFre] >= MIN_snr[iSys][iFre])
-				{
-					GoodNum++;
-				}
-				else
+				if (pQcRes->SNR[AntID][iSys][iFre] < MIN_snr[iSys][iFre])
 				{
 					BadNum++;
 				}
@@ -645,14 +599,14 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 	PrintSNRDegHtml(buff_t, &len, AntID, pQcRes);
 	len += sprintf(buff_t + len, "</table>\n");
 	UpdateString2File(fpOut, buff_t, &len);
-	BadNum = 0; GoodNum = 0;
+	BadNum = 0; 
 	/** 3 #RMS MP(m) */
 	//len += sprintf(buff_t + len, "<table class=\"Table\">\n<h2 class=\"Title_1\">%s</h2>\n", "PSR Multipath RMS: Subsystems and frequency bands.(m)");
 	len += sprintf(buff_t + len, "<tr class=\"TableHeader\"><th class=\"NotAZIColum\">%s</th>\n", "System");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1/L:L1L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2/L:L1H");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3/L:L2L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C/L:L2H");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2P/E:E6/<br>J:L6/C:B2a");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "C:B2b");
 	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
@@ -675,11 +629,7 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 			if (pQcRes->MPTotel[AntID][iSys][iFre] > 0)
 			{
 				len += sprintf(buff_t + len, "<td class = \"ColumnTwoTotalTwo\">%5.3f</td>\n", pQcRes->MPTotel[AntID][iSys][iFre]);
-				if (pQcRes->MPTotel[AntID][iSys][iFre] <= MAX_mp[iSys][iFre])
-				{
-					GoodNum++;
-				}
-				else
+				if (pQcRes->MPTotel[AntID][iSys][iFre] > MAX_mp[iSys][iFre])
 				{
 					BadNum++;
 				}
@@ -706,10 +656,10 @@ void PrintObsFileInfoHtml(FILE* fpOut, QC_RESULT_T* pQcRes, QC_OPT_T* pOpt, int 
 	UpdateString2File(fpOut, buff_t, &len);
 	len += sprintf(buff_t + len, "<table class=\"Table\">\n<h2 class=\"Title_1\">%s</h2>\n", "Pseudorange Multipath RMS:(m)");
 	len += sprintf(buff_t + len, "<tr class=\"TableHeader\"><th class=\"NotAZIColum\">%s</th>\n", "Satellite");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3");
-	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1/R:G1/E:E1/<br>J:L1/C:B1/L:L1L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2C/R:G2/E:E5a<br>J:L2/C:B2/L:L1H");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L5/E:E5b/<br>J:L5/C:B3/L:L2L");
+	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L1C/E:E5(a+b)/<br>J:L1C(P)/C:B1C/L:L2H");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "G:L2P/E:E6/<br>J:L6/C:B2a");
 	len += sprintf(buff_t + len, "<th class=\"NotAZIColum\">%s</th>\n", "C:B2b");
 	UpdateString2File(fpOut, buff_t, &len);
@@ -859,7 +809,7 @@ void PrintEpochCS(QC_TIME_T* pTime, FILE* fpOutFile, QC_RESULT_T* QcRes, int Ant
 					continue;
 				}
 				QCSatNo2Str(iSat + 1, msg);
-				msg[3] = '\0';
+				msg[4] = '\0';
 				fprintf(fpOutFile, "%s,%d\n", msg, iFre);
 			}
 		}
@@ -941,7 +891,14 @@ void PrintEpochDataList(QC_TIME_T* pTime, FILE* pOutFile, QC_OBS_T* pObs, int (*
 #endif
 
 		/** print EL */
-		len += sprintf(msg + len, "%4.1f%s", (pObs->Data[iSat].Azel[1] * R2D), g_SequenceUnit);
+		if (pObs->Data[iSat].Azel[1] <= QC_INVALID_AZEL_VALUE / 2.0)
+		{
+			msg[len++] = g_SequenceUnit[0];
+		}
+		else
+		{
+			len += sprintf(msg + len, "%4.1f%s", (pObs->Data[iSat].Azel[1] * R2D), g_SequenceUnit);
+		}
 		/** print L */
 		for (iFre = 0; iFre < QC_NUM_FREQ; iFre++)
 		{
@@ -1026,7 +983,14 @@ void PrintEpochDataList(QC_TIME_T* pTime, FILE* pOutFile, QC_OBS_T* pObs, int (*
 		}
 
 		/** print azimuth */
-		len += sprintf(msg + len, "%4.1f%s", (pObs->Data[iSat].Azel[0] * R2D), g_SequenceUnit);
+		if (pObs->Data[iSat].Azel[0] <= QC_INVALID_AZEL_VALUE / 2.0)
+		{
+			msg[len++] = g_SequenceUnit[0];
+		}
+		else
+		{
+			len += sprintf(msg + len, "%4.1f%s", (pObs->Data[iSat].Azel[0] * R2D), g_SequenceUnit);
+		}
 
 		msg[len++] = '\n';
 		fwrite(msg, len, 1, pOutFile);
@@ -1182,34 +1146,6 @@ void UpdateString2File(FILE* fpOut, char* pBuffer, int* pBuffLen)
 	*pBuffLen = 0;
 }
 
-void PrintFreTabelHtml(char* pBuffer, int* pBuffLen)
-{
-	int len = *pBuffLen, iFre,iSys;
-	// g_SigType[QC_MAX_NUM_SYS][QC_NUM_FREQ][8]
-	len += sprintf(pBuffer + len, "<table class=\"Table\"><h1 class=\"Title_0\"><a id=%s>%s</a></h1>\n", "T0", "Frequency Correspondence");
-	len += sprintf(pBuffer + len, "<tr class=\"TableHeader\"><th class=\"NotAZIColum\">%s</th>\n", "System");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 1");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 2");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 3");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 4");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 5");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 6") ;
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 7");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th>\n", "Freq 8");
-	len += sprintf(pBuffer + len, "<th class=\"NotAZIColum\">%s</th></tr>\n", "Freq 9");
-	/* GPS */
-	for (iSys=0; iSys< QC_MAX_NUM_SYS; iSys++)
-	{
-		len += sprintf(pBuffer + len, "<tr><td class = \"ColumnFirstTotalTwo\">%s:</td>\n\n", QCGetSysStr(iSys + 1));
-		for (iFre = 0; iFre < QC_NUM_FREQ; iFre++)
-		{
-			len += sprintf(pBuffer + len, "<td class = \"ColumnTwoTotalTwo\">%s</td>\n", g_SigType[iSys][iFre]);
-		}
-		len += sprintf(pBuffer + len, "</tr>");
-	}
-	*pBuffLen = len;
-}
-
 void WriteQCStatisticsHtml(QC_RESULT_T* pRes, QC_OPT_T* pOpt)
 {
 	char outfile[256] = { 0 };
@@ -1227,7 +1163,26 @@ void WriteQCStatisticsHtml(QC_RESULT_T* pRes, QC_OPT_T* pOpt)
 	wchar_t* buff_ch = (wchar_t*)VERIQC_CALLOC(MAX_HTML_STR_LEN, sizeof(wchar_t));
 
 	memset(buff_ch, 0, MAX_HTML_STR_LEN * sizeof(wchar_t));
+
+	if (pOpt == NULL)
+	{
+		return;
+	}
+
+	if ((pOpt != NULL) && (pOpt->EphMode == QC_EPH_MODE_NONE))
+	{
+		VERIQC_FREE(buff);
+		VERIQC_FREE(buff_ch);
+		return;
+	}
+
+	/** Result Binary List */
+	if (pOpt->bIsOutputQCResBinaryList)
+	{
+		PrintQCResultBinaryList(pRes, pOpt);
+	}
 	
+	/** Result HTML Report */
 	/** pGnssCfg option -> pQcReader */
 	GetOutFileStr(pOpt->OutDir, pOpt->RoverFile, outfilename_r);
 	GetOutFileStr(pOpt->OutDir, pOpt->BaseFile, outfilename_b);
@@ -1329,4 +1284,129 @@ void WriteQCStatisticsHtml(QC_RESULT_T* pRes, QC_OPT_T* pOpt)
 	VERIQC_FREE(buff);
 	buff = NULL;
 	fclose(fp_out);
+}
+
+/** generate xxx_QCResList.txt for Starhub */
+void PrintQCResultBinaryList(QC_RESULT_T* pRes, QC_OPT_T* pOpt)
+{
+	int iSys;
+	int iFreq;
+	int* MINSnr[QC_MAX_NUM_SYS] = { pOpt->GSnrMIN,pOpt->SSnrMIN,pOpt->RSnrMIN,pOpt->ESnrMIN,pOpt->JSnrMIN,pOpt->CSnrMIN,pOpt->LSnrMIN };
+	float* MAXMp[QC_MAX_NUM_SYS] = { pOpt->GMpMAX,pOpt->SMpMAX,pOpt->RMpMAX,pOpt->EMpMAX,pOpt->JMpMAX,pOpt->CMpMAX,pOpt->LMpMAX };
+	char OutFilePath[256] = { 0 };
+	char OutFilenameRover[MAX_FILE_NAME_LENGTH] = { 0 };
+	FILE* fpOut = NULL;
+	
+	/** QC Info for Starhub */
+	int PassFlag = 1;
+	int StartWeek;
+	int EndWeek;
+	double StartSec;
+	double EndSec;
+	double LossRate = 0;
+	float CycleSlipRatio[QC_MAX_NUM_SYS];
+
+	/** pGnssCfg option -> pQcReader */
+	GetOutFileStr(pOpt->OutDir, pOpt->RoverFile, OutFilenameRover);
+	if (strlen(OutFilenameRover) <= 1)
+	{
+		PrintfQC("\n<GNSSQC error>The file path is incorrect.\n");
+		return;
+	}
+
+	sprintf(OutFilePath, "%s%s", OutFilenameRover, "_QCResList.txt");
+
+	if (!(fpOut = fopen(OutFilePath, "w")))
+	{
+		PrintfQC("\n<GNSSQC error>Failed to create the result file.\n");
+		return;
+	}
+
+	/** Pass check */
+	if ((pRes->UseRateTotal[0] < (pOpt->UseRate / 100.0)) ||
+		(pRes->OSR[0] < pOpt->CJR))
+	{
+		PassFlag = 0;
+	}
+
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		/** Pass check */
+		for (iFreq = 0; (iFreq < QC_NUM_FREQ) && (PassFlag == 1); iFreq++)
+		{
+			if ((pRes->MPTotel[0][iSys][iFreq] > MAXMp[iSys][iFreq]) ||
+				(pRes->SNR[0][iSys][iFreq] < MINSnr[iSys][iFreq]))
+			{
+				PassFlag = 0;
+			}
+		}
+
+		/** System Cycle Slip Ratio */
+		if ((pRes->SysDetectNum[0][iSys] > 0) && (pRes->SysSlipNum[0][iSys] > 0))
+		{
+			CycleSlipRatio[iSys] = 1.0f * pRes->SysDetectNum[0][iSys] / pRes->SysSlipNum[0][iSys];
+		}
+		else if ((pRes->SysDetectNum[0][iSys] > 0) && (pRes->UseRateSys[0][iSys] >= 0))
+		{
+			CycleSlipRatio[iSys] = 99999.0;
+		}
+		else
+		{
+			CycleSlipRatio[iSys] = -1;
+		}
+	}
+
+	/** Loss Rate */
+	if (pRes->Interval[0] > 0)
+	{
+		LossRate = QCTimeDiff(&pRes->EndTime[0], &pRes->StartTime[0]) / pRes->Interval[0] + 1;
+	}
+	if (LossRate > 0)
+	{
+		LossRate = 1 - pRes->MaxEpochNum[0] / LossRate;
+	}
+	if (LossRate < 0)
+	{
+		LossRate = 0;
+	}
+
+	/** Start/End Time */
+	StartSec = QCTime2GPSTime(pRes->StartTime[0], &StartWeek);
+	EndSec = QCTime2GPSTime(pRes->EndTime[0], &EndWeek);
+
+	fprintf(fpOut, "RawFileDataType %d\n", pRes->FileDataType[0]);
+	fprintf(fpOut, "PassFlag %d\n", PassFlag);
+	fprintf(fpOut, "LossRate %.3f\n", LossRate);
+	fprintf(fpOut, "StartTime %d %.3f\n", StartWeek, StartSec);
+	fprintf(fpOut, "EndTime %d %.3f\n", EndWeek, EndSec);
+	
+	fprintf(fpOut, "UseRateTotal %.3f\n", pRes->UseRateTotal[0]);
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		fprintf(fpOut, "UseRateSys[%d] %.3f\n", iSys, pRes->UseRateSys[0][iSys]);
+	}
+	
+	fprintf(fpOut, "CycleSlipRatioTotal %.3f\n", pRes->OSR[0]);
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		fprintf(fpOut, "CycleSlipRatioSys[%d] %.3f\n", iSys, CycleSlipRatio[iSys]);
+	}
+	
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		for (iFreq = 0; iFreq < QC_NUM_FREQ; iFreq++)
+		{
+			fprintf(fpOut, "MP[%d][%d] %.3f\n", iSys, iFreq, pRes->MPTotel[0][iSys][iFreq]);
+		}
+	}
+	
+	for (iSys = 0; iSys < QC_MAX_NUM_SYS; iSys++)
+	{
+		for (iFreq = 0; iFreq < QC_NUM_FREQ; iFreq++)
+		{
+			fprintf(fpOut, "CN0[%d][%d] %.3f\n", iSys, iFreq, pRes->SNR[0][iSys][iFreq]);
+		}
+	}
+	
+	fclose(fpOut);
 }

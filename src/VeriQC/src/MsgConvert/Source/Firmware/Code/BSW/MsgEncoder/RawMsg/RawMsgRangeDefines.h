@@ -21,7 +21,7 @@
 
 
 /**Max observation number for one range log*/
-#define RM_RANGE_MAX_OBS_NUM		(256)
+#define RM_RANGE_MAX_OBS_NUM		(320)
 
 /** Max satellite number of one Range log */
 #define RM_RANGE_MAX_SAT_NUM    (64)
@@ -49,15 +49,16 @@
 /** used in range*/
 typedef enum _RM_RANGE_SYSTEM_T
 {
-	RM_RANGE_SYS_GPS	= 0,
-	RM_RANGE_SYS_GLO	= 1,
-	RM_RANGE_SYS_SBA	= 2,
-	RM_RANGE_SYS_GAL	= 3,
-	RM_RANGE_SYS_BDS	= 4,
-	RM_RANGE_SYS_QZS	= 5,
-	RM_RANGE_SYS_NIC 	= 6,
+	RM_RANGE_SYS_GPS = 0,
+	RM_RANGE_SYS_GLO = 1,
+	RM_RANGE_SYS_SBA = 2,
+	RM_RANGE_SYS_GAL = 3,
+	RM_RANGE_SYS_BDS = 4,
+	RM_RANGE_SYS_QZS = 5,
+	RM_RANGE_SYS_NIC = 6,
 	RM_RANGE_SYS_OTHER = 7,
-	RM_RANGE_SYS_MAX   = 0xFFFFFFFF,
+	RM_RANGE_SYS_NUM,
+	RM_RANGE_SYS_MAX = 0xFFFFFFFF,
 
 }RM_RANGE_SYSTEM_T;
 
@@ -72,6 +73,7 @@ typedef enum _RM_GNSSOBS_SYSTEM_T
 	RM_GNSSOBS_SYS_BDS = 5,
 	RM_GNSSOBS_SYS_NIC = 6,
 	RM_GNSSOBS_SYS_OTHER = 7,
+	RM_GNSSOBS_SYS_NUM,
 	RM_GNSSOBS_SYS_MAX = 0xFFFFFFFF,
 
 }RM_GNSSOBS_SYSTEM_T;
@@ -79,16 +81,16 @@ typedef enum _RM_GNSSOBS_SYSTEM_T
 /** used in RANGECMP4 SATVIS RTK/POS_SAT*/
 typedef enum _RM_NV_SYSTEM_T
 {
-	RM_NV_SYS_GPS	= 0,
-	RM_NV_SYS_GLO	= 1,
-	RM_NV_SYS_SBA	= 2,
+	RM_NV_SYS_GPS = 0,
+	RM_NV_SYS_GLO = 1,
+	RM_NV_SYS_SBA = 2,
 
-	RM_NV_SYS_GAL	= 5,
-	RM_NV_SYS_BDS	= 6,
-	RM_NV_SYS_QZS	= 7,
-	RM_NV_SYS_NIC	= 9,
+	RM_NV_SYS_GAL = 5,
+	RM_NV_SYS_BDS = 6,
+	RM_NV_SYS_QZS = 7,
+	RM_NV_SYS_NIC = 9,
 
-	RM_NV_SYS_MAX   = 0xFFFFFFFF,
+	RM_NV_SYS_MAX = 0xFFFFFFFF,
 
 }RM_NV_SYSTEM_T;
 
@@ -206,6 +208,12 @@ typedef enum _RM_NV_SYSTEM_T
 
 
 #define RM_RANGE_SIGNAL_NICL5A				0  /**< range signal type definitions*/
+
+
+#define RM_RANGE_SIGNAL_XW1CNLL				0   /**< range signal type definitions, extension*/
+#define RM_RANGE_SIGNAL_XW1B2BL				1   /**< range signal type definitions, extension*/
+#define RM_RANGE_SIGNAL_XW1CNLH				4   /**< range signal type definitions, extension*/
+#define RM_RANGE_SIGNAL_XW1B2BH				5   /**< range signal type definitions, extension*/
 
 
 /** signal type for CHC GNSSOBS, define follow RTCM */
@@ -327,6 +335,12 @@ typedef enum _RM_NV_SYSTEM_T
 /** NIC Signals */
 #define RM_GNSSOBS_SIGNAL_NICL5A				22  /**< GNSSOBS signal type definitions*/
 
+/** XW1 Signals */
+#define RM_GNSSOBS_SIGNAL_XW1CNLL				0   /**< GNSSOBS signal type definitions, extension*/
+#define RM_GNSSOBS_SIGNAL_XW1B2BL				1   /**< GNSSOBS signal type definitions, extension*/
+#define RM_GNSSOBS_SIGNAL_XW1CNLH				4   /**< GNSSOBS signal type definitions, extension*/
+#define RM_GNSSOBS_SIGNAL_XW1B2BH				5   /**< GNSSOBS signal type definitions, extension*/
+
 typedef enum _GPS_AS_FLAG_T
 {
 	AS_FALSE = 0,
@@ -338,12 +352,12 @@ typedef enum _GPS_AS_FLAG_T
 
 INLINE RM_RANGE_SYSTEM_T  GetRangeSystem(unsigned int RangeStatus)
 {
-	return (RM_RANGE_SYSTEM_T)((RangeStatus >>16 ) & 0x7);
+	return (RM_RANGE_SYSTEM_T)((RangeStatus >> 16) & 0x7);
 };
 
 INLINE unsigned int  GetRangeSignalType(unsigned int RangeStatus)
 {
-	return (unsigned int)((RangeStatus>>21) & 0x1F);
+	return (unsigned int)((RangeStatus >> 21) & 0x1F);
 };
 
 #if !defined( __GCC__)
@@ -487,7 +501,8 @@ typedef struct _RM_EX_GNSSOBSCMP_DATA_T
 	unsigned  freqNum : 6;         /**< GLONASS Frequency number (n+7) */
 	unsigned  SystemID : 4;        /**< Satellite system id */
 	unsigned  SignalType : 6;      /**< Signal type (n-1) */
-	unsigned  Reversed : 6;
+	unsigned  LEOPRN : 3;          /**< LEO PRN/Slot, high 3 bits of satellite PRN */
+	unsigned  Reserved : 3;        /**< Reserved */
 }_PACKED_ RM_EX_GNSSOBSCMP_DATA_T;
 
 typedef struct _RM_EX_GNSSOBSCMP_LOG_T

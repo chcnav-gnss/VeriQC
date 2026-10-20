@@ -221,7 +221,16 @@
     <ClCompile Include="..\..\src\VeriQC_UI\QCConfigDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\VeriQC_UI\QCConfigurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\PathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCExceptionDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\VeriQC_UI\QCObject.cpp">
@@ -242,10 +251,25 @@
     <ClCompile Include="..\..\src\VeriQC_UI\QCProgressDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseReportExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\QCDiagnoseTextBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\VeriQC_UI\QCResultExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\VeriQC_UI\QCResultManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.cpp">
@@ -361,6 +385,12 @@
     <QtMoc Include="..\..\src\VeriQC_UI\QCConfigDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\QCExceptionDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="..\..\src\VeriQC_UI\QCObjectTableModel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -368,6 +398,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="..\..\src\VeriQC_UI\QCProgressDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.h">
@@ -567,7 +600,13 @@
     <ClInclude Include="..\..\src\VeriQC_UI\PlotTimeAxisTicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCConfigFileModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\VeriQC_UI\QCConfigurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\PathUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\VeriQC_UI\QCObject.h">
@@ -577,6 +616,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\VeriQC_UI\QCProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseReportExporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\VeriQC_UI\QCDiagnoseTextBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\VeriQC_UI\QCResultExporter.h">
@@ -611,7 +665,16 @@
     <QtUic Include="..\..\src\VeriQC_UI\QCConfigDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\QCConfigFileEditorDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\QCExceptionDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="..\..\src\VeriQC_UI\QCProgressDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="..\..\src\VeriQC_UI\RinexConfigFileEditorDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="..\..\src\VeriQC_UI\RinexConvertSettingDialog.ui">

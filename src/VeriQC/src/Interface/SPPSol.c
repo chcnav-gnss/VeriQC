@@ -153,6 +153,34 @@ extern void AddGephSPPCore(const GLO_EPHEMERIS_T* pGEPH)
 	}
 }
 
+/**********************************************************************//**
+@brief add LEO ephemeris to CTCLIB
+
+@param pEPH        [In]     GPS/GAL/BDS/QZS ephemeris
+
+@author CHC
+@date
+@note
+History:
+**************************************************************************/
+extern void AddLEOEphRTKCore(const XW_LEO_EPHEMERIS_T* pEPH)
+{
+	int iProcess;
+	VERIQC_ORBIT_IFX_T* pOrbitIfx = VeriQCGetOrbitIfx();
+	if (!pEPH)
+	{
+		return;
+	}
+
+	for (iProcess = 0; iProcess < QC_MAX_NUM_OBS_FILE; iProcess++)
+	{
+		if (g_pOrbit[iProcess])
+		{
+			pOrbitIfx->AddLEOEphemerisFunc(g_pOrbit[iProcess], pEPH);
+		}
+	}
+}
+
 
 extern void InitRTKRes()
 {
@@ -342,6 +370,7 @@ extern int CalSatPosSpecifyTime(QC_TIME_T Time, int AntID, int SatNO, double Sat
 		Prn += QC_MAX_PRN_GPS_TRUE;
 		break;
 	case QC_SYS_CMP:CTCSys = VERIQC_GNSS_SYSID_BDS;  break;
+	case QC_SYS_XW1:CTCSys = VERIQC_GNSS_SYSID_LEO;  break;
 	default:
 		return -1;
 	}
@@ -355,4 +384,44 @@ extern int CalSatPosSpecifyTime(QC_TIME_T Time, int AntID, int SatNO, double Sat
 extern VERIQC_SIMPLIFY_RESULT_T* GetSPPRes(int AntID)
 {
 	return g_pResult[AntID];
+}
+
+/**********************************************************************//**
+@brief get LEO satellite Pos/Vel/Clk
+
+@param TransTime   [In]      signal transmission time
+@param Time        [In]      Epoch time
+@param AntID       [In]      Antenna ID
+@param SatNO       [In]      satellite ID number
+@param SatPosVel   [Out]     satellite position and velocity
+@param SatClock    [Out]     satellite clock
+@param pToe        [Out]      eph toe
+
+@retval  0   success
+@retval -1   fail
+
+@author CHC
+@date 2024/07/18
+@note
+History:\n
+**************************************************************************/
+extern int GetLEOSatPosVelClk(QC_TIME_T TransTime, QC_TIME_T Time, int AntID, int SatNO, double SatPosVel[6], double SatClock[2], int* pToe)
+{
+	int Result = 0;
+	int QCSys;
+	int CTCSys = VERIQC_GNSS_SYSID_LEO;
+	unsigned int Prn = 0;
+	VERIQC_ORBIT_IFX_T* pOrbitIfx = VeriQCGetOrbitIfx();
+
+	QCSys = GetQCSatSys(SatNO, &Prn);
+
+	if (QCSys != QC_SYS_XW1)
+	{
+		return -1;
+	}
+
+	/** 0: ok -1: error */
+	Result = pOrbitIfx->SatCalcOneLeoFunc(g_pOrbit[AntID], TransTime, Time, CTCSys, Prn, SatPosVel, SatClock, pToe);
+
+	return Result;
 }

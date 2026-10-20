@@ -22,18 +22,27 @@ SOURCES += \
     $$PWD/MainWindow.cpp \
     $$PWD/ObsTimePlot.cpp \
     $$PWD/ObsTimePlotDialog.cpp \
+    $$PWD/PathUtils.cpp \
     $$PWD/PlotTimeAxisTicker.cpp \
     $$PWD/QCConfigDialog.cpp \
+    $$PWD/QCConfigFileEditorDialog.cpp \
+    $$PWD/QCConfigFileModel.cpp \
     $$PWD/QCConfigurator.cpp \
+    $$PWD/QCExceptionDialog.cpp \
     $$PWD/QCObject.cpp \
     $$PWD/QCObjectManager.cpp \
     $$PWD/QCObjectTableModel.cpp \
     $$PWD/QCProcessThread.cpp \
     $$PWD/QCProcessor.cpp \
     $$PWD/QCProgressDialog.cpp \
+    $$PWD/QCDiagnoseData.cpp \
+    $$PWD/QCDiagnoseEngine.cpp \
+    $$PWD/QCDiagnoseReportExporter.cpp \
+    $$PWD/QCDiagnoseTextBuilder.cpp \
     $$PWD/QCResultExporter.cpp \
     $$PWD/QCResultManager.cpp \
     $$PWD/QCustomplot/qcustomplot.cpp \
+    $$PWD/RinexConfigFileEditorDialog.cpp \
     $$PWD/RinexConvertSettingDialog.cpp \
     $$PWD/RinexMergeDialog.cpp \
     $$PWD/RinexMergeProcessor.cpp \
@@ -73,18 +82,28 @@ HEADERS += \
     $$PWD/MainWindow.h \
     $$PWD/ObsTimePlot.h \
     $$PWD/ObsTimePlotDialog.h \
+    $$PWD/PathUtils.h \
     $$PWD/PlotTimeAxisTicker.h \
     $$PWD/QCConfigDialog.h \
+    $$PWD/QCConfigFileEditorDialog.h \
+    $$PWD/QCConfigFileModel.h \
     $$PWD/QCConfigurator.h \
+    $$PWD/QCExceptionDialog.h \
     $$PWD/QCObject.h \
     $$PWD/QCObjectManager.h \
     $$PWD/QCObjectTableModel.h \
     $$PWD/QCProcessThread.h \
     $$PWD/QCProcessor.h \
     $$PWD/QCProgressDialog.h \
+    $$PWD/QCDiagnoseConstants.h \
+    $$PWD/QCDiagnoseData.h \
+    $$PWD/QCDiagnoseEngine.h \
+    $$PWD/QCDiagnoseReportExporter.h \
+    $$PWD/QCDiagnoseTextBuilder.h \
     $$PWD/QCResultExporter.h \
     $$PWD/QCResultManager.h \
     $$PWD/QCustomplot/qcustomplot.h \
+    $$PWD/RinexConfigFileEditorDialog.h \
     $$PWD/RinexConvertSettingDialog.h \
     $$PWD/RinexMergeDialog.h \
     $$PWD/RinexMergeProcessor.h \
@@ -110,7 +129,10 @@ FORMS += \
     $$PWD/MainWindow.ui \
     $$PWD/ObsTimePlotDialog.ui \
     $$PWD/QCConfigDialog.ui \
+    $$PWD/QCConfigFileEditorDialog.ui \
+    $$PWD/QCExceptionDialog.ui \
     $$PWD/QCProgressDialog.ui \
+    $$PWD/RinexConfigFileEditorDialog.ui \
     $$PWD/RinexConvertSettingDialog.ui \
     $$PWD/RinexMergeDialog.ui \
     $$PWD/SNRAndMPTimePlotDialog.ui \

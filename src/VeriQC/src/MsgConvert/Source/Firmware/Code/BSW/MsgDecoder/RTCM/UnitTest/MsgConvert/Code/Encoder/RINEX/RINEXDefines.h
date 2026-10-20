@@ -50,6 +50,7 @@
 #define RINEX_ID_BDSEPH_CNAV3           114     /**< BDS CNAV2 eph data id */
 #define RINEX_ID_METE                   115     /**< mete data id */
 #define RINEX_ID_MUTIEPH                116     /**< MUTI eph data id */
+#define RINEX_ID_LEOEPH                 117     /**< MUTI eph data id */
 
 #define RINEX_ID_OBS_CRX_HEADER         151     /**< obs data crx file header used while endode */
 #define RINEX_ID_OBS_HEADER             152     /**< obs data file header while endode */
@@ -239,7 +240,7 @@ typedef struct _RINEX_OBS_OPT_T /**< encode:rinex obs file output option */
 	int NObs[TOTAL_EX_GNSS_SYSTEM_NUM];                              /**< number of obs types [GNSS_MAX_NUM_SYS] */
 	int Leaps;                                          /**< whether output leapsecs */
 	int CrxFlag;                                        /**< for embedded group */
-	int Sample;                                         /**< set obs interval */
+	float Sample;                                       /**< set obs interval */
 	unsigned char ExSats[TOTAL_EX_GNSS_SYSTEM_NUM];                  /**< excluded satellites */
 	char ObsTypeBuf[TOTAL_EX_GNSS_SYSTEM_NUM][MAX_NUM_OBS_TYPE][4];      /**< obs types [GNSS_MAX_NUM_SYS][GNSS_MAX_NUM_OBS_TYPE][4] */
 	char Mask[TOTAL_EX_GNSS_SYSTEM_NUM][MAX_NUM_OBS_TYPE];         /**< code mask */

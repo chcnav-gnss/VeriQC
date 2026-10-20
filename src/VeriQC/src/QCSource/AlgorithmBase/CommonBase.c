@@ -15,10 +15,11 @@
 #include "TimeDefines.h"
 #include "Coordinate.h"
 
-static double g_FreCMP[6] = { QC_FREQ2_CMP,QC_FREQ7,     QC_FREQ6_CMP,QC_FREQ1, QC_FREQ5, QC_FREQ7};
+static double g_FreCMP[6] = { QC_FREQ2_CMP,QC_FREQ7,     QC_FREQ6_CMP,QC_FREQ1, QC_FREQ5, QC_FREQ7 };
 static double g_FreGPS[5] = { QC_FREQ1 ,QC_FREQ2 ,QC_FREQ5,QC_FREQ1 ,QC_FREQ2 };
 static double g_FreGAL[5] = { QC_FREQ1 ,QC_FREQ5 ,QC_FREQ7, QC_FREQ8, QC_FREQ6 };
 static double g_FreQZS[6] = { QC_FREQ1 ,QC_FREQ2 ,QC_FREQ5, QC_FREQ1, QC_FREQ6,QC_FREQ1 };
+static double g_FreXW1[4] = { QC_FREQ1_XW1, QC_FREQ1_XW1, QC_FREQ2_XW1, QC_FREQ2_XW1 };
 
 FILE* fpLog = NULL;
 
@@ -31,7 +32,7 @@ extern void QCCloseLogfile()
 	}
 	else
 	{
-		
+
 	}
 }
 extern void QCOpenLogfile(char* pFileName)
@@ -47,7 +48,7 @@ extern void QCOpenLogfile(char* pFileName)
 	fpLog = fopen(pFileName, "w");
 }
 
-extern int QCLogTrace(const char *pFormat, ...)
+extern int QCLogTrace(const char* pFormat, ...)
 {
 #ifdef WIN32
 	char buff[1024] = { 0 };
@@ -84,6 +85,7 @@ extern int QCSatNo2Str(int SatNo, char* pStr)
 	case QC_SYS_GAL:len = sprintf(pStr, "E%02d", prn); break;
 	case QC_SYS_QZS:len = sprintf(pStr, "J%02d", prn); break;
 	case QC_SYS_CMP:len = sprintf(pStr, "C%02d", prn); break;
+	case QC_SYS_XW1:len = sprintf(pStr, "L%03d", prn); break;
 	default:
 		break;
 	}
@@ -98,7 +100,7 @@ static int8_t* s_ObsCodes[] = {       /* observation code strings */
 	"6A","6B","6C","6X","6Z", "6S","6L","8L","8Q","8X", /* 30-39 */
 	"2I","2Q","6I","6Q","3I", "3Q","3X","1I","1Q","5D", /* 40-49 */
 	"5P","5Z","6E","7D","7P", "7Z","1D","8D","8P","6D", /* 50-59 */
-	"6P","5A","5B","5C","9A", "9B","9C","9X"/* 60 */
+	"6P","5A","5B","5C","9A", "9B","9C","9X","1H","2H"/* 60 */
 };
 
 static uint8_t s_ObsFreqs[] = { /* 1:L1,2:L2,3:L5,4:L6,5:L7,6:L8,7:L3 8:L9 */
@@ -109,7 +111,7 @@ static uint8_t s_ObsFreqs[] = { /* 1:L1,2:L2,3:L5,4:L6,5:L7,6:L8,7:L3 8:L9 */
 	4, 4, 4, 4, 4,  4, 4, 6, 6, 6,  /* 30-39 */
 	2, 2, 4, 4, 3,  3, 3, 1, 1, 3,  /* 40-49 */
 	3, 3, 4, 5, 5,  5, 1, 6, 6, 4,  /* 50-59 */
-	4, 3, 3, 3, 8,  8, 8, 8 /* 60 */
+	4, 3, 3, 3, 8,  8, 8, 8, 1, 2,  /* 60 */
 };
 
 /* obs type string to obs code -------------------------------------------------
@@ -185,6 +187,12 @@ extern int32_t GetQCSatNo(int32_t Sys, int32_t PRN)
 			return 0;
 		}
 		return QC_NUM_SAT_GPS + QC_NUM_SAT_GLO + QC_NUM_SAT_GAL + QC_NUM_SAT_QZS + QC_NUM_SAT_CMP + PRN - QC_MIN_PRN_SBS + 1;
+	case QC_SYS_XW1:
+		if (PRN < QC_MIN_PRN_XW1 || QC_MAX_PRN_XW1 < PRN)
+		{
+			return 0;
+		}
+		return QC_NUM_SAT_GPS + QC_NUM_SAT_GLO + QC_NUM_SAT_GAL + QC_NUM_SAT_QZS + QC_NUM_SAT_CMP + QC_NUM_SAT_SBS + PRN - QC_MIN_PRN_XW1 + 1;
 	default:
 		return 0;
 	}
@@ -235,6 +243,10 @@ extern int32_t GetQCSatSys(int32_t Sat, int32_t* pPRN)
 	{
 		sys = QC_SYS_SBS; Sat += QC_MIN_PRN_SBS - 1;
 	}
+	else if ((Sat -= QC_NUM_SAT_SBS) <= QC_NUM_SAT_XW1)
+	{
+		sys = QC_SYS_XW1; Sat += QC_MIN_PRN_XW1 - 1;
+	}
 	else
 	{
 		Sat = 0;
@@ -276,6 +288,7 @@ extern int QCSys2Id(int Sys)
 	case QC_SYS_GAL:sysId = QC_GNSS_SYSID_GAL; break;
 	case QC_SYS_QZS:sysId = QC_GNSS_SYSID_QZS; break;
 	case QC_SYS_CMP:sysId = QC_GNSS_SYSID_BDS; break;
+	case QC_SYS_XW1:sysId = QC_GNSS_SYSID_XW1; break;
 	default:
 		break;
 	}
@@ -286,12 +299,13 @@ extern int QCId2Sys(int Id)
 	int sys = QC_SYS_NONE;
 	switch (Id)
 	{
-	case QC_GNSS_SYSID_GPS :sys = QC_SYS_GPS; break;
+	case QC_GNSS_SYSID_GPS:sys = QC_SYS_GPS; break;
 	case QC_GNSS_SYSID_SBAS:sys = QC_SYS_SBS; break;
-	case QC_GNSS_SYSID_GLN :sys = QC_SYS_GLO; break;
-	case QC_GNSS_SYSID_GAL :sys = QC_SYS_GAL; break;
-	case QC_GNSS_SYSID_QZS :sys = QC_SYS_QZS; break;
-	case QC_GNSS_SYSID_BDS :sys = QC_SYS_CMP; break;
+	case QC_GNSS_SYSID_GLN:sys = QC_SYS_GLO; break;
+	case QC_GNSS_SYSID_GAL:sys = QC_SYS_GAL; break;
+	case QC_GNSS_SYSID_QZS:sys = QC_SYS_QZS; break;
+	case QC_GNSS_SYSID_BDS:sys = QC_SYS_CMP; break;
+	case QC_GNSS_SYSID_XW1:sys = QC_SYS_XW1; break;
 	default:
 		break;
 	}
@@ -303,12 +317,13 @@ extern int QCId2SysFreNum(int Id)
 	int num = 0;
 	switch (Id)
 	{
-	case QC_GNSS_SYSID_GPS :num = QC_GPS_FRE_NUM; break;
+	case QC_GNSS_SYSID_GPS:num = QC_GPS_FRE_NUM; break;
 	case QC_GNSS_SYSID_SBAS:num = QC_SBAS_FRE_NUM; break;
-	case QC_GNSS_SYSID_GLN :num = QC_GLONASS_FRE_NUM; break;
-	case QC_GNSS_SYSID_GAL :num = QC_GALILEO_FRE_NUM; break;
-	case QC_GNSS_SYSID_QZS :num = QC_QZSS_FRE_NUM; break;
-	case QC_GNSS_SYSID_BDS :num = QC_BDS_FRE_NUM; break;
+	case QC_GNSS_SYSID_GLN:num = QC_GLONASS_FRE_NUM; break;
+	case QC_GNSS_SYSID_GAL:num = QC_GALILEO_FRE_NUM; break;
+	case QC_GNSS_SYSID_QZS:num = QC_QZSS_FRE_NUM; break;
+	case QC_GNSS_SYSID_BDS:num = QC_BDS_FRE_NUM; break;
+	case QC_GNSS_SYSID_XW1:num = QC_XW1_FRE_NUM; break;
 	default:
 		break;
 	}
@@ -351,13 +366,13 @@ double QCCode2FreGLO(int Code, int FreGLO)
 		freq = QC_FREQ1_GLO;
 		dfreq = QC_DFRQ1_GLO;
 		break;
-	/*  G1a
-	case QC_CODE_L4A:
-	case QC_CODE_L4B:
-	case QC_CODE_L4X:
-	    break;
-	*/
-		
+		/*  G1a
+		case QC_CODE_L4A:
+		case QC_CODE_L4B:
+		case QC_CODE_L4X:
+			break;
+		*/
+
 	case QC_CODE_L2C:
 	case QC_CODE_L2P:
 		freq = QC_FREQ2_GLO;
@@ -365,9 +380,9 @@ double QCCode2FreGLO(int Code, int FreGLO)
 		/*G2*/
 		break;
 	case QC_CODE_L6A:
-	//case QC_CODE_L6B:
-	//case QC_CODE_L6X:
-		/*G2a*/
+		//case QC_CODE_L6B:
+		//case QC_CODE_L6X:
+			/*G2a*/
 		freq = QC_FREQ2A_GLO;
 		break;
 	case QC_CODE_L3I:
@@ -405,12 +420,12 @@ double QCCode2LamGLO(int Code, int FreGLO)
 
 @return freId
 @note
-     GPS	    L1, L2C, L5,  L1C, L2P
-     BDS	    B1, B2,  B3,  B1C,     B2a, B2b
-     GLONASS	G1, G1a, G2,  G2a,     G3
-     Galileo	E1, E5A, E5B, E5(A+B), E6
-     QZSS	    L1, L2,  L5,  L5S,     L6, L1C(P), L1S
-     SBAS	    L1, L5
+	 GPS	    L1, L2C, L5,  L1C, L2P
+	 BDS	    B1, B2,  B3,  B1C,     B2a, B2b
+	 GLONASS	G1, G1a, G2,  G2a,     G3
+	 Galileo	E1, E5A, E5B, E5(A+B), E6
+	 QZSS	    L1, L2,  L5,  L5S,     L6, L1C(P), L1S
+	 SBAS	    L1, L5
 *************************************************************************/
 extern int QCCode2FreID(int Sys, int Code)
 {
@@ -542,15 +557,15 @@ extern int QCCode2FreID(int Sys, int Code)
 		case QC_CODE_L6Z:
 			/*L6*/
 			FreID = 4; break;
-		/** Reserved L1C/B FreID = 5 */
+			/** Reserved L1C/B FreID = 5 */
 		default:
 			break;
 		}
 	}
 	else if (Sys == QC_SYS_GLO)
 	{
-	switch (Code)
-	{
+		switch (Code)
+		{
 		case QC_CODE_L1C:
 		case QC_CODE_L1P:
 			/*G1*/
@@ -565,6 +580,29 @@ extern int QCCode2FreID(int Sys, int Code)
 			break;
 		}
 	}
+	else if (Sys == QC_SYS_XW1)
+	{
+		switch (Code)
+		{
+		case QC_CODE_L1L:
+			FreID = 0;
+			break;
+		case QC_CODE_L1H:
+			/** CNL */
+			FreID = 1;
+			break;
+		case QC_CODE_L2L:
+			FreID = 2;
+			break;
+		case QC_CODE_L2H:
+			/** B2b */
+			FreID = 3;
+			break;
+		default:
+			break;
+		}
+	}
+
 	return FreID;
 }
 /** get wavelength from FreID */
@@ -590,6 +628,9 @@ double QCGetLam(int Sys, int FreID)
 		case QC_SYS_QZS:
 			return CLIGHT / g_FreQZS[FreID];
 			break;
+		case QC_SYS_XW1:
+			return CLIGHT / g_FreXW1[FreID];
+			break;
 		default:
 			return FreID;
 			break;
@@ -610,9 +651,9 @@ double QCGetLam(int Sys, int FreID)
 double QCCode2Fre(int Sys, int Code)
 {
 	int FreID = -1;
-	
+
 	FreID = QCCode2FreID(Sys, Code);
-	if(FreID<0)
+	if (FreID < 0)
 	{
 		return FreID;
 	}
@@ -632,6 +673,9 @@ double QCCode2Fre(int Sys, int Code)
 		case QC_SYS_QZS:
 			return g_FreQZS[FreID];
 			break;
+		case QC_SYS_XW1:
+			return g_FreXW1[FreID];
+			break;
 		default:
 			return FreID;
 			break;
@@ -648,7 +692,7 @@ double QCCode2Fre(int Sys, int Code)
 
 @author CHC
 *******************************************/
-int GetCombType(QC_OBSD_T* pObsd,int* pFreq)
+int GetCombType(QC_OBSD_T* pObsd, int* pFreq)
 {
 	int iFre;
 	int fre0 = -1, fre1 = -1;
@@ -718,7 +762,7 @@ double CalculateMW(QC_OBSD_T* pObsd, int Fre0Index, int Fre1Index, double Fre0, 
 			(Fre0 - Fre1) / (Fre0 + Fre1) * (pObsd->P[Fre0Index] / Lam0 + pObsd->P[Fre1Index] / Lam1);
 	}
 
-	return - NW;
+	return -NW;
 }
 
 /******************************************//**
@@ -809,7 +853,7 @@ double CalculateGF(QC_OBSD_T* pObsd, int Fre0Index, int Fre1Index, double Fre0, 
 double GetRawMP(QC_OBSD_T* pObsd, int Freq0, int* pCombi)
 {
 	int iFre, sys, frq, f1 = -1;
-	double MP = 0.0,fre0, fre1, lam0, lam1;
+	double MP = 0.0, fre0, fre1, lam0, lam1;
 
 	sys = pObsd->Sys;
 	frq = pObsd->GLOFreq;
@@ -853,10 +897,10 @@ double GetRawMP(QC_OBSD_T* pObsd, int Freq0, int* pCombi)
 		*pCombi = 0;
 		return 0;
 	}
-	
+
 	lam0 = CLIGHT / fre0;
 	lam1 = CLIGHT / fre1;
-	MP = pObsd->P[Freq0] -lam0 * pObsd->L[Freq0] +
+	MP = pObsd->P[Freq0] - lam0 * pObsd->L[Freq0] +
 		(2 * QC_SQR(lam0) / (QC_SQR(lam0) - QC_SQR(lam1)))
 		* (lam0 * pObsd->L[Freq0] - lam1 * pObsd->L[f1]);
 	return MP;
@@ -913,6 +957,7 @@ BOOL MpProcessorFixed(QC_OBSD_T* pObsd, QC_RESULT_T* pQcRes, int AntID, int SatN
 {
 	int iFre;
 	int iWins;
+	int iSys;
 	BOOL bCurFreqMpSlip = 0;
 	BOOL bMPSlip = FALSE;
 	double rawMP = 0, curMP = 0, sumMP, lastrawMP;
@@ -997,6 +1042,24 @@ BOOL MpProcessorFixed(QC_OBSD_T* pObsd, QC_RESULT_T* pQcRes, int AntID, int SatN
 
 			pQcRes->MPTime[AntID][SatNo][iFre] = ObsTime;
 			pQcRes->CurMPValidMask[AntID][SatNo] |= (1 << iFre);
+
+			iSys = QCSys2Id(pObsd->Sys) - 1;
+			if (iSys < 0)
+			{
+				continue;
+			}
+			if (fabs(curMP) < 0.3)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][0]++;
+			}
+			if (fabs(curMP) < 0.6)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][1]++;
+			}
+			if (fabs(curMP) < 0.9)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][2]++;
+			}
 		}
 	}
 
@@ -1019,6 +1082,7 @@ BOOL MpProcessorFixed(QC_OBSD_T* pObsd, QC_RESULT_T* pQcRes, int AntID, int SatN
 BOOL MpProcessorFilter(QC_OBSD_T* pObsd, QC_RESULT_T* pQcRes, int AntID, int SatNo, int* pSlipFlag, QC_TIME_T ObsTime)
 {
 	int iFre;
+	int iSys;
 	BOOL bCurFreqMpSlip = FALSE;
 	BOOL bMPSlip = FALSE;
 	double RawMP = 0;
@@ -1088,6 +1152,24 @@ BOOL MpProcessorFilter(QC_OBSD_T* pObsd, QC_RESULT_T* pQcRes, int AntID, int Sat
 
 			pQcRes->MPTime[AntID][SatNo][iFre] = ObsTime;
 			pQcRes->CurMPValidMask[AntID][SatNo] |= (1 << iFre);
+
+			iSys = QCSys2Id(pObsd->Sys) - 1;
+			if (iSys < 0)
+			{
+				continue;
+			}
+			if (fabs(CurMP) < 0.3)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][0]++;
+			}
+			if (fabs(CurMP) < 0.6)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][1]++;
+			}
+			if (fabs(CurMP) < 0.9)
+			{
+				pQcRes->MPGroupNum[AntID][iSys][iFre][2]++;
+			}
 		}
 	}
 
@@ -1269,13 +1351,14 @@ int GetSortedFreqGroup(SORT_FREQ_GROUP_T* pSortedGroup, QC_OBSD_T* pObsdPre, QC_
 	const int(*SortedFreqIndexTable) = NULL;
 	const static int GPSSortedFreqIndex[QC_MAX_NUM_SYS + 1][QC_NUM_FREQ] =
 	{
-		[QC_GNSS_SYSID_NUL]  = {-1, -1, -1, -1, -1, -1},
-		[QC_GNSS_SYSID_GPS]  = { 0,  1,  2,  0,  1, -1},
-		[QC_GNSS_SYSID_GLN]  = { 0,  1, -1, -1, -1, -1},
-		[QC_GNSS_SYSID_GAL]  = { 0,  4,  2,  3,  1, -1},
-		[QC_GNSS_SYSID_QZS]  = { 0,  2,  3,  0,  1, -1},
-		[QC_GNSS_SYSID_BDS]  = { 1,  3,  2,  0,  4,  3},
+		[QC_GNSS_SYSID_NUL] = {-1, -1, -1, -1, -1, -1},
+		[QC_GNSS_SYSID_GPS] = { 0,  1,  2,  0,  1, -1},
+		[QC_GNSS_SYSID_GLN] = { 0,  1, -1, -1, -1, -1},
+		[QC_GNSS_SYSID_GAL] = { 0,  4,  2,  3,  1, -1},
+		[QC_GNSS_SYSID_QZS] = { 0,  2,  3,  0,  1, -1},
+		[QC_GNSS_SYSID_BDS] = { 1,  3,  2,  0,  4,  3},
 		[QC_GNSS_SYSID_SBAS] = {-1, -1, -1, -1, -1, -1},
+		[QC_GNSS_SYSID_XW1] = {0,   0,  1,  1, -1, -1},
 	};
 
 	Sys = pObsdPre->Sys;
@@ -1404,7 +1487,7 @@ void Transform(SLIP_FREQ_COMB_INFO_T* pSaveVSlip, int SaveSlipNum, SORT_FREQ_GRO
 	unsigned int WLSlipIndex[QC_NUM_FREQ] = { 0 };
 	unsigned int NLSlipIndex = 0;
 	unsigned int Temp = 1;
-	
+
 	int iLoop = 0;
 	int MOriginLoop = 0;
 	int RawOrignFreqIndex = -1;
@@ -1597,7 +1680,7 @@ void SlipProcessEntrance(QC_OBSD_T* pObsdCur, QC_RESULT_T* pQcRes, int AntID, in
 	/** Find newest previous obs */
 	for (iLoop = 0; iLoop < QC_NUM_FREQ; iLoop++)
 	{
-		if ((QCTimeDiff(&pPreSatObsInfo->Time, &LastTime) > 0) && pPreSatObsInfo->ObsUpdateFlag && 
+		if ((QCTimeDiff(&pPreSatObsInfo->Time, &LastTime) > 0) && pPreSatObsInfo->ObsUpdateFlag &&
 			(QCTimeDiff(pObsTime, &pPreSatObsInfo->Time) > 0))
 		{
 			memcpy(&LastTime, &pPreSatObsInfo->Time, sizeof(QC_TIME_T));
@@ -1871,7 +1954,7 @@ int QCSlipProcessor(QC_OBSD_T* pObsdPre, QC_OBSD_T* pObsdCur, QC_RESULT_T* pQcRe
 						OnceVSlip[iLoop + QC_NUM_FREQ].BDSNLShiftFlag = 1;
 						SaveVSlip[iLoop + QC_NUM_FREQ].BDSNLShiftFlag = 1;
 					}
-					
+
 					Fre1 = QCCode2Fre(Sys, pObsdPre->Code[Fre1Index]);
 					FreNL = QCCode2Fre(Sys, pObsdPre->Code[FreNLIndex]);
 				}

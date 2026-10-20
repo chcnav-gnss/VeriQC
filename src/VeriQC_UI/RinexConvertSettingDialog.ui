@@ -59,93 +59,6 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Time Period Separated File:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QRadioButton" name="sepFileTrueRadioButton">
-       <property name="text">
-        <string>True</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup</string>
-       </attribute>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QRadioButton" name="sepFileFalseRadioButton">
-       <property name="text">
-        <string>False</string>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup</string>
-       </attribute>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Conversion Period:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1" colspan="4">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="MyDateTimeEdit" name="startDateTimeEdit">
-         <property name="displayFormat">
-          <string>yyyy/MM/dd HH:mm:ss</string>
-         </property>
-         <property name="calendarPopup">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>~</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="MyDateTimeEdit" name="endDateTimeEdit">
-         <property name="displayFormat">
-          <string>yyyy/MM/dd HH:mm:ss</string>
-         </property>
-         <property name="calendarPopup">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_6">
        <property name="text">
@@ -362,7 +275,7 @@
       </spacer>
      </item>
      <item row="1" column="1">
-      <widget class="MyNoWheelSpinBox" name="intervalSpinBox">
+      <widget class="MyNoWheelDoubleSpinBox" name="intervalSpinBox">
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::NoButtons</enum>
        </property>
@@ -419,9 +332,9 @@
    <header location="global">Components/MyComboBox.h</header>
   </customwidget>
   <customwidget>
-   <class>MyNoWheelSpinBox</class>
-   <extends>QSpinBox</extends>
-   <header location="global">Components/MyNoWheelSpinBox.h</header>
+   <class>MyNoWheelDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">Components/MyNoWheelDoubleSpinBox.h</header>
   </customwidget>
   <customwidget>
    <class>MyDateTimeEdit</class>
@@ -436,7 +349,6 @@
   <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup_6"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

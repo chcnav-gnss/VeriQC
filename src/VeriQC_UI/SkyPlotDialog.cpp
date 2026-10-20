@@ -1,6 +1,8 @@
 ﻿#include "SkyPlotDialog.h"
 #include "ui_SkyPlotDialog.h"
 #include "QCObjectManager.h"
+#include <QScreen>
+#include <QGuiApplication>
 
 SkyPlotDialog::SkyPlotDialog(int qcObjectId, QWidget *parent) :
     MyDialog(parent),
@@ -8,7 +10,9 @@ SkyPlotDialog::SkyPlotDialog(int qcObjectId, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setMinimumSize(600,500);
+    /** Minimum size in logical pixels — Qt AA_EnableHighDpiScaling handles
+     *  DPI scaling; do NOT multiply by devicePixelRatio(). */
+    this->setMinimumSize(550, 450);
 
     QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(qcObjectId);
     this->setWindowTitle(QString("%1 : %2").arg(tr("Sky Plot")).arg(qcObject->getName()));
@@ -31,6 +35,7 @@ SkyPlotDialog::SkyPlotDialog(int qcObjectId, QWidget *parent) :
     connect(ui->gloCheckBox,&QCheckBox::clicked,this,&SkyPlotDialog::onGLOCheckBoxClicked);
     connect(ui->galCheckBox,&QCheckBox::clicked,this,&SkyPlotDialog::onGALCheckBoxClicked);
     connect(ui->qzssCheckBox,&QCheckBox::clicked,this,&SkyPlotDialog::onQZSSCheckBoxClicked);
+    connect(ui->xw1CheckBox,&QCheckBox::clicked,this,&SkyPlotDialog::onXW1CheckBoxClicked);
 
     this->updateSatCountInfo();
 }
@@ -65,6 +70,11 @@ void SkyPlotDialog::onQZSSCheckBoxClicked(bool checked)
     m_plot->setSysVisible(QCResultManager::QCSysQZSS,checked);
 }
 
+void SkyPlotDialog::onXW1CheckBoxClicked(bool checked)
+{
+    m_plot->setSysVisible(QCResultManager::QCSysXW1,checked);
+}
+
 void SkyPlotDialog::showEvent(QShowEvent *)
 {
     ui->colorBar->setMinimumHeight(ui->sysWidget->height());
@@ -78,6 +88,7 @@ void SkyPlotDialog::updateSatCountInfo()
     ui->gloCountLabel->setText("0");
     ui->galCountLabel->setText("0");
     ui->qzssCountLabel->setText("0");
+    ui->xw1CountLabel->setText("0");
     QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(m_qcObjectId);
     if(!qcObject)
     {
@@ -88,4 +99,5 @@ void SkyPlotDialog::updateSatCountInfo()
     ui->gloCountLabel->setText(QString::number(qcObject->getQCResultManager()->getValidSysSatPrns(QCResultManager::QCSysGLO).size()));
     ui->galCountLabel->setText(QString::number(qcObject->getQCResultManager()->getValidSysSatPrns(QCResultManager::QCSysGAL).size()));
     ui->qzssCountLabel->setText(QString::number(qcObject->getQCResultManager()->getValidSysSatPrns(QCResultManager::QCSysQZSS).size()));
+    ui->xw1CountLabel->setText(QString::number(qcObject->getQCResultManager()->getValidSysSatPrns(QCResultManager::QCSysXW1).size()));
 }

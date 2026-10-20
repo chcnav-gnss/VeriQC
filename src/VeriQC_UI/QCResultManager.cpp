@@ -1,5 +1,6 @@
 ﻿#include "QCResultManager.h"
 #include <QMap>
+#include <QColor>
 #include <math.h>
 
 
@@ -8,10 +9,27 @@ QCResultManager::QCResultManager()
 
 }
 
+QColor QCResultManager::getSystemGraphColor(QCSysTypeEnum sys)
+{
+    switch (sys)
+    {
+    case QCSysBDS:  return QColor("#FA853A");
+    case QCSysGPS:  return QColor("#22C587");
+    case QCSysGLO:  return QColor("#4140F6");
+    case QCSysGAL:  return QColor("#3B8EFF");
+    case QCSysQZSS: return QColor("#A741FF");
+    case QCSysXW1:  return QColor("#FF8F1F");
+    default:
+        break;
+    }
+    return QColor(Qt::black);
+}
+
 void QCResultManager::resetResult()
 {
     memset(&m_qcResult,0,sizeof(QC_RESULT_T));
     m_epochResultList.clear();
+    m_validSysPrnMap.clear();   /**< same-run lifetime as m_epochResultList: stale PRN sets would keep reporting satellites from the previous file */
 }
 
 void QCResultManager::addEpochResult(const QCEpochResult &epochResult)
@@ -40,6 +58,9 @@ void QCResultManager::addEpochResult(const QCEpochResult &epochResult)
             break;
         case QC_SYS_QZS:
             m_validSysPrnMap[QCResultManager::QCSysQZSS].insert(satData.prn);
+            break;
+        case QC_SYS_XW1:
+            m_validSysPrnMap[QCResultManager::QCSysXW1].insert(satData.prn);
             break;
         default:
             break;
@@ -139,6 +160,24 @@ QCResultManager::QCSysStatisticResultData QCResultManager::getSysStatisticResult
     return data;
 }
 
+void QCResultManager::getSysFreqMPAndSNR(QCSysTypeEnum sys, FreqTypeEnum freq, double &mp, double &snr) const
+{
+    mp = 0.0;
+    snr = 0.0;
+    if(QCSysTypeEnum::QCSysComplex == sys)
+    {
+        return;
+    }
+    const int sysIndex = this->getSystemIndex(sys);
+    const GNSSSysFreqIndexInfoStruct freqInfo = getFreqIndexInfo(freq);
+    if(sysIndex < 0 || freqInfo.sysIndex != sysIndex)
+    {
+        return;
+    }
+    mp = m_qcResult.MPTotel[0][sysIndex][freqInfo.freqIndex];
+    snr = m_qcResult.SNR[0][sysIndex][freqInfo.freqIndex];
+}
+
 QDateTime QCResultManager::getStartTime() const
 {
     return qcTime2DateTime(m_qcResult.StartTime[0]);
@@ -156,7 +195,8 @@ int QCResultManager::getSystemIndex(QCSysTypeEnum systemType)
         {QCSysBDS,SYS_INDEX_BDS},
         {QCSysGLO,SYS_INDEX_GLO},
         {QCSysGAL,SYS_INDEX_GAL},
-        {QCSysQZSS,SYS_INDEX_QZSS}
+        {QCSysQZSS,SYS_INDEX_QZSS},
+        {QCSysXW1,SYS_INDEX_XW1}
     };
     return s_sysIndexHash.value(systemType,-1);
 }
@@ -182,7 +222,8 @@ QString QCResultManager::getSatName(QCSysTypeEnum sys, unsigned int prn)
         {QCSysGLO,"R"},
         {QCSysGAL,"E"},
         {QCSysQZSS,"J"},
-        {QCSysBDS,"C"}
+        {QCSysBDS,"C"},
+        {QCSysXW1,"L"}
     };
 
     return QString("%1%2").arg(s_sysNameHash.value(sys,"NA")).arg(prn, 2, 10, QChar('0'));
@@ -196,7 +237,8 @@ QString QCResultManager::getFreqName(QCSysTypeEnum sys, unsigned int freqIndex)
         {"G1","G2","", "",   "",""},/*GLONASS*/
         {"E1","E5a","E5b","E5(a+b)","E6",""},/*Galileo*/
         {"L1","L2","L5","L1C(P)","L6",""},/*QZSS*/
-        {"B1","B2","B3","B1C","B2a","B2b"}/*BDS*/
+        {"B1","B2","B3","B1C","B2a","B2b"},/*BDS*/
+        {"L1L","L1H","L2L","L2H","",""}/*XW1*/
     };
 
     Q_ASSERT(freqIndex < QC_NUM_FREQ);
@@ -232,10 +274,10 @@ QString QCResultManager::getUIComplexFreqsName(UiComplexTypeEnum type)
 QVector<QCResultManager::FreqTypeEnum> QCResultManager::getUIComplexFreqTypes(UiComplexTypeEnum type)
 {
     static const QHash<QCResultManager::UiComplexTypeEnum,QVector<QCResultManager::FreqTypeEnum>> s_uiComplexFreqHash = {
-        {QCResultManager::UiComplexMP1,{QCResultManager::GPSL1,QCResultManager::GLOG1,QCResultManager::GALE1,QCResultManager::BDSB1C,QCResultManager::QZSSL1}},
-        {QCResultManager::UiComplexMP2,{QCResultManager::GPSL2P,QCResultManager::GLOG2,QCResultManager::BDSB1,QCResultManager::QZSSL2}},
-        {QCResultManager::UiComplexMP5,{QCResultManager::GPSL5,QCResultManager::GALE5A,QCResultManager::BDSB2A,QCResultManager::QZSSL5}},
-        {QCResultManager::UiComplexMP6,{QCResultManager::GALE6,QCResultManager::BDSB3,QCResultManager::QZSSL6}},
+        {QCResultManager::UiComplexMP1,{QCResultManager::GPSL1,QCResultManager::GLOG1,QCResultManager::GALE1,QCResultManager::BDSB1C,QCResultManager::QZSSL1,QCResultManager::XW1L1L}},
+        {QCResultManager::UiComplexMP2,{QCResultManager::GPSL2P,QCResultManager::GLOG2,QCResultManager::BDSB1,QCResultManager::QZSSL2,QCResultManager::XW1L1H}},
+        {QCResultManager::UiComplexMP5,{QCResultManager::GPSL5,QCResultManager::GALE5A,QCResultManager::BDSB2A,QCResultManager::QZSSL5,QCResultManager::XW1L2L}},
+        {QCResultManager::UiComplexMP6,{QCResultManager::GALE6,QCResultManager::BDSB3,QCResultManager::QZSSL6,QCResultManager::XW1L2H}},
         {QCResultManager::UiComplexMP7,{QCResultManager::GALE5B,QCResultManager::BDSB2}},
         {QCResultManager::UiComplexMP8,{QCResultManager::GALE5AB}},
         {QCResultManager::UiComplexPlotExtend,{QCResultManager::GPSL1C,QCResultManager::QZSSL1CP,QCResultManager::BDSB2B}},
@@ -275,6 +317,11 @@ QCResultManager::GNSSSysFreqIndexInfoStruct QCResultManager::getFreqIndexInfo(Fr
         {QCResultManager::FreqTypeEnum::QZSSL1CP,{QCResultManager::QCSysQZSS,SYS_INDEX_QZSS,FREQ_INDEX_QZSS_L1CP}},
         {QCResultManager::FreqTypeEnum::QZSSL6,{QCResultManager::QCSysQZSS,SYS_INDEX_QZSS,FREQ_INDEX_QZSS_L6}},
 
+        {QCResultManager::FreqTypeEnum::XW1L1L,{QCResultManager::QCSysXW1,SYS_INDEX_XW1,FREQ_INDEX_XW1_L1L}},
+        {QCResultManager::FreqTypeEnum::XW1L1H,{QCResultManager::QCSysXW1,SYS_INDEX_XW1,FREQ_INDEX_XW1_L1H}},
+        {QCResultManager::FreqTypeEnum::XW1L2L,{QCResultManager::QCSysXW1,SYS_INDEX_XW1,FREQ_INDEX_XW1_L2L}},
+        {QCResultManager::FreqTypeEnum::XW1L2H,{QCResultManager::QCSysXW1,SYS_INDEX_XW1,FREQ_INDEX_XW1_L2H}},
+
     };
 
     return s_gnssSysFreqIndexMap[type];
@@ -291,11 +338,16 @@ QDateTime QCResultManager::qcTime2DateTime(QC_TIME_T t)
     return QDateTime::fromString(tstr,"yyyy/MM/dd HH:mm:ss.zzz");
 }
 
-QList<unsigned int> QCResultManager::getValidSysSatPrns(QCSysTypeEnum sys)
+QList<unsigned int> QCResultManager::getValidSysSatPrns(QCSysTypeEnum sys) const
 {
     QList<unsigned int> list = m_validSysPrnMap.value(sys).toList();
     std::sort(list.begin(),list.end());
     return list;
+}
+
+bool QCResultManager::hasValidSysSatPrns(QCSysTypeEnum sys) const
+{
+    return !m_validSysPrnMap.value(sys).isEmpty();
 }
 
 QCResultManager::StationAttributeInfo QCResultManager::getStationAttributeInfo() const

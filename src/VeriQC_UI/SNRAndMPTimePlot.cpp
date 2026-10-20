@@ -3,7 +3,7 @@
 #include "PlotTimeAxisTicker.h"
 #include "QCObjectManager.h"
 
-SNRAndMPTimePlot::SNRAndMPTimePlot(int qcObjectId, QWidget *parent)
+SNRAndMPTimePlot::SNRAndMPTimePlot(int qcObjectId, bool hasEphemeris, QWidget *parent)
     :MyProgressCustomPlot(parent),m_qcObjectId(qcObjectId)
 {
     this->setAutoAddPlottableToLegend(false);
@@ -13,27 +13,19 @@ SNRAndMPTimePlot::SNRAndMPTimePlot(int qcObjectId, QWidget *parent)
 
     m_snrAxisRect = new QCPAxisRect(this);
     m_mpAxisRect = new QCPAxisRect(this);
-    m_eleAxisRect = new QCPAxisRect(this);
 
     initAxisRect(m_snrAxisRect,"SNR(dBHz)",false);
     initAxisRect(m_mpAxisRect,"Multipath(m)",false);
-    initAxisRect(m_eleAxisRect,QString::fromLocal8Bit("Elevation(°)"),true);
 
     this->plotLayout()->addElement(0,0,m_snrAxisRect);
     this->plotLayout()->addElement(1,0,m_mpAxisRect);
-    this->plotLayout()->addElement(2,0,m_eleAxisRect);
 
     QCPMarginGroup *leftMarginGroup = new QCPMarginGroup(this);
     m_snrAxisRect->setMarginGroup(QCP::msLeft,leftMarginGroup);
     m_mpAxisRect->setMarginGroup(QCP::msLeft,leftMarginGroup);
-    m_eleAxisRect->setMarginGroup(QCP::msLeft,leftMarginGroup);
 
     connect(m_snrAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_mpAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
-    connect(m_snrAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_eleAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
     connect(m_mpAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_snrAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
-    connect(m_mpAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_eleAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
-    connect(m_eleAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_snrAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
-    connect(m_eleAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_mpAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
 
     // init graphs
     this->initSystemGraph(QCResultManager::QCSysBDS,m_snrAxisRect,m_snrGraphMap);
@@ -41,18 +33,33 @@ SNRAndMPTimePlot::SNRAndMPTimePlot(int qcObjectId, QWidget *parent)
     this->initSystemGraph(QCResultManager::QCSysGLO,m_snrAxisRect,m_snrGraphMap);
     this->initSystemGraph(QCResultManager::QCSysGAL,m_snrAxisRect,m_snrGraphMap);
     this->initSystemGraph(QCResultManager::QCSysQZSS,m_snrAxisRect,m_snrGraphMap);
+    this->initSystemGraph(QCResultManager::QCSysXW1,m_snrAxisRect,m_snrGraphMap);
 
     this->initSystemGraph(QCResultManager::QCSysBDS,m_mpAxisRect,m_mpGraphMap);
     this->initSystemGraph(QCResultManager::QCSysGPS,m_mpAxisRect,m_mpGraphMap);
     this->initSystemGraph(QCResultManager::QCSysGLO,m_mpAxisRect,m_mpGraphMap);
     this->initSystemGraph(QCResultManager::QCSysGAL,m_mpAxisRect,m_mpGraphMap);
     this->initSystemGraph(QCResultManager::QCSysQZSS,m_mpAxisRect,m_mpGraphMap);
+    this->initSystemGraph(QCResultManager::QCSysXW1,m_mpAxisRect,m_mpGraphMap);
 
-    this->initSystemGraph(QCResultManager::QCSysBDS,m_eleAxisRect,m_eleGraphMap);
-    this->initSystemGraph(QCResultManager::QCSysGPS,m_eleAxisRect,m_eleGraphMap);
-    this->initSystemGraph(QCResultManager::QCSysGLO,m_eleAxisRect,m_eleGraphMap);
-    this->initSystemGraph(QCResultManager::QCSysGAL,m_eleAxisRect,m_eleGraphMap);
-    this->initSystemGraph(QCResultManager::QCSysQZSS,m_eleAxisRect,m_eleGraphMap);
+    /** elevation subplot exists only when ephemeris is available; no-eph mode omits it */
+    if (hasEphemeris)
+    {
+        m_eleAxisRect = new QCPAxisRect(this);
+        initAxisRect(m_eleAxisRect,QString::fromLocal8Bit("Elevation(°)"),true);
+        this->plotLayout()->addElement(2,0,m_eleAxisRect);
+        m_eleAxisRect->setMarginGroup(QCP::msLeft,leftMarginGroup);
+        connect(m_snrAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_eleAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
+        connect(m_mpAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_eleAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
+        connect(m_eleAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_snrAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
+        connect(m_eleAxisRect->axis(QCPAxis::atBottom), SIGNAL(rangeChanged(QCPRange)), m_mpAxisRect->axis(QCPAxis::atBottom), SLOT(setRange(QCPRange)));
+        this->initSystemGraph(QCResultManager::QCSysBDS,m_eleAxisRect,m_eleGraphMap);
+        this->initSystemGraph(QCResultManager::QCSysGPS,m_eleAxisRect,m_eleGraphMap);
+        this->initSystemGraph(QCResultManager::QCSysGLO,m_eleAxisRect,m_eleGraphMap);
+        this->initSystemGraph(QCResultManager::QCSysGAL,m_eleAxisRect,m_eleGraphMap);
+        this->initSystemGraph(QCResultManager::QCSysQZSS,m_eleAxisRect,m_eleGraphMap);
+        this->initSystemGraph(QCResultManager::QCSysXW1,m_eleAxisRect,m_eleGraphMap);
+    }
 }
 
 void SNRAndMPTimePlot::addFilter(QCResultManager::QCSysTypeEnum sys, unsigned int prn, unsigned int freqIndex)
@@ -102,23 +109,17 @@ void SNRAndMPTimePlot::updatePlot()
     this->rescaleAxes(true);
     m_snrAxisRect->axis(QCPAxis::atLeft)->setRange(m_snrAxisRect->axis(QCPAxis::atLeft)->range().center(),m_snrAxisRect->axis(QCPAxis::atLeft)->range().size()*1.1,Qt::AlignCenter);
     m_mpAxisRect->axis(QCPAxis::atLeft)->setRange(m_mpAxisRect->axis(QCPAxis::atLeft)->range().center(),m_mpAxisRect->axis(QCPAxis::atLeft)->range().size()*1.1,Qt::AlignCenter);
-    m_eleAxisRect->axis(QCPAxis::atLeft)->setRange(m_eleAxisRect->axis(QCPAxis::atLeft)->range().center(),m_eleAxisRect->axis(QCPAxis::atLeft)->range().size()*1.1,Qt::AlignCenter);
+    if(m_eleAxisRect)
+    {
+        m_eleAxisRect->axis(QCPAxis::atLeft)->setRange(m_eleAxisRect->axis(QCPAxis::atLeft)->range().center(),m_eleAxisRect->axis(QCPAxis::atLeft)->range().size()*1.1,Qt::AlignCenter);
+    }
     this->replot(rpQueuedReplot);
 }
 
 QString SNRAndMPTimePlot::getSystemGraphColor(QCResultManager::QCSysTypeEnum sys)
 {
-    switch (sys)
-    {
-    case QCResultManager::QCSysBDS: return "#FA853A";
-    case QCResultManager::QCSysGPS: return "#22C587";
-    case QCResultManager::QCSysGLO: return "#4140F6";
-    case QCResultManager::QCSysGAL: return "#3B8EFF";
-    case QCResultManager::QCSysQZSS: return "#A741FF";
-    default:
-        break;
-    }
-    return QString();
+    /** delegate to QCResultManager to keep a single color source across plots */
+    return QCResultManager::getSystemGraphColor(sys).name();
 }
 
 void SNRAndMPTimePlot::initAxisRect(QCPAxisRect *axisRect,const QString &yAxisLabel,bool isBottomRect)
@@ -179,7 +180,10 @@ void SNRAndMPTimePlot::resizeEvent(QResizeEvent *event)
     int tickCount = width/minXStep;
     m_snrAxisRect->axis(QCPAxis::atBottom)->ticker()->setTickCount(tickCount);
     m_mpAxisRect->axis(QCPAxis::atBottom)->ticker()->setTickCount(tickCount);
-    m_eleAxisRect->axis(QCPAxis::atBottom)->ticker()->setTickCount(tickCount);
+    if(m_eleAxisRect)
+    {
+        m_eleAxisRect->axis(QCPAxis::atBottom)->ticker()->setTickCount(tickCount);
+    }
     replot(rpQueuedRefresh); // queued refresh is important here, to prevent painting issues in some contexts (e.g. MDI subwindow)
 }
 
@@ -225,6 +229,9 @@ void SNRAndMPTimePlot::doRun()
             case QC_SYS_QZS:
                 satSys = QCResultManager::QCSysQZSS;
                 break;
+            case QC_SYS_XW1:
+                satSys = QCResultManager::QCSysXW1;
+                break;
             default:
                 continue;
             }
@@ -256,7 +263,13 @@ void SNRAndMPTimePlot::doRun()
             {
                 m_mpGraphMap[satSys]->addData(x,satData.curMP[filteredFreqIndex]);
             }
-            m_eleGraphMap[satSys]->addData(x,satData.azel[1] * (180.0/M_PI));
+            // Single QMap lookup: value() returns nullptr for missing keys,
+            // so the isEmpty() guard was redundant. Cache the pointer to
+            // avoid a second lookup via operator[] on the addData path.
+            if(auto *eleGraph = m_eleGraphMap.value(satSys))
+            {
+                eleGraph->addData(x,satData.azel[1] * (180.0/M_PI));
+            }
         }
     }
 }
@@ -264,6 +277,6 @@ void SNRAndMPTimePlot::doRun()
 void SNRAndMPTimePlot::initSystemGraph(QCResultManager::QCSysTypeEnum sys,QCPAxisRect *rect,QMap<QCResultManager::QCSysTypeEnum,TimePlotGraph*> &graphMap)
 {
     TimePlotGraph *graph = new TimePlotGraph(rect->axis(QCPAxis::atBottom),rect->axis(QCPAxis::atLeft));
-    graph->setPen(QPen(QColor(this->getSystemGraphColor(sys))));
+    graph->setPen(QPen(QCResultManager::getSystemGraphColor(sys)));
     graphMap.insert(sys,graph);
 }

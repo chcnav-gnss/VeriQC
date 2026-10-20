@@ -14,6 +14,7 @@ int32_t VeriQCOrbitGetOpt(VERIQC_ORBIT_PROCESSOR_T* pObj, VERIQC_SPPTC_OPT_T* pO
 CHC_NAV_T* VeriQCGetNav(VERIQC_ORBIT_PROCESSOR_T* pObj);
 int32_t VeriQCOrbitAddUNIEphemeris(VERIQC_ORBIT_PROCESSOR_T* pObj, const UNI_EPHEMERIS_T* pEph);
 int32_t VeriQCOrbitAddGLOEphemeris(VERIQC_ORBIT_PROCESSOR_T* pObj, const GLO_EPHEMERIS_T* pGLOEph);
+int32_t VeriQCOrbitAddLEOEphemeris(VERIQC_ORBIT_PROCESSOR_T* pObj, const XW_LEO_EPHEMERIS_T* pLEOEph);
 int32_t VeriQCOrbitRangeFit(VERIQC_ORBIT_PROCESSOR_T* pObj, const RM_RANGE_LOG_T* pRangeObs);
 int32_t VeriQCOrbitSatPos(VERIQC_ORBIT_PROCESSOR_T* pObj, const CHC_OBS_T* pObs, VERIQC_ORBIT_SOL_T* pSol, uint8_t IncrementUpdateMark);
 int32_t VeriQCOrbitSetSelEphTime(VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T* pEphTime);
@@ -21,6 +22,8 @@ int32_t VeriQCOrbitOneSatCalc(VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T Ti
     double* pSatPosVel, double* pSatClock);
 int32_t VeriQCOrbitSatCalcByToe(VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T TransTime, const QC_TIME_T Time, VERIQC_SYSID_E SysId, unsigned int SatPRN, int Toe,
     double* pSatPosVel, double* pSatClock);
+int32_t VeriQCOrbitSatCalcOneLeo(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T TransTime, const QC_TIME_T Time, VERIQC_SYSID_E SysId, unsigned int SatPrn,
+    double* pSatPosVel, double* pSatClock, int* pToe);
 
 static VERIQC_ORBIT_IFX_T s_OrbitModuleGlb =
 {
@@ -31,11 +34,13 @@ static VERIQC_ORBIT_IFX_T s_OrbitModuleGlb =
     VeriQCGetNav,
     VeriQCOrbitAddUNIEphemeris,
     VeriQCOrbitAddGLOEphemeris,
+    VeriQCOrbitAddLEOEphemeris,
     VeriQCOrbitRangeFit,
     VeriQCOrbitSatPos,
     VeriQCOrbitSetSelEphTime,
     VeriQCOrbitOneSatCalc,
-    VeriQCOrbitSatCalcByToe
+    VeriQCOrbitSatCalcByToe,
+    VeriQCOrbitSatCalcOneLeo
 };
 
 VERIQC_ORBIT_IFX_T* VeriQCGetOrbitIfx()
@@ -78,6 +83,13 @@ void VeriQCOrbitConstruct(VERIQC_ORBIT_PROCESSOR_T* pObj)
     pObj->pNav->NumGLOMax = (VERIQC_FLAG == 2 ? 5 : CHC_NSATGLO);
     pObj->pNav->pGEph = (CHC_GEPH_T*)VERIQC_MALLOC(sizeof(CHC_GEPH_T)*pObj->pNav->NumGLOMax);
     memset(pObj->pNav->pGEph, 0, sizeof(CHC_GEPH_T)*pObj->pNav->NumGLOMax);
+    memused = (int)VERIQC_GET_USEDMEM();
+    memfree = (int)VERIQC_GET_FREEMEM();
+
+    pObj->pNav->NumLEO = 0;
+    pObj->pNav->NumMaxLEO = CHC_NSATLEO;
+    pObj->pNav->pEphLEO = (CHC_LEO_EPH_T*)VERIQC_MALLOC(sizeof(CHC_LEO_EPH_T) * pObj->pNav->NumMaxLEO);
+    memset(pObj->pNav->pEphLEO, 0, sizeof(CHC_LEO_EPH_T) * pObj->pNav->NumMaxLEO);
     memused = (int)VERIQC_GET_USEDMEM();
     memfree = (int)VERIQC_GET_FREEMEM();
 
@@ -125,6 +137,8 @@ void VeriQCOrbitDestruct(VERIQC_ORBIT_PROCESSOR_T* pObj)
     VERIQC_FREE(pObj->pNav->pGEph);
     pObj->pNav->NumGLO = pObj->pNav->NumGLOMax = 0;
     VERIQC_FREE(pObj->pNav->pEph);
+    VERIQC_FREE(pObj->pNav->pEphLEO);
+    pObj->pNav->NumLEO = pObj->pNav->NumMaxLEO = 0;
 #if defined VERIQC_SURVEY
     VeriQCReleaseSatInfoArray((struct _CHC_SATIPTINFO_T **)&pObj->pSatIptInfoBD3, pObj->EphValidFlagBD3Num);
     VERIQC_FREE(pObj->pNav->pEphBD3);
@@ -257,7 +271,7 @@ int32_t VeriQCOrbitAddUNIEphemeris(VERIQC_ORBIT_PROCESSOR_T* pObj, const UNI_EPH
         return -1;
     }
 
-    if (EPH_DATA_TYPE_GAL_REDUCED_CED == pEph->EphDataType)
+    if (EPH_DATA_TYPE_GAL_RCED == pEph->EphDataType)
     {
         return -1;
     }
@@ -667,6 +681,182 @@ int32_t VeriQCOrbitAddGLOEphemeris(VERIQC_ORBIT_PROCESSOR_T * pObj, const GLO_EP
     return 0;
 }
 
+int32_t VeriQCOrbitAddLEOEphemeris(VERIQC_ORBIT_PROCESSOR_T* pObj, const XW_LEO_EPHEMERIS_T* pEph)
+{
+    int EphIndex;
+    int Sat, Sys;
+    int UniEphPRN, UniEphSys;
+    BOOL bEphExist = FALSE;
+    BOOL bBDS3Eph = FALSE;
+    int RealTimeMode;
+    int IODE;
+    int IncreNum;
+    double DeltaTOE;
+    double DelteTOC;
+    CHC_NAV_T* pNav = NULL;
+    CHC_LEO_EPH_T* pTmpEph = NULL;
+    QC_TIME_T TimeTmp;
+    BOOL bUpdateEph;
+    BOOL bXWEph = TRUE;
+    QC_TIME_T TempToe = { 0 };
+    QC_TIME_T TempToc = { 0 };
+
+    if (!pObj || !pEph)
+    {
+        GNSS_LOG_ERROR("ctclib_orbit_addeph error:pobj=%d or peph=%d is null",
+            pObj ? 1 : 0, pEph ? 1 : 0);
+        return -1;
+    }
+
+    if (EPH_DATA_TYPE_XW_LEO != pEph->EphDataType)
+    {
+        return -1;
+    }
+
+    RealTimeMode = pObj->pOpt->RealTimeMode;
+
+    UniEphSys = pEph->SystemID;
+    UniEphPRN = pEph->SatID;
+
+    if (XW1 != UniEphSys)
+    {
+        return -1;
+    }
+
+    Sys = VeriQCParseEphemerisSystem(UniEphSys);
+    Sat = SatNo(Sys, UniEphPRN);
+    if (Sat <= 0 || Sys != SYS_LEO || NAV_DATA_STATE_VALID != pEph->EphState)
+    {
+        if (Sys != SYS_LEO)
+        {
+            GNSS_LOG_ERROR("ctclib_orbit_add_pEphLEO error:sys_id=%d,svid=%d",
+                UniEphSys, UniEphPRN);
+        }
+        return -1;
+    }
+
+    if (!(pObj->pOpt->Sys & Sys))
+    {
+        return -1;
+    }
+
+    IODE = pEph->IODE1;
+
+    pNav = pObj->pNav;
+    if (TRUE == RealTimeMode)
+    {
+        IncreNum = VERIQC_INCREA_EPH_ALM_REALTIME;
+    }
+    else
+    {
+        IncreNum = VERIQC_INCREA_EPH_ALM_POSTTIME;
+    }
+
+    if (pNav->NumLEO >= pNav->NumMaxLEO)
+    {
+        pTmpEph = VERIQC_MALLOC((pNav->NumMaxLEO + IncreNum) * sizeof(CHC_LEO_EPH_T));
+        if (pTmpEph)
+        {
+            memcpy(pTmpEph, pNav->pEphLEO,
+                pNav->NumLEO * sizeof(CHC_LEO_EPH_T));
+            memset(pTmpEph + pNav->NumLEO, 0,
+                (pNav->NumMaxLEO + IncreNum - pNav->NumLEO) *
+                sizeof(CHC_LEO_EPH_T));
+            VERIQC_FREE(pNav->pEphLEO);
+            pNav->pEphLEO = pTmpEph;
+            pNav->NumMaxLEO += IncreNum;
+        }
+    }
+
+    if (RealTimeMode)
+    {
+        for (EphIndex = 0; EphIndex < pNav->NumMaxLEO; EphIndex++)
+        {
+            TimeTmp = pNav->pEphLEO[EphIndex].Toe;
+            /** old ephemeris exist, check to update */
+            if (pNav->pEphLEO[EphIndex].Sat == Sat)
+            {
+                TempToe = VeriQCUNIEphTime2Time(Sys, pEph->Week, (double)pEph->TOE);
+                DeltaTOE = QCTimeDiff(&TempToe, &TimeTmp);
+
+                TimeTmp = pNav->pEphLEO[EphIndex].Toc;
+                TempToc = VeriQCUNIEphTime2Time(Sys, pEph->Week, (double)pEph->TOC);
+                DelteTOC = QCTimeDiff(&TempToc, &TimeTmp);
+
+                bUpdateEph = FALSE;
+                if (((!IsAbsoluteDoubleZero(DeltaTOE)) ||
+                    ((pEph->Health != pNav->pEphLEO[EphIndex].SVH) && (0 == pEph->Health))) &&
+                    (DeltaTOE >= 0.0))
+                {
+                    bUpdateEph = TRUE;
+                }
+
+                else if ((bUpdateEph) || pObj->pEphActiveValidFlag[Sat - 1])
+                {
+                    VeriQCConvertLEOEphemeris(pEph, (struct _CHC_LEO_EPH_T*)&pNav->pEphLEO[EphIndex]);
+
+                    pNav->pEphLEO[EphIndex].IODE = IODE;
+                }
+                break;
+            }
+            /** If the satellite has not appeared before, then assign directly. */
+            else if (pNav->pEphLEO[EphIndex].Sat == 0)
+            {
+                VeriQCConvertLEOEphemeris(pEph, (struct _CHC_LEO_EPH_T*)&pNav->pEphLEO[EphIndex]);
+                pNav->pEphLEO[EphIndex].IODE = IODE;
+
+                pNav->NumLEO += 1;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (EphIndex = 0; EphIndex < pNav->NumMaxLEO; EphIndex++)
+        {
+            if (pNav->pEphLEO[EphIndex].Sat == Sat)
+            {
+                bEphExist = TRUE;
+                break;
+            }
+            else if (pNav->pEphLEO[EphIndex].Sat == 0)
+            {
+                VeriQCConvertLEOEphemeris(pEph, (struct _CHC_LEO_EPH_T*)&pNav->pEphLEO[pNav->NumLEO]);
+
+                pNav->NumLEO++;
+                break;
+            }
+        }
+
+        if (TRUE == bEphExist)
+        {
+            for (EphIndex = pNav->NumLEO - 1; EphIndex >= 0; EphIndex--)
+            {
+                if (pNav->pEphLEO[EphIndex].Sat == Sat)
+                {
+                    TimeTmp = pNav->pEphLEO[EphIndex].Toe;
+                    TempToe = VeriQCUNIEphTime2Time(Sys, pEph->Week, (double)pEph->TOE);
+                    DeltaTOE = QCTimeDiff(&TempToe, &TimeTmp);
+
+                    TimeTmp = pNav->pEphLEO[EphIndex].Toc;
+                    TempToc = VeriQCUNIEphTime2Time(Sys, pEph->Week, (double)pEph->TOC);
+                    DelteTOC = QCTimeDiff(&TempToc, &TimeTmp);
+
+                    if (fabs(DeltaTOE) > 0.0 || fabs(DelteTOC) > 0.0)
+                    {
+                        VeriQCConvertLEOEphemeris(pEph, (struct _CHC_LEO_EPH_T*)&pNav->pEphLEO[pNav->NumLEO]);
+
+                        pNav->NumLEO++;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 int32_t VeriQCOrbitRangeFit(VERIQC_ORBIT_PROCESSOR_T* pObj, const RM_RANGE_LOG_T* pRangeObs)
 {
     int res = 0;
@@ -889,6 +1079,50 @@ int32_t VeriQCOrbitSatCalcByToe(VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T 
     }
 
     bSuccess = GetSatPosVelClockSpecifyToe(pSatIptInfo, gTransTime, gTime, Sat, pObj->pNav, pSatPosVel, pSatClock, 0, Toe);
+
+    return (bSuccess ? 0 : -1);
+}
+
+int32_t VeriQCOrbitSatCalcOneLeo(struct _VERIQC_ORBIT_PROCESSOR_T* pObj, const QC_TIME_T TransTime, const QC_TIME_T Time, VERIQC_SYSID_E SysId, unsigned int SatPrn,
+    double* pSatPosVel, double* pSatClock, int* pToe)
+{
+    int Sys;
+    int Sat;
+    BOOL bSuccess = FALSE;
+    CHC_SATIPTINFO_T* pSatIptInfo = NULL;
+
+    if ((!pObj) || (!pSatPosVel) || (!pSatClock))
+    {
+        return -1;
+    }
+
+#ifdef CHC_ENAQZS
+#ifdef USING_QZSS_AS_GPS
+    if (VERIQC_GNSS_SYSID_QZS == SysId)
+    {
+        SysId = VERIQC_GNSS_SYSID_GPS;
+        SatPrn = CHC_MAXPRNGPS_TRUE + SatPrn - CHC_MINPRNQZS + 1;
+    }
+#endif
+#endif
+
+    Sys = VeriQCConvertSysID(SysId);
+    Sat = SatNo(Sys, SatPrn);;
+
+    if (0 == Sat)
+    {
+        return -1;
+    }
+
+    if (pObj->pSatIptInfo)
+    {
+        if (Sat == (&pObj->pSatIptInfo[Sat - 1])->Sat)
+        {
+            pSatIptInfo = (&pObj->pSatIptInfo[Sat - 1]);
+        }
+    }
+
+    bSuccess = GetLEOSatPosVelClock(pSatIptInfo, TransTime, Time, Sat, pObj->pNav, pSatPosVel, pSatClock, pToe, 0);
 
     return (bSuccess ? 0 : -1);
 }

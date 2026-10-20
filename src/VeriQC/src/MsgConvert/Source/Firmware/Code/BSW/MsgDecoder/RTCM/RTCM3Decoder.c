@@ -126,6 +126,131 @@ static unsigned int GPSTime2Epoch(int week, int sec)
 #endif
 
 /*****************************************************************************//**
+@brief adjust GPS week number using reference utc time
+
+@param Week             [In] not-adjusted GPS week number
+@param pApproxUTCTime   [In] reference utc time
+
+@retval adjusted GPS week number
+
+@author CHC
+@date 2026/07/14
+@note
+*********************************************************************************/
+int AdjGPSWeekByUTCTime(int Week, const UTC_TIME_T* pApproxUTCTime)
+{
+	int TempWeek, WeekMsCount, GPSLeapSecMs;
+	UTC_TIME_T TempUtcTime;
+
+	if ((pApproxUTCTime != NULL) && (FALSE != CHECK_UTC_YEAR(pApproxUTCTime->Year)))
+	{
+		TempUtcTime = *pApproxUTCTime;
+	}
+	else
+	{
+		TempUtcTime = RTCMGetUTCTime();
+	}
+
+	GPSLeapSecMs = GetGPSLeapSecondMs(&TempUtcTime);
+	UTCToGPSTime(&TempUtcTime, &GPSLeapSecMs, &TempWeek, &WeekMsCount);
+
+	if (TempWeek < 1560)
+	{
+		TempWeek = 1560; /**< use 2009/12/1 if time is earlier than 2009/12/1 */
+	}
+
+	return Week + (TempWeek - Week + 512) / 1024 * 1024;
+}
+
+/*****************************************************************************//**
+@brief update rtcm approximate time using gps week/tow from ephemeris
+
+@param pParseInfo       [In/Out] rtcm parse information
+@param GPSWeek          [In] gps week
+@param Tow              [In] tow second
+
+@retval void
+
+@author CHC
+@date 2026/07/14
+@note
+*********************************************************************************/
+void UpdateRTCMTimeByGPSTime(RTCM_PARSE_INFO_T* pParseInfo, int GPSWeek, double Tow)
+{
+	int GPSLeapSecMs;
+	int WeekMsCount;
+	RTCM_INTERIM_DATA_T* pRTCMInterimData;
+	UTC_TIME_T EphUTCTime;
+
+	if ((pParseInfo == NULL) || (GPSWeek <= 0) || (Tow < 0.0))
+	{
+		return;
+	}
+
+	while (Tow >= 604800.0)
+	{
+		Tow -= 604800.0;
+		GPSWeek++;
+	}
+
+	WeekMsCount = (int)(Tow * 1000.0 + 0.5);
+	if (WeekMsCount >= 604800000)
+	{
+		WeekMsCount -= 604800000;
+		GPSWeek++;
+	}
+
+	pRTCMInterimData = &pParseInfo->RTCMInterimData;
+	GPSLeapSecMs = GetGPSLeapSecondMsByGPSTime(GPSWeek, WeekMsCount);
+	GPSTimeToUTC(GPSWeek, WeekMsCount, &GPSLeapSecMs, &EphUTCTime);
+	if ((FALSE != CHECK_UTC_YEAR(pRTCMInterimData->RTCMTime.Year))
+		&& (FALSE != CHECK_UTC_YEAR(EphUTCTime.Year))
+		&& (pRTCMInterimData->RTCMTime.Year == EphUTCTime.Year)
+		&& (pRTCMInterimData->RTCMTime.Month == EphUTCTime.Month)
+		&& (pRTCMInterimData->RTCMTime.Day == EphUTCTime.Day))
+	{
+		return;
+	}
+	MEMCPY(&pRTCMInterimData->RTCMTime, &EphUTCTime, sizeof(UTC_TIME_T));
+}
+
+/*****************************************************************************//**
+@brief update rtcm approximate time using bds week/tow from ephemeris
+
+@param pParseInfo       [In/Out] rtcm parse information
+@param BDSWeek          [In] bds week
+@param Tow              [In] tow second
+
+@retval void
+
+@author CHC
+@date 2026/07/14
+@note
+*********************************************************************************/
+static void UpdateRTCMTimeByBDSTime(RTCM_PARSE_INFO_T* pParseInfo, int BDSWeek, double Tow)
+{
+	UpdateRTCMTimeByGPSTime(pParseInfo, BDSWeek + 1356, Tow + 14.0);
+}
+
+/*****************************************************************************//**
+@brief update rtcm approximate time using gal week/tow from ephemeris
+
+@param pParseInfo       [In/Out] rtcm parse information
+@param GALWeek          [In] gal week
+@param Tow              [In] tow second
+
+@retval void
+
+@author CHC
+@date 2026/07/14
+@note
+*********************************************************************************/
+static void UpdateRTCMTimeByGALTime(RTCM_PARSE_INFO_T* pParseInfo, int GALWeek, double Tow)
+{
+	UpdateRTCMTimeByGPSTime(pParseInfo, GALWeek + 1024, Tow);
+}
+
+/*****************************************************************************//**
 @brief adjust carrier-phase rollover
 
 @param pRTCMInterimData     [In] RTCM decode interim data pointer
@@ -3060,7 +3185,8 @@ int RTCM3DecodeType1019(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 
 	pGPSEphData->SatID = SatID;
 	pGPSEphData->SystemID= ExSystemID;
-	pGPSEphData->Week = AdjGPSWeek(Week);
+	pGPSEphData->Week = AdjGPSWeekByUTCTime(Week, &pParseInfo->RTCMInterimData.RTCMTime);
+	UpdateRTCMTimeByGPSTime(pParseInfo, pGPSEphData->Week, (pGPSEphData->TOE > 0.0) ? pGPSEphData->TOE : pGPSEphData->TOC);
 	if (CalcEphInterimParam(WGS_SQRT_GM, WGS_OMEGDOTE, pGPSEphData))
 	{
 		return 0;
@@ -3274,7 +3400,8 @@ int RTCM3DecodeType1041(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 
 	pNAVICEphData->Health = ((SHealth & 0x01) << 1) + (L5Health & 0x01);
 	pNAVICEphData->SystemID= NIC;
-	pNAVICEphData->Week = AdjGPSWeek(Week);
+	pNAVICEphData->Week = AdjGPSWeekByUTCTime(Week, &pParseInfo->RTCMInterimData.RTCMTime);
+	UpdateRTCMTimeByGPSTime(pParseInfo, pNAVICEphData->Week, (pNAVICEphData->TOE > 0.0) ? pNAVICEphData->TOE : pNAVICEphData->TOC);
 	if (CalcEphInterimParam(WGS_SQRT_GM, WGS_OMEGDOTE, pNAVICEphData))
 	{
 		return 0;
@@ -3361,6 +3488,7 @@ int RTCM3DecodeType1042(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 	}
 
 	pBDEphData->SystemID = BDS;
+	UpdateRTCMTimeByBDSTime(pParseInfo, pBDEphData->Week, (pBDEphData->TOE > 0.0) ? pBDEphData->TOE : pBDEphData->TOC);
 	if (IS_BDS_GEO_PRN(pBDEphData->SatID))
 	{
 		CalcEphInterimParamGEO(CGCS2000_SQRT_GM, CGCS2000_OMEGDOTE, pBDEphData);
@@ -3452,7 +3580,8 @@ int RTCM3DecodeType1044(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 	}
 
 	pQzsEphData->SystemID = QZS;
-	pQzsEphData->Week = AdjGPSWeek(Week);
+	pQzsEphData->Week = AdjGPSWeekByUTCTime(Week, &pParseInfo->RTCMInterimData.RTCMTime);
+	UpdateRTCMTimeByGPSTime(pParseInfo, pQzsEphData->Week, (pQzsEphData->TOE > 0.0) ? pQzsEphData->TOE : pQzsEphData->TOC);
 	if (CalcEphInterimParam(WGS_SQRT_GM, WGS_OMEGDOTE, pQzsEphData))
 	{
 		return 0;
@@ -3542,6 +3671,7 @@ int RTCM3DecodeType1045(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 	pGalNavEphData->Health = E5aHealth << 2;
 	pGalNavEphData->DataValidStatus = E5aDataValid << 2;
 	pGalNavEphData->Tgd[1] = 0;
+	UpdateRTCMTimeByGALTime(pParseInfo, pGalNavEphData->Week, (pGalNavEphData->TOE > 0.0) ? pGalNavEphData->TOE : pGalNavEphData->TOC);
 	if (CalcEphInterimParam(WGS_SQRT_GM, WGS_OMEGDOTE, pGalNavEphData))
 	{
 		return 0;
@@ -3633,6 +3763,7 @@ int RTCM3DecodeType1046(RTCM_PARSE_INFO_T* pParseInfo, void* pSrcObj, RTCM3_DECO
 	pGalNavEphData->SystemID = GAL;
 	pGalNavEphData->Health = (E5bHealth << 1) + E1BHealth;
 	pGalNavEphData->DataValidStatus = (E5bDataValid << 1) + E1BDataValid;
+	UpdateRTCMTimeByGALTime(pParseInfo, pGalNavEphData->Week, (pGalNavEphData->TOE > 0.0) ? pGalNavEphData->TOE : pGalNavEphData->TOC);
 	if (CalcEphInterimParam(WGS_SQRT_GM, WGS_OMEGDOTE, pGalNavEphData))
 	{
 		return 0;

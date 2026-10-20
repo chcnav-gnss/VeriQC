@@ -1,0 +1,51 @@
+#
+> START_CHCRINEXCFG
+[chcqc_rinex]
+DataType                               = 51  # [int] input file type 
+OutputType                           = 0  # [int] output file type 
+RinexVer                               = 3.04 # [int] rinex file ver
+Interval                               = 0   # [s] sample interval(0:from raw file,x>0:from user)
+Sys                                    = G,S,R,E,J,C,I # [string] gnss system choose(GPS:G,SBAS:S,GLO:R,GLA:E,QZS:J,BDS:C,IRNSS:I)
+Split                                  = 0   # [int] obsfile split option(0:no,1:station moving,2:time interval,3:time period)
+SplitTint                              = 3600# [s] time interval to use when splitting files
+SplitStart                             = 2021-05-17 03:10:00  # [string] start time when splitting files
+SplitEnd                               = 2021-05-17 05:00:00  # [string] end time when splitting files
+RTCMTime                               = 2021-09-25 05:00:00  # [string]When decoding rtcm data, need to specify the time of the day
+AllFreq                                = 1 # [bool] gnss observation all frequency (0:from user 1:all freq)
+ObsType                                = C,L,D,S # [string] obs type choose(C:pseudorange,L:carrier,D:Doppler,S:SNR)
+GPS                                    = 1,C1C                  # [string] GPS freq option from user
+SBAS                                   = 1,C1C                               # [string] SBAS freq option from user
+GLONASS                                = 1,C1C                           # [string] GLONASS freq option from user
+Galileo                                = 1,C1C                  # [string] Galileo freq option from user
+QZSS                                   = 1,C1C                  # [string] QZSS freq option from user
+BDS                                    = 1,C1I   # [string] BDS freq option from user
+NavIC                                  = 1,C1C                               # [string] NavIC freq option from user
+Pause                                  = 0 # [bool] Whether to pause at the end(0:no,1:yes)
+RawFile                                = ./raw.log
+OutDir                                 = ./out
+> END_CHCRINEXCFG
+
+DATATYPE
+GNSS_STRFMT_RTCM2			0		/**< stream format: RTCM 2 */
+GNSS_STRFMT_RTCM3			1		/**< stream format: RTCM 3 */
+GNSS_STRFMT_RINEX			11		/**< stream format: RINEX */
+GNSS_STRFMT_HRCX			37		/**< stream format: HRCX */
+GNSS_STRFMT_RAWMSGA			51		/**< RAWMSGA */
+GNSS_STRFMT_RAWMSGB			52		/**< RAWMSGB */
+GNSS_STRFMT_BASEOBSA		53		/**< BASEOBSA */
+GNSS_STRFMT_BASEOBSB		54		/**< BASEOBSB */
+GNSS_STRFMT_KMD_RAWMSGA		101		/**< KMD_RAWMSGA */
+GNSS_STRFMT_KMD_RAWMSGB		102		/**< KMD_RAWMSGB */
+GNSS_STRFMT_RTKLOGA			103		/**< RTKLOGA */
+GNSS_STRFMT_RTKLOGB			104		/**< RTKLOGB */
+GNSS_STRFMT_CLAS			105		/**< CLAS */
+
+OutputType
+DATA_OUT_TYPE_RINEX             0
+DATA_OUT_TYPE_RAWMSGASCII       1
+DATA_OUT_TYPE_BASEOBSASCII      2
+DATA_OUT_TYPE_RAWMSGPROCESS     3
+DATA_OUT_TYPE_RTCM              4
+DATA_OUT_TYPE_RTKPLOT           5
+DATA_OUT_TYPE_ASCII             6
+DATA_OUT_TYPE_BINARY            7

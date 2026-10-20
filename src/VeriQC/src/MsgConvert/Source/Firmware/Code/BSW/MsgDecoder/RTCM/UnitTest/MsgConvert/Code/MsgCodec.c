@@ -21,6 +21,7 @@
 #include "Decoder/RawMsgBinary/RawMsgBinaryFilter.h"
 #include "Decoder/Rinex/RinexFilter.h"
 #include "Decoder/HRCX/HRCXFilter.h"
+#include "Decoder/HRC/HRCFilter.h"
 #include "Decoder/CHCRawMsgBinary/CHCRawMsgBinaryFilter.h"
 #include "Decoder/UNRawMsgBinary/UNRawMsgBinaryFilter.h"
 
@@ -39,7 +40,9 @@ int MsgCodecDeinit(MSG_DECODE_T* pMsgDecode)
 		(pMsgDecode->ProtocolFilterInfo.pRinexParseInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pRinexFilterInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo == NULL) ||
+		(pMsgDecode->ProtocolFilterInfo.pHRCParseInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pHRCXFilterInfo == NULL) ||
+		(pMsgDecode->ProtocolFilterInfo.pHRCFilterInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pUNRawMsgBinaryParseInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pUNRawMsgBinaryFilterInfo == NULL) ||
 		(pMsgDecode->ProtocolFilterInfo.pCHCRawMsgBinaryParseInfo == NULL) ||
@@ -57,7 +60,9 @@ int MsgCodecDeinit(MSG_DECODE_T* pMsgDecode)
 	RinexDecodeDeinit(pMsgDecode->ProtocolFilterInfo.pRinexParseInfo);
 	RinexFilterDeinit(pMsgDecode->ProtocolFilterInfo.pRinexFilterInfo);
 	HRCXDecodeDeinit(pMsgDecode->ProtocolFilterInfo.pHRCXParseInfo);
+	HRCDecodeDeinit(pMsgDecode->ProtocolFilterInfo.pHRCParseInfo);
 	HRCXFilterDeinit(pMsgDecode->ProtocolFilterInfo.pHRCXFilterInfo);
+	HRCFilterDeinit(pMsgDecode->ProtocolFilterInfo.pHRCFilterInfo);
 	UNRawMsgBinaryDecodeDeinit(pMsgDecode->ProtocolFilterInfo.pUNRawMsgBinaryParseInfo);
 	UNRawMsgBinaryFilterDeinit(pMsgDecode->ProtocolFilterInfo.pUNRawMsgBinaryFilterInfo);
 	CHCRawMsgBinaryDecodeDeinit(pMsgDecode->ProtocolFilterInfo.pCHCRawMsgBinaryParseInfo);
@@ -77,6 +82,7 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 	RAWMSG_BINARY_FILTER_INFO_T* pRawMsgBinaryFilterInfo = NULL;
 	RINEX_FILTER_INFO_T* pRinexFilterInfo = NULL;
 	HRCX_FILTER_INFO_T* pHRCXFilterInfo = NULL;
+	HRC_FILTER_INFO_T* pHRCFilterInfo = NULL;
 	UN_RAWMSG_BINARY_FILTER_INFO_T* pUNRawMsgBinaryFilterInfo = NULL;
 	CHC_RAWMSG_BINARY_FILTER_INFO_T* pCHCRawMsgBinaryFilterInfo = NULL;
 	RTCM_PARSE_INFO_T* pRTCMParseInfo = NULL;
@@ -84,6 +90,7 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 	RAWMSG_BINARY_PARSE_INFO_T* pRawMsgBinaryParseInfo = NULL;
 	RINEX_PARSE_INFO_T* pRinexParseInfo = NULL;
 	HRCX_PARSE_INFO_T* pHRCXParseInfo = NULL;
+	HRC_PARSE_INFO_T* pHRCParseInfo = NULL;
 	UN_RAWMSG_BINARY_PARSE_INFO_T* pUNRawMsgBinaryParseInfo = NULL;
 	CHC_RAWMSG_BINARY_PARSE_INFO_T* pCHCRawMsgBinaryParseInfo = NULL;
 	PROTOCOL_FILTER_INFO_T ProtocolFilterInfo = {0};
@@ -131,6 +138,12 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 		return NULL;
 	}
 
+	pHRCParseInfo = HRCDecodeInit();
+	if (pHRCParseInfo == NULL)
+	{
+		return NULL;
+	}
+
 	pUNRawMsgBinaryParseInfo = UNRawMsgBinaryDecodeInit();
 	if (pUNRawMsgBinaryParseInfo == NULL)
 	{
@@ -147,6 +160,7 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 	{
 		MEMCPY(&pRTCMParseInfo->RTCMInterimData.RTCMTime, pApproximateTime, sizeof(UTC_TIME_T));
 		MEMCPY(&pHRCXParseInfo->HRCXInterimData.HRCXTime, pApproximateTime, sizeof(UTC_TIME_T));
+		MEMCPY(&pHRCParseInfo->HRCInterimData.HRCTime, pApproximateTime, sizeof(UTC_TIME_T));
 	}
 
 	pRTCM3FilterInfo = RTCM3FilterInit();
@@ -185,6 +199,12 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 		return NULL;
 	}
 
+	pHRCFilterInfo = HRCFilterInit();
+	if (pHRCFilterInfo == NULL)
+	{
+		return NULL;
+	}
+
 	pUNRawMsgBinaryFilterInfo = UNRawMsgBinaryFilterInit();
 	if (pUNRawMsgBinaryFilterInfo == NULL)
 	{
@@ -203,6 +223,7 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 	ProtocolFilterInfo.pRawMsgBinaryFilterInfo = pRawMsgBinaryFilterInfo;
 	ProtocolFilterInfo.pRinexFilterInfo = pRinexFilterInfo;
 	ProtocolFilterInfo.pHRCXFilterInfo = pHRCXFilterInfo;
+	ProtocolFilterInfo.pHRCFilterInfo = pHRCFilterInfo;
 	ProtocolFilterInfo.pUNRawMsgBinaryFilterInfo = pUNRawMsgBinaryFilterInfo;
 	ProtocolFilterInfo.pCHCRawMsgBinaryFilterInfo = pCHCRawMsgBinaryFilterInfo;
 	ProtocolFilterInfo.pRTCMParseInfo = pRTCMParseInfo;
@@ -210,6 +231,7 @@ MSG_DECODE_T* MsgCodecInit(int DecodeID, void* pSrcObj, int DecodeMode, UTC_TIME
 	ProtocolFilterInfo.pRawMsgBinaryParseInfo = pRawMsgBinaryParseInfo;
 	ProtocolFilterInfo.pRinexParseInfo = pRinexParseInfo;
 	ProtocolFilterInfo.pHRCXParseInfo = pHRCXParseInfo;
+	ProtocolFilterInfo.pHRCParseInfo = pHRCParseInfo;
 	ProtocolFilterInfo.pUNRawMsgBinaryParseInfo = pUNRawMsgBinaryParseInfo;
 	ProtocolFilterInfo.pCHCRawMsgBinaryParseInfo = pCHCRawMsgBinaryParseInfo;
 	ProtocolFilterInfo.DecodeCallbackInfo.DecodeID = DecodeID;

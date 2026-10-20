@@ -11,7 +11,8 @@
 #include <gdiplus.h>
 #include <GdiPlusColor.h>
 #include<QWindow>
-#include<QScreen> 
+#include<QScreen>
+#include<QGuiApplication>
 #include "ButtonHoverWatcher.h" 
 #pragma comment (lib,"Dwmapi.lib")
 #pragma comment (lib,"user32.lib")
@@ -35,6 +36,8 @@ FramelessWindow::FramelessWindow(bool isNeedStatus, QWidget* parent)
 }
 void FramelessWindow::initUI()
 {
+	qreal dpr = QGuiApplication::primaryScreen()->devicePixelRatio();
+
 	setWindowIcon(QIcon(":/CHCStarHubUpdatePlug/logo.ico"));
 	m_verticalLayout = new QVBoxLayout(this);
 	m_verticalLayout->setSpacing(0);
@@ -42,13 +45,13 @@ void FramelessWindow::initUI()
 
 	m_titleBar = new QWidget(this);
 	setTitleBarBackgroundColor("#E4E4E4");
-	m_titleBar->setFixedHeight(35);
+	m_titleBar->setFixedHeight(static_cast<int>(35 * dpr));
 	titleBarLayout = new QHBoxLayout(m_titleBar);
 	titleBarLayout->setMargin(0);
 	titleBarLayout->setContentsMargins(QMargins(3, 0, 0, 0));
 
 	m_imageLabel = new QLabel(this);
-	QSize fixSize(18, 18);
+	QSize fixSize(static_cast<int>(18 * dpr), static_cast<int>(18 * dpr));
 	m_imageLabel->setFixedSize(fixSize);
 	titleBarLayout->addWidget(m_imageLabel);
 	addIgnoreWidget(m_imageLabel);
@@ -56,7 +59,7 @@ void FramelessWindow::initUI()
 	m_titleLabel = new QLabel(this);
 	m_titleLabel->setStyleSheet("QLabel {color :#333333;font: normal 10pt Microsoft YaHei;}");
 	m_titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	m_titleLabel->setFixedHeight(27);
+	m_titleLabel->setFixedHeight(static_cast<int>(27 * dpr));
 	titleBarLayout->addWidget(m_titleLabel);
 	addIgnoreWidget(m_titleLabel);
 	m_titleLabel->setVisible(false);
@@ -67,7 +70,7 @@ void FramelessWindow::initUI()
 	titleBarLayout->addWidget(m_titleCentralWidget);
 
 	QWidget* rightSpacer = new QWidget(m_titleBar);
-	rightSpacer->setFixedHeight(30);
+	rightSpacer->setFixedHeight(static_cast<int>(30 * dpr));
 	rightSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	titleBarLayout->addWidget(rightSpacer);
 	addIgnoreWidget(rightSpacer);
@@ -75,15 +78,15 @@ void FramelessWindow::initUI()
  
 
 	m_minimizeButton = new QPushButton(this);
-	m_minimizeButton->setIconSize(QSize(10,10));
+	m_minimizeButton->setIconSize(QSize(static_cast<int>(10 * dpr), static_cast<int>(10 * dpr)));
 	m_minimizeButton->setStyleSheet(getStyleByFileName(":/CHCStarHubUpdatePlug/TitleBarMinButton.qss"));
 
 	m_maximizeButton = new QPushButton(this);
-	m_maximizeButton->setIconSize(QSize(10, 10));
+	m_maximizeButton->setIconSize(QSize(static_cast<int>(10 * dpr), static_cast<int>(10 * dpr)));
 	m_maximizeButton->setStyleSheet(getStyleByFileName(":/CHCStarHubUpdatePlug/TitleBarNormalButton.qss"));
 
 	m_closeButton = new QPushButton(this);
-	m_closeButton->setIconSize(QSize(10, 10));
+	m_closeButton->setIconSize(QSize(static_cast<int>(10 * dpr), static_cast<int>(10 * dpr)));
 	QString normalPath = ":/CHCStarHubUpdatePlug/Image/titlebar_closeNomal.png";
 	QString hoverPath = ":/CHCStarHubUpdatePlug/Image/titlebar_closeHover.png";
 	m_closeButton->setIcon(QIcon(normalPath));
@@ -93,9 +96,9 @@ void FramelessWindow::initUI()
 	m_maximizeButton->setCheckable(true);
 	m_isMax = true;
 	 
-	m_minimizeButton->setFixedSize(QSize(45,32));
-	m_maximizeButton->setFixedSize(QSize(45, 32));
-	m_closeButton->setFixedSize(QSize(45, 32));
+	m_minimizeButton->setFixedSize(QSize(static_cast<int>(45 * dpr), static_cast<int>(32 * dpr)));
+	m_maximizeButton->setFixedSize(QSize(static_cast<int>(45 * dpr), static_cast<int>(32 * dpr)));
+	m_closeButton->setFixedSize(QSize(static_cast<int>(45 * dpr), static_cast<int>(32 * dpr)));
 	m_closeButton->setFocusPolicy(Qt::NoFocus);
 	m_minimizeButton->setFocusPolicy(Qt::NoFocus);
 	m_maximizeButton->setFocusPolicy(Qt::NoFocus);

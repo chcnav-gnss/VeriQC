@@ -21,11 +21,13 @@ extern "C"
 #include <stdint.h>
 #include "MsgPort.h"
 #include "BSW/MsgDecoder/RTCM/RTCMDataTypes.h"
+#include "Common/CommonFuncs.h"
 
 #include "RawMsgAscii/RawMsgAsciiDataTypes.h"
 #include "RawMsgBinary/RawMsgBinaryDataTypes.h"
 #include "Rinex/RinexDataTypes.h"
 #include "HRCX/HRCXDataTypes.h"
+#include "HRC/HRCDataTypes.h"
 #include "CHCRawMsgBinary/CHCRawMsgBinaryDataTypes.h"
 #include "UNRawMsgBinary/UNRawMsgBinaryDataTypes.h"
 
@@ -36,6 +38,7 @@ extern "C"
 #define GNSS_STRFMT_RINEX			11		/**< stream format: RINEX */
 
 #define GNSS_STRFMT_HRCX			37		/**< stream format: HRCX */
+#define GNSS_STRFMT_HRC				38		/**< stream format: HRC */
 
 #define GNSS_STRFMT_RAWMSGA			51		/**< RAWMSGA */
 #define GNSS_STRFMT_RAWMSGB			52		/**< RAWMSGB */
@@ -48,18 +51,13 @@ extern "C"
 #define GNSS_STRFMT_KMD_RAWMSGA			101		/**< KMD_RAWMSGA */
 #define GNSS_STRFMT_KMD_RAWMSGB			102		/**< KMD_RAWMSGB */
 
-#define GNSS_STRFMT_RTKLOGA			103		/**< RTKLOGA */
-#define GNSS_STRFMT_RTKLOGB			104		/**< RTKLOGB */
-
 #define MSG_DECODE_TYPE_RTCM2				0x01
 #define MSG_DECODE_TYPE_RTCM3				0x02
 #define MSG_DECODE_TYPE_RAWMSGA				0x04
 #define MSG_DECODE_TYPE_RAWMSGB				0x08
 #define MSG_DECODE_TYPE_RINEX				0x10
 #define MSG_DECODE_TYPE_HRCX				0x20
-#define MSG_DECODE_TYPE_RTKLOGA				0x40
-#define MSG_DECODE_TYPE_RTKLOGB				0x80
-#define MSG_DECODE_TYPE_NMEA				0x100
+#define MSG_DECODE_TYPE_HRC					0x40
 #define MSG_DECODE_TYPE_UNRAWMSGB			0x400
 #define MSG_DECODE_TYPE_CHCRAWMSGB			0x800
 
@@ -94,6 +92,7 @@ typedef struct _PROTOCOL_FILTER_INFO_T
 	void* pRawMsgBinaryFilterInfo;
 	void* pRinexFilterInfo;
 	void* pHRCXFilterInfo;
+	void* pHRCFilterInfo;
 	void* pUNRawMsgBinaryFilterInfo;
 	void* pCHCRawMsgBinaryFilterInfo;
 	RTCM_PARSE_INFO_T* pRTCMParseInfo;
@@ -101,6 +100,7 @@ typedef struct _PROTOCOL_FILTER_INFO_T
 	RAWMSG_BINARY_PARSE_INFO_T* pRawMsgBinaryParseInfo;
 	RINEX_PARSE_INFO_T* pRinexParseInfo;
 	HRCX_PARSE_INFO_T* pHRCXParseInfo;
+	HRC_PARSE_INFO_T* pHRCParseInfo;
 	UN_RAWMSG_BINARY_PARSE_INFO_T* pUNRawMsgBinaryParseInfo;
 	CHC_RAWMSG_BINARY_PARSE_INFO_T* pCHCRawMsgBinaryParseInfo;
 	int DecodeMode;
@@ -114,7 +114,7 @@ typedef struct _MSG_DECODE_T
 	MSG_PORT_T* pMsgPort;/**< msg port info*/
 	unsigned int FilterOffset;
 
-	int SamplePeriod;
+	float SamplePeriod;
 	UTC_TIME_T SetStartTime;
 	UTC_TIME_T SetEndTime;
 } MSG_DECODE_T;
@@ -147,6 +147,27 @@ typedef struct _PROTOCOL_DECODE_FUNC_T
 	ProtocolDecodeFunc ProtocolDecode;
 } PROTOCOL_DECODE_FUNC_T;
 
+INLINE int ObsDataPassesRINEXLimits(MSG_DECODE_T* pDecode, GNSS_OBS_T* pObsData)
+{
+	if ((pDecode == NULL) || (pObsData == NULL))
+	{
+		return 0;
+	}
+
+	if ((!IsAbsoluteDoubleZero(pDecode->SamplePeriod)) &&
+		(0 != (pObsData->RangeData.LogHeader.Milliseconds % ((int)(pDecode->SamplePeriod * 1000 + 0.5)))))
+	{
+		return 0;
+	}
+
+	if (((UTCDiff(&pObsData->ObsTime, &pDecode->SetStartTime) < 0) && (pDecode->SetStartTime.Year != 0)) ||
+		((UTCDiff(&pDecode->SetEndTime, &pObsData->ObsTime) < 0) && (pDecode->SetEndTime.Year != 0)))
+	{
+		return 0;
+	}
+
+	return 1;
+}
 
 #ifdef __cplusplus
 }

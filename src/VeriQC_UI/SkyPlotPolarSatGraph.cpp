@@ -215,7 +215,7 @@ void SkyPlotPolarSatGraph::drawPlotScatterPlot(QCPPainter *painter, const QVecto
                     point.y() - radius,
                     radius *2,radius*2,Qt::AlignCenter,satData.satName);
         painter->setFont(satNameFont);
-        painter->setPen(QColor(Qt::black));
+        painter->setPen(QCResultManager::getSystemGraphColor(satData.sys));
         painter->drawText(nameRect,Qt::AlignCenter,satData.satName);
 
       }

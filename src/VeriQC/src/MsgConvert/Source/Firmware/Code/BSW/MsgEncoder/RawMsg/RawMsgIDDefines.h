@@ -55,8 +55,37 @@ extern "C"
 #define RAW_MSG_ID_QZSEPH				3013
 #define RAW_MSG_ID_NICEPH				3014
 #define RAW_MSG_ID_GALEPHRCED			3012
+#define RAW_MSG_ID_XWEPHLEO				3102
+
+#define RAW_MSG_ID_GPSEPHXW				4000
+#define RAW_MSG_ID_GLOEPHXW				4002
+#define RAW_MSG_ID_GALEPHXW				4003
+#define RAW_MSG_ID_BDSEPHXW				4004
 
 /** internal MsgIndex */
+
+
+/** do not changed sequence and value of Eph Index */
+#define RAW_MSG_INDEX_EPH_GPS				105
+#define RAW_MSG_INDEX_EPH_GLO				106
+#define RAW_MSG_INDEX_EPH_GALNAVI			107
+#define RAW_MSG_INDEX_EPH_GALNAVF			108
+#define RAW_MSG_INDEX_EPH_BD2				109
+#define RAW_MSG_INDEX_EPH_BD3CNAV1			110
+#define RAW_MSG_INDEX_EPH_BD3CNAV2			111
+#define RAW_MSG_INDEX_EPH_BD3CNAV3			112
+#define RAW_MSG_INDEX_EPH_SBA				113
+#define RAW_MSG_INDEX_EPH_QZS				114
+#define RAW_MSG_INDEX_EPH_NIC				115
+#define RAW_MSG_INDEX_EPH_GALRCED			116
+#define RAW_MSG_INDEX_EPH_XWLEO				117
+/**< do not changed sequence and value of Eph Index */
+
+
+#define RAW_MSG_INDEX_GPSEPHXW				175
+#define RAW_MSG_INDEX_GLOEPHXW				176
+#define RAW_MSG_INDEX_GALEPHXW				177
+#define RAW_MSG_INDEX_BDSEPHXW				178
 
 #ifdef __cplusplus
 }

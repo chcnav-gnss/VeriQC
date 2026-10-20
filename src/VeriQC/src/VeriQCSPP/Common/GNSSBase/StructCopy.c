@@ -45,8 +45,8 @@ static char s_GPSCodePris[2][3][16]={  /* code priority table */
 #define RANGE_SIGNAL_MAP_NUM_QZS     29
 #define RANGE_SIGNAL_MAP_NUM_SBS     15
 #define RANGE_SIGNAL_MAP_NUM_BDS     29
-#define RANGE_SYSTEM_MAP_NUM         8
-#define EPHEMERIS_SYSTEM_MAP_NUM     8
+#define RANGE_SYSTEM_MAP_NUM         9
+#define EPHEMERIS_SYSTEM_MAP_NUM     9
 
 static char *VeriQCCode2Obs(unsigned char Code, int *pFreq) 
 {
@@ -105,7 +105,7 @@ extern int32_t VeriQCParseRangeSatNo(int Sys, int PRN, int* pSysInner, int* pPrn
 extern int32_t VeriQCParseEphemerisSystem(int Sys)
 {
     const static unsigned char s_EphemerisSystemMap[EPHEMERIS_SYSTEM_MAP_NUM] = {
-    SYS_GPS,SYS_GLO,SYS_GAL,SYS_CMP,SYS_SBS,SYS_QZS,SYS_NONE,SYS_CMP
+    SYS_GPS,SYS_GLO,SYS_GAL,SYS_CMP,SYS_SBS,SYS_QZS,SYS_NONE, SYS_LEO,SYS_CMP
     };
 
     return s_EphemerisSystemMap[Sys];
@@ -315,7 +315,7 @@ extern int VeriQCInitSPPTcOptDefault(VERIQC_SPPTC_OPT_T* pOpt)
         return -1;
     }
     
-    pOpt->Sys = VERIQC_SYS_GPS | VERIQC_SYS_GLN | VERIQC_SYS_BDS | VERIQC_SYS_GAL;
+    pOpt->Sys = VERIQC_SYS_GPS | VERIQC_SYS_GLN | VERIQC_SYS_BDS | VERIQC_SYS_GAL | VERIQC_SYS_LEO;
     pOpt->BasePos[0] = 0.0;
     pOpt->BasePos[2] = 0.0;
     pOpt->BasePos[1] = 0.0;
@@ -992,6 +992,10 @@ extern int VeriQCConvertSysID(const VERIQC_SYSID_E SysID)
     {
         return CHC_SYS_CMP;
     }
+    if (SysID == VERIQC_GNSS_SYSID_LEO)
+    {
+        return CHC_SYS_LEO;
+    }
     return CHC_SYS_NONE;
 }
 
@@ -1296,6 +1300,84 @@ extern int VeriQCConvertGLOEphemeris(const struct _GLO_EPHEMERIS_T* pSrc, CHC_GE
 
     return 0;
 
+}
+
+extern int VeriQCConvertLEOEphemeris(const struct _XW_LEO_EPHEMERIS_T* pSrc, struct _CHC_LEO_EPH_T* pDst)
+{
+    int UNIEphSys, UNIEphPrn;
+    int Sys;
+    BOOL bXwEph = TRUE;
+
+    if (!pSrc || !pDst)
+    {
+        return -1;
+    }
+
+    UNIEphSys = pSrc->SystemID;
+    UNIEphPrn = pSrc->SatID;
+
+    if (XW1 != UNIEphSys)
+    {
+        return -1;/*** No XW LEO Eph */
+    }
+
+    Sys = VeriQCParseEphemerisSystem(UNIEphSys);
+    pDst->Sat = VeriQCSatNo(Sys, UNIEphPrn);
+    pDst->IODE = pSrc->IODE1;
+    pDst->IODC = pSrc->IODC;
+    pDst->SVA = pSrc->URA;
+    pDst->SVH = pSrc->Health;
+    pDst->Week = pSrc->Week;
+
+    pDst->Week += 1356;
+
+    pDst->Toe = VeriQCUNIEphTime2Time(
+        Sys, pSrc->Week + 1356, (double)pSrc->TOE + 14);
+
+    pDst->Toc = VeriQCUNIEphTime2Time(
+        Sys, pSrc->Week + 1356, (double)pSrc->TOC + 14);
+
+    pDst->TTrans = pDst->Toe;
+    pDst->Code = pSrc->NavDataSource;
+    pDst->Flag = 0;
+
+    pDst->A = pSrc->A;
+    pDst->Ecc = pSrc->Ecc;
+    pDst->I0 = pSrc->I0;
+    pDst->OMG0 = pSrc->Omega0;
+    pDst->OMG = pSrc->Omega;
+    pDst->M0 = pSrc->M0;
+    pDst->DelN = pSrc->DeltaN;
+    pDst->OMGd = pSrc->OmegaDot;
+    pDst->IDot = pSrc->IDot;
+
+    pDst->Crc = pSrc->Crc;
+    pDst->Crs = pSrc->Crs;
+    pDst->Cuc = pSrc->Cuc;
+    pDst->Cus = pSrc->Cus;
+    pDst->Cic = pSrc->Cic;
+    pDst->Cis = pSrc->Cis;
+
+    pDst->ToeSec = pSrc->TOE;
+    pDst->DeltaCic = pSrc->DeltaCic;
+    pDst->DeltaCrs = pSrc->DeltaCrs;
+    pDst->DeltaCrc = pSrc->DeltaCrc;
+    pDst->DeltaCis = pSrc->DeltaCis;
+
+    pDst->ADot = pSrc->Adot;
+    pDst->NDot = pSrc->Ndot;
+
+    pDst->Fit = pSrc->FitInterval;
+    pDst->Af0 = pSrc->Af0;
+    pDst->Af1 = pSrc->Af1;
+    pDst->Af2 = pSrc->Af2;
+
+    pDst->Tgd[0] = pSrc->Tgd[0];
+    pDst->Tgd[1] = pSrc->Tgd[1];
+    pDst->Tgd[2] = pSrc->Tgd[2];
+    pDst->Tgd[3] = 0.0;
+
+    return 0;
 }
 
 /**
@@ -1927,6 +2009,7 @@ extern int GetSystemIndexByID(int SystemID)
     case SYS_GLO:return 2;
     case SYS_GAL:return 3;
     case SYS_BD3:return 4;
+    case SYS_LEO:return 5;
     default:return -1;
     }
 }

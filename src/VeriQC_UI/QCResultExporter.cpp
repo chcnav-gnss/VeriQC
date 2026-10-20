@@ -86,6 +86,20 @@ enum ExcelColumnEnum
     ExcelColumnQZSSSNRL5,
     ExcelColumnQZSSSNRL1CP,
     ExcelColumnQZSSSNRL6,
+
+    ExcelColumnXW1UseRate,
+    ExcelColumnXW1CJR,
+    ExcelColumnXW1MPL1L,
+    ExcelColumnXW1MPL1H,
+    ExcelColumnXW1MPL2L,
+    ExcelColumnXW1MPL2H,
+    ExcelColumnXW1SNRL1L,
+    ExcelColumnXW1SNRL1H,
+    ExcelColumnXW1SNRL2L,
+    ExcelColumnXW1SNRL2H,
+
+    ExcelColumnStatus,
+    ExcelColumnReason,
 };
 
 
@@ -261,6 +275,36 @@ bool QCResultExporter::exportToExcel(const QString &filePath, const QVector<int>
     sheet->write(3, ExcelColumnQZSSSNRL1CP, QCResultManager::getFreqName(QCResultManager::QZSSL1CP));
     sheet->write(3, ExcelColumnQZSSSNRL6, QCResultManager::getFreqName(QCResultManager::QZSSL6));
 
+    //XW1 header
+    sheet->write(1, ExcelColumnXW1UseRate, QObject::tr("XW1"));
+    sheet->mergeCells(CellRange(1,ExcelColumnXW1UseRate,1,ExcelColumnXW1SNRL2H));
+    sheet->write(2, ExcelColumnXW1UseRate, QObject::tr("Use Rate"));
+    sheet->mergeCells(CellRange(2,ExcelColumnXW1UseRate,3,ExcelColumnXW1UseRate));
+    sheet->write(2, ExcelColumnXW1CJR, QObject::tr("Cycle Jump Ratio"));
+    sheet->mergeCells(CellRange(2,ExcelColumnXW1CJR,3,ExcelColumnXW1CJR));
+    sheet->write(2, ExcelColumnXW1MPL1L, QObject::tr("MP(m)"));
+    sheet->mergeCells(CellRange(2,ExcelColumnXW1MPL1L,2,ExcelColumnXW1MPL2H));
+
+    sheet->write(3, ExcelColumnXW1MPL1L, QCResultManager::getFreqName(QCResultManager::XW1L1L));
+    sheet->write(3, ExcelColumnXW1MPL1H, QCResultManager::getFreqName(QCResultManager::XW1L1H));
+    sheet->write(3, ExcelColumnXW1MPL2L, QCResultManager::getFreqName(QCResultManager::XW1L2L));
+    sheet->write(3, ExcelColumnXW1MPL2H, QCResultManager::getFreqName(QCResultManager::XW1L2H));
+
+    sheet->write(2, ExcelColumnXW1SNRL1L, QObject::tr("SNR"));
+    sheet->mergeCells(CellRange(2,ExcelColumnXW1SNRL1L,2,ExcelColumnXW1SNRL2H));
+
+    sheet->write(3, ExcelColumnXW1SNRL1L, QCResultManager::getFreqName(QCResultManager::XW1L1L));
+    sheet->write(3, ExcelColumnXW1SNRL1H, QCResultManager::getFreqName(QCResultManager::XW1L1H));
+    sheet->write(3, ExcelColumnXW1SNRL2L, QCResultManager::getFreqName(QCResultManager::XW1L2L));
+    sheet->write(3, ExcelColumnXW1SNRL2H, QCResultManager::getFreqName(QCResultManager::XW1L2H));
+
+    //Status/Reason header
+    sheet->write(1, ExcelColumnStatus, QObject::tr("Status"));
+    sheet->mergeCells(CellRange(1,ExcelColumnStatus,3,ExcelColumnStatus));
+    sheet->write(1, ExcelColumnReason, QObject::tr("Reason"));
+    sheet->mergeCells(CellRange(1,ExcelColumnReason,3,ExcelColumnReason));
+    sheet->setColumnWidth(ExcelColumnStatus,ExcelColumnStatus,20);
+    sheet->setColumnWidth(ExcelColumnReason,ExcelColumnReason,45);
 
     // fill data
     int row = 4;
@@ -276,7 +320,9 @@ bool QCResultExporter::exportToExcel(const QString &filePath, const QVector<int>
         sheet->write(row,ExcelColumnFileName,qcObject->getName());
         sheet->write(row,ExcelColumnStartTime,qcObject->getQCResultManager()->getStartTime().toString("yyyy/MM/dd HH:mm:ss"));
         sheet->write(row,ExcelColumnEndTime,qcObject->getQCResultManager()->getEndTime().toString("yyyy/MM/dd HH:mm:ss"));
-        sheet->write(row,ExcelColumnEleDeg,qcObject->getQCConfigurator()->getQCConfig().eleDeg);
+        /** no-eph: elevation mask is irrelevant; mark cell N/A for batch column alignment */
+        const auto &eleCfg = qcObject->getQCConfigurator()->getQCConfig();
+        sheet->write(row,ExcelColumnEleDeg,eleCfg.noEphEnable() ? QStringLiteral("N/A") : QString::number(eleCfg.eleDeg));
 
         //ALL
         auto allInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysComplex);
@@ -296,76 +342,175 @@ bool QCResultExporter::exportToExcel(const QString &filePath, const QVector<int>
         sheet->write(row,ExcelColumnAllSNR7,getDataStr(qcExecuted, allInfo.SNR[(int)QCResultManager::UiComplexMP7],1));
         sheet->write(row,ExcelColumnAllSNR8,getDataStr(qcExecuted, allInfo.SNR[(int)QCResultManager::UiComplexMP8],1));
 
+        /**< Per-freq MP/SNR cells read the engine arrays directly via
+         *  getSysFreqMPAndSNR (freq-index semantics): the UiComplex-bucket view
+         *  returned by getSysStatisticResult reorders the per-freq columns
+         *  (e.g. BDS B1 showed B1C, GPS L2C showed L2P) and cannot reach the
+         *  PlotExtend-only freqs (GPS L1C / QZSS L1CP / BDS B2B) at all.
+         *  The engine writes -1 for freqs without data; getDataStr renders
+         *  anything <= 0 as "--". */
         //BDS
         auto bdsInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysBDS);
         sheet->write(row,ExcelColumnBDSUseRate,getDataStr(qcExecuted, bdsInfo.useRate,1,"%"));
         sheet->write(row,ExcelColumnBDSCJR,getDataStr(qcExecuted, bdsInfo.cycleJumpRatio,0));
-        sheet->write(row,ExcelColumnBDSMPB1,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B1],3));
-        sheet->write(row,ExcelColumnBDSMPB2,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B2],3));
-        sheet->write(row,ExcelColumnBDSMPB3,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B3],3));
-        sheet->write(row,ExcelColumnBDSMPB1C,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B1C],3));
-        sheet->write(row,ExcelColumnBDSMPB2A,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B2A],3));
-        sheet->write(row,ExcelColumnBDSMPB2B,getDataStr(qcExecuted, bdsInfo.MP[FREQ_INDEX_BDS_B2B],3));
-        sheet->write(row,ExcelColumnBDSSNRB1,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B1],1));
-        sheet->write(row,ExcelColumnBDSSNRB2,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B2],1));
-        sheet->write(row,ExcelColumnBDSSNRB3,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B3],1));
-        sheet->write(row,ExcelColumnBDSSNRB1C,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B1C],1));
-        sheet->write(row,ExcelColumnBDSSNRB2A,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B2A],1));
-        sheet->write(row,ExcelColumnBDSSNRB2B,getDataStr(qcExecuted, bdsInfo.SNR[FREQ_INDEX_BDS_B2B],1));
+        double freqMP = 0.0;
+        double freqSNR = 0.0;
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB1, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB1,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB1,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB2, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB2,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB2,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB3, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB3,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB3,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB1C, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB1C,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB1C,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB2A, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB2A,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB2A,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysBDS, QCResultManager::BDSB2B, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnBDSMPB2B,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnBDSSNRB2B,getDataStr(qcExecuted, freqSNR,1));
 
         //GPS
         auto gpsInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysGPS);
         sheet->write(row,ExcelColumnGPSUseRate,getDataStr(qcExecuted, gpsInfo.useRate,1,"%"));
         sheet->write(row,ExcelColumnGPSCJR,getDataStr(qcExecuted, gpsInfo.cycleJumpRatio,0));
-        sheet->write(row,ExcelColumnGPSMPL1,getDataStr(qcExecuted, gpsInfo.MP[FREQ_INDEX_GPS_L1],3));
-        sheet->write(row,ExcelColumnGPSMPL2C,getDataStr(qcExecuted, gpsInfo.MP[FREQ_INDEX_GPS_L2C],3));
-        sheet->write(row,ExcelColumnGPSMPL5,getDataStr(qcExecuted, gpsInfo.MP[FREQ_INDEX_GPS_L5],3));
-        sheet->write(row,ExcelColumnGPSMPL1C,getDataStr(qcExecuted, gpsInfo.MP[FREQ_INDEX_GPS_L1C],3));
-        sheet->write(row,ExcelColumnGPSMPL2P,getDataStr(qcExecuted, gpsInfo.MP[FREQ_INDEX_GPS_L2P],3));
-        sheet->write(row,ExcelColumnGPSSNRL1,getDataStr(qcExecuted, gpsInfo.SNR[FREQ_INDEX_GPS_L1],1));
-        sheet->write(row,ExcelColumnGPSSNRL2C,getDataStr(qcExecuted, gpsInfo.SNR[FREQ_INDEX_GPS_L2C],1));
-        sheet->write(row,ExcelColumnGPSSNRL5,getDataStr(qcExecuted, gpsInfo.SNR[FREQ_INDEX_GPS_L5],1));
-        sheet->write(row,ExcelColumnGPSSNRL1C,getDataStr(qcExecuted, gpsInfo.SNR[FREQ_INDEX_GPS_L1C],1));
-        sheet->write(row,ExcelColumnGPSSNRL2P,getDataStr(qcExecuted, gpsInfo.SNR[FREQ_INDEX_GPS_L2P],1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGPS, QCResultManager::GPSL1, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGPSMPL1,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGPSSNRL1,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGPS, QCResultManager::GPSL2C, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGPSMPL2C,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGPSSNRL2C,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGPS, QCResultManager::GPSL5, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGPSMPL5,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGPSSNRL5,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGPS, QCResultManager::GPSL1C, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGPSMPL1C,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGPSSNRL1C,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGPS, QCResultManager::GPSL2P, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGPSMPL2P,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGPSSNRL2P,getDataStr(qcExecuted, freqSNR,1));
 
         //GAL
         auto galInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysGAL);
         sheet->write(row,ExcelColumnGALUseRate,getDataStr(qcExecuted, galInfo.useRate,1,"%"));
         sheet->write(row,ExcelColumnGALCJR,getDataStr(qcExecuted, galInfo.cycleJumpRatio,0));
-        sheet->write(row,ExcelColumnGALMPE1,getDataStr(qcExecuted, galInfo.MP[FREQ_INDEX_GAL_E1],3));
-        sheet->write(row,ExcelColumnGALMPE5A,getDataStr(qcExecuted, galInfo.MP[FREQ_INDEX_GAL_E5A],3));
-        sheet->write(row,ExcelColumnGALMPE5B,getDataStr(qcExecuted, galInfo.MP[FREQ_INDEX_GAL_E5B],3));
-        sheet->write(row,ExcelColumnGALMPE5AB,getDataStr(qcExecuted, galInfo.MP[FREQ_INDEX_GAL_E5AB],3));
-        sheet->write(row,ExcelColumnGALMPE6,getDataStr(qcExecuted, galInfo.MP[FREQ_INDEX_GAL_E6],3));
-        sheet->write(row,ExcelColumnGALSNRE1,getDataStr(qcExecuted, galInfo.SNR[FREQ_INDEX_GAL_E1],1));
-        sheet->write(row,ExcelColumnGALSNRE5A,getDataStr(qcExecuted, galInfo.SNR[FREQ_INDEX_GAL_E5A],1));
-        sheet->write(row,ExcelColumnGALSNRE5B,getDataStr(qcExecuted, galInfo.SNR[FREQ_INDEX_GAL_E5B],1));
-        sheet->write(row,ExcelColumnGALSNRE5AB,getDataStr(qcExecuted, galInfo.SNR[FREQ_INDEX_GAL_E5AB],1));
-        sheet->write(row,ExcelColumnGALSNRE6,getDataStr(qcExecuted, galInfo.SNR[FREQ_INDEX_GAL_E6],1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGAL, QCResultManager::GALE1, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGALMPE1,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGALSNRE1,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGAL, QCResultManager::GALE5A, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGALMPE5A,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGALSNRE5A,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGAL, QCResultManager::GALE5B, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGALMPE5B,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGALSNRE5B,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGAL, QCResultManager::GALE5AB, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGALMPE5AB,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGALSNRE5AB,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGAL, QCResultManager::GALE6, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGALMPE6,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGALSNRE6,getDataStr(qcExecuted, freqSNR,1));
 
         //GLO
         auto gloInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysGLO);
         sheet->write(row,ExcelColumnGLOUseRate,getDataStr(qcExecuted, gloInfo.useRate,1,"%"));
         sheet->write(row,ExcelColumnGLOCJR,getDataStr(qcExecuted, gloInfo.cycleJumpRatio,0));
-        sheet->write(row,ExcelColumnGLOMPG1,getDataStr(qcExecuted, gloInfo.MP[FREQ_INDEX_GLO_G1],3));
-        sheet->write(row,ExcelColumnGLOMPG2,getDataStr(qcExecuted, gloInfo.MP[FREQ_INDEX_GLO_G2],3));
-        sheet->write(row,ExcelColumnGLOSNRG1,getDataStr(qcExecuted, gloInfo.SNR[FREQ_INDEX_GLO_G1],1));
-        sheet->write(row,ExcelColumnGLOSNRG2,getDataStr(qcExecuted, gloInfo.SNR[FREQ_INDEX_GLO_G2],1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGLO, QCResultManager::GLOG1, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGLOMPG1,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGLOSNRG1,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysGLO, QCResultManager::GLOG2, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnGLOMPG2,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnGLOSNRG2,getDataStr(qcExecuted, freqSNR,1));
 
-        //ALL
+        //QZSS
         auto qzssInfo = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysQZSS);
         sheet->write(row,ExcelColumnQZSSUseRate,getDataStr(qcExecuted, qzssInfo.useRate,1,"%"));
         sheet->write(row,ExcelColumnQZSSCJR,getDataStr(qcExecuted, qzssInfo.cycleJumpRatio,0));
-        sheet->write(row,ExcelColumnQZSSMPL1,getDataStr(qcExecuted, qzssInfo.MP[FREQ_INDEX_QZSS_L1],3));
-        sheet->write(row,ExcelColumnQZSSMPL2,getDataStr(qcExecuted, qzssInfo.MP[FREQ_INDEX_QZSS_L2],3));
-        sheet->write(row,ExcelColumnQZSSMPL5,getDataStr(qcExecuted, qzssInfo.MP[FREQ_INDEX_QZSS_L5],3));
-        sheet->write(row,ExcelColumnQZSSMPL1CP,getDataStr(qcExecuted, qzssInfo.MP[FREQ_INDEX_QZSS_L1CP],3));
-        sheet->write(row,ExcelColumnQZSSMPL6,getDataStr(qcExecuted, qzssInfo.MP[FREQ_INDEX_QZSS_L6],3));
-        sheet->write(row,ExcelColumnQZSSSNRL1,getDataStr(qcExecuted, qzssInfo.SNR[FREQ_INDEX_QZSS_L1],1));
-        sheet->write(row,ExcelColumnQZSSSNRL2,getDataStr(qcExecuted, qzssInfo.SNR[FREQ_INDEX_QZSS_L2],1));
-        sheet->write(row,ExcelColumnQZSSSNRL5,getDataStr(qcExecuted, qzssInfo.SNR[FREQ_INDEX_QZSS_L5],1));
-        sheet->write(row,ExcelColumnQZSSSNRL1CP,getDataStr(qcExecuted, qzssInfo.SNR[FREQ_INDEX_QZSS_L1CP],1));
-        sheet->write(row,ExcelColumnQZSSSNRL6,getDataStr(qcExecuted, qzssInfo.SNR[FREQ_INDEX_QZSS_L6],1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysQZSS, QCResultManager::QZSSL1, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnQZSSMPL1,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnQZSSSNRL1,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysQZSS, QCResultManager::QZSSL2, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnQZSSMPL2,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnQZSSSNRL2,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysQZSS, QCResultManager::QZSSL5, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnQZSSMPL5,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnQZSSSNRL5,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysQZSS, QCResultManager::QZSSL1CP, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnQZSSMPL1CP,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnQZSSSNRL1CP,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysQZSS, QCResultManager::QZSSL6, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnQZSSMPL6,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnQZSSSNRL6,getDataStr(qcExecuted, freqSNR,1));
+
+        //XW1
+        auto xw1Info = qcObject->getQCResultManager()->getSysStatisticResult(QCResultManager::QCSysTypeEnum::QCSysXW1);
+        sheet->write(row,ExcelColumnXW1UseRate,getDataStr(qcExecuted, xw1Info.useRate,1,"%"));
+        sheet->write(row,ExcelColumnXW1CJR,getDataStr(qcExecuted, xw1Info.cycleJumpRatio,0));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysXW1, QCResultManager::XW1L1L, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnXW1MPL1L,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnXW1SNRL1L,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysXW1, QCResultManager::XW1L1H, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnXW1MPL1H,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnXW1SNRL1H,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysXW1, QCResultManager::XW1L2L, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnXW1MPL2L,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnXW1SNRL2L,getDataStr(qcExecuted, freqSNR,1));
+        qcObject->getQCResultManager()->getSysFreqMPAndSNR(QCResultManager::QCSysTypeEnum::QCSysXW1, QCResultManager::XW1L2H, freqMP, freqSNR);
+        sheet->write(row,ExcelColumnXW1MPL2H,getDataStr(qcExecuted, freqMP,3));
+        sheet->write(row,ExcelColumnXW1SNRL2H,getDataStr(qcExecuted, freqSNR,1));
+
+        //Status / Reason
+        QString statusStr;
+        QString reasonStr;
+        const QString &dataException = qcObject->getDataExceptionMsg();
+        const QCObject::QCResultStatusEnum qcStatus = qcObject->getQCStatus();
+        if (QCObject::QCStatusNotExecuted == qcStatus)
+        {
+            statusStr = QStringLiteral("Not Executed");   // status values stay English (machine-readable); only headers are translated
+            reasonStr = qcObject->getLastErrorMsg();
+        }
+        else if (!qcObject->isQCRunSucceeded())
+        {
+            statusStr = QStringLiteral("FAILED");
+            reasonStr = qcObject->getLastErrorMsg();
+        }
+        else if (QCProcessor::isNoValidDataMsg(dataException))
+        {
+            statusStr = QStringLiteral("OK (No Valid Data)");
+            reasonStr = dataException;
+        }
+        else if (QCObject::QCStatusFailed == qcStatus)
+        {
+            statusStr = QStringLiteral("OK (QC Unqualified)");
+            QStringList failedChecks;
+            const QCObject::QCCheckStatusInfoStruct &checkInfo = qcObject->getQCCheckStatusInfo();
+            if (!checkInfo.useRatePass) { failedChecks << QStringLiteral("UseRate"); }
+            if (!checkInfo.cycleJumpRatioPass) { failedChecks << QStringLiteral("CycleJumpRatio"); }
+            int mpFailCount = 0;
+            int snrFailCount = 0;
+            for (int i = 0; i < UI_COMPLEX_MP_MAX_NUM; ++i)
+            {
+                if (!checkInfo.mpPass[i]) { ++mpFailCount; }
+                if (!checkInfo.snrPass[i]) { ++snrFailCount; }
+            }
+            if (mpFailCount > 0) { failedChecks << QStringLiteral("MP(%1 freqs)").arg(mpFailCount); }
+            if (snrFailCount > 0) { failedChecks << QStringLiteral("SNR(%1 freqs)").arg(snrFailCount); }
+            reasonStr = QStringLiteral("QC unqualified: %1").arg(failedChecks.join(QStringLiteral(", ")));
+        }
+        else
+        {
+            statusStr = QStringLiteral("OK");
+            reasonStr = dataException;    // degraded-run note ("Note: ...") or empty
+        }
+        if (reasonStr.size() > 120)
+        {
+            reasonStr = reasonStr.left(117) + QStringLiteral("...");
+        }
+        sheet->write(row,ExcelColumnStatus,statusStr);
+        sheet->write(row,ExcelColumnReason,reasonStr);
 
         row++;
     }
@@ -393,4 +538,73 @@ QString QCResultExporter::getDataStr(bool executedQC, double value, int prec,con
         return QString::number(value,'f',prec) + suffix;
     }
     return "--";
+}
+
+bool QCResultExporter::exportConvertListToExcel(const QString &filePath, const QVector<int> &qcObjects)
+{
+    using namespace QXlsx;
+
+    enum ConvertColumnEnum
+    {
+        ConvertColumnFileName = 1,
+        ConvertColumnStatus,
+        ConvertColumnReason,
+        ConvertColumnOutputFiles,
+    };
+
+    // create excel
+    Document xlsx;
+    Worksheet *sheet = xlsx.currentWorksheet();
+
+    // init header
+    sheet->write(1, ConvertColumnFileName, QObject::tr("File Name"));
+    sheet->write(1, ConvertColumnStatus, QObject::tr("Status"));
+    sheet->write(1, ConvertColumnReason, QObject::tr("Reason"));
+    sheet->write(1, ConvertColumnOutputFiles, QObject::tr("Output Files"));
+
+    Format headerFormat;
+    headerFormat.setHorizontalAlignment(Format::AlignHCenter);
+    headerFormat.setVerticalAlignment(Format::AlignVCenter);
+    headerFormat.setBorderStyle(Format::BorderThin);
+    headerFormat.setFontBold(true);
+    headerFormat.setFontSize(11);
+    sheet->setRowFormat(1, 1, headerFormat);
+
+    Format wrapFormat;
+    wrapFormat.setTextWrap(true);
+    wrapFormat.setHorizontalAlignment(Format::AlignLeft);
+    wrapFormat.setVerticalAlignment(Format::AlignVCenter);
+    wrapFormat.setFontSize(11);
+
+    // fill data
+    int row = 2;
+    for (int id : qcObjects)
+    {
+        QSharedPointer<QCObject> qcObject = QCObjectManager::getInstance()->getQCObjectByID(id);
+        if (!qcObject) { continue; }
+
+        const bool convertOK = qcObject->isConvertSucceeded();
+        const QStringList &outputFiles = qcObject->getConvertOutputFiles();
+        sheet->write(row, ConvertColumnFileName, qcObject->getName());
+        sheet->write(row, ConvertColumnStatus, convertOK ? QStringLiteral("OK") : QStringLiteral("FAILED"));
+        sheet->write(row, ConvertColumnReason,
+                     convertOK ? QString() : QStringLiteral("No RINEX observation output generated (see console log)"));
+        if (!outputFiles.isEmpty())
+        {
+            sheet->writeString(row, ConvertColumnOutputFiles, outputFiles.join(QStringLiteral("\n")), wrapFormat);
+            sheet->setRowHeight(row, row, 15.0 * outputFiles.size());
+        }
+        ++row;
+    }
+
+    // styles
+    Format dataFormat;
+    dataFormat.setFontSize(11);
+    sheet->setRowFormat(2, row, dataFormat);
+    sheet->setColumnWidth(ConvertColumnFileName, ConvertColumnFileName, 34);
+    sheet->setColumnWidth(ConvertColumnStatus, ConvertColumnStatus, 10);
+    sheet->setColumnWidth(ConvertColumnReason, ConvertColumnReason, 45);
+    sheet->setColumnWidth(ConvertColumnOutputFiles, ConvertColumnOutputFiles, 60);
+
+    return xlsx.saveAs(filePath);
 }

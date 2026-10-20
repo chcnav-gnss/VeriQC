@@ -49,8 +49,8 @@ typedef enum _RM_CLOCK_MODEL_STATUS_E
 
 typedef enum _RM_UTC_STATUS_E
 {
-	RM_UTC_STATUS_VALID = 0,
-	RM_UTC_STATUS_INVALID = 1,
+	RM_UTC_STATUS_INVALID = 0,
+	RM_UTC_STATUS_VALID = 1,
 	RM_UTC_STATUS_WARNING = 2,
 
 	RM_UTC_STATUS_NUM_MAX = 3,
@@ -1748,6 +1748,74 @@ typedef struct _RM_EX_EPH_NIC_DATA_T
 	unsigned int	AutoNavFlag;	/**< When set to 1, satellite is in AutoNav mode. Satellite broadcasts primary navigation
 									parameters from AutoNav data sets with no uplink from ground for maximum of 7 days   */
 }_PACKED_ RM_EX_EPH_NIC_DATA_T;
+
+/** Huace raw message XW ephemeris struct, previous name: txxx_EPH_XW_s */
+typedef struct _RM_GMF_EPH_XW_GNSS_DATA_T
+{
+	unsigned int	PRN;			/**< Satellite Identifier, based on (1) */
+	unsigned int	Week;			/**< Week number since the XW system time start epoch */
+	unsigned int	URA;			/**< SV Accuracy */
+
+	double			IDot;			/**< Rate of inclination angle (radians/s) */
+	unsigned int	IODEC;			/**< Issue of data ephemeris and clock */
+	unsigned int	Toc;			/**< Reference time for the satellite clock corrections (s) */
+	double			Af1;			/**< Clock drift (s/s) */
+	double			Af0;			/**< Clock bias (s) */
+	unsigned int	IODC;			/**< Issue of data, clock */
+	double			M0;				/**< Mean anomaly (radians) */
+	double			Cuc;			/**< Amplitude of the cosine harmonic correction term to the argument of latitude (radians) */
+	double			Ecc;			/**< Eccentricity (dimensionless) */
+	double			Cus;			/**< Amplitude of the sine harmonic correction term to the argument of latitude (radians) */
+	double			RootA;			/**< Square root of semi-major axis (sqrt(m)) */
+
+	unsigned int	Toe;			/**< Time of ephemeris (s) */
+	double			Omega0;			/**< Longitude of ascending node (radians) */
+	double			I0;				/**< Inclination angle (radians) */
+	double			Omega;			/**< Argument of perigee (radians) */
+	double			OmegaDot;		/**< Rate of RAAN (radians/s) */
+	unsigned int	Len;
+	unsigned int	ClkFlag;		/**< Effective forecast period */
+}_PACKED_ RM_GMF_EPH_XW_GNSS_DATA_T;
+
+/** Huace raw message XWEPHLEO data struct */
+typedef struct _RM_GMF_EPH_XW_LEO_DATA_T
+{
+	unsigned short	SatID;				/**< Satellite identifier */
+	unsigned short	PRN;				/**< Ranging code / PRN */
+	unsigned int	SOW;				/**< Seconds of week */
+	unsigned short	Week;				/**< Week number in XW system time */
+	unsigned char	IODE;				/**< Issue of data, ephemeris */
+	unsigned char	IODC;				/**< Issue of data, clock */
+	unsigned char	OrbitType;			/**< Orbit type flag */
+	unsigned char	URAI;				/**< User range accuracy indicator */
+	unsigned char	IntegrityIndicator;	/**< Integrity indicator */
+	unsigned char	FreqFlag;			/**< Frequency flag */
+	unsigned int	Toe;				/**< Reference time of ephemeris parameters (s) */
+	unsigned int	Toc;				/**< Reference time of clock parameters (s) */
+	double			DeltaA0;			/**< Delta semi-major axis at reference time (m) */
+	double			ADot;				/**< Semi-major axis change rate (m/s) */
+	double			DeltaI0;			/**< Delta inclination at reference time (rad) */
+	double			IDot;				/**< Rate of inclination angle (rad/s) */
+	double			Omega0;				/**< Right ascension of ascending node (rad) */
+	double			OmegaDot;			/**< Rate of right ascension (rad/s) */
+	double			DeltaN0;			/**< Mean motion difference (rad/s) */
+	double			DeltaNDot;			/**< Mean motion difference rate (rad/s^2) */
+	double			M0;					/**< Mean anomaly at reference time (rad) */
+	double			Ecc;				/**< Eccentricity */
+	double			Omega;				/**< Argument of perigee (rad) */
+	double			Cuc;				/**< Cosine harmonic correction to latitude (rad) */
+	double			Cus;				/**< Sine harmonic correction to latitude (rad) */
+	double			Cic;				/**< Cosine harmonic correction to inclination (rad) */
+	double			Cis;				/**< Sine harmonic correction to inclination (rad) */
+	double			Crc;				/**< Cosine harmonic correction to radius (m) */
+	double			Crs;				/**< Sine harmonic correction to radius (m) */
+	double			DeltaCrs;			/**< Delta Crs (m) */
+	double			DeltaCrc;			/**< Delta Crc (m) */
+	double			DeltaCis;			/**< Delta Cis (rad) */
+	double			DeltaCic;			/**< Delta Cic (rad) */
+	double			Af0;				/**< Clock bias (s) */
+	double			Af1;				/**< Clock drift (s/s) */
+}_PACKED_ RM_GMF_EPH_XW_LEO_DATA_T;
 
 /** Huace raw message GPSIONO data struct, previous name: txxx_GPSIONO_s */
 typedef struct _RM_EX_GPSIONO_DATA_T

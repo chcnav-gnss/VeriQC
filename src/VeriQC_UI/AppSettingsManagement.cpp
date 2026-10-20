@@ -22,9 +22,6 @@ void AppSettingsManagement::saveRinexConvertSettings(const QCConfigurator::Rinex
     config.beginGroup("RinexSettings");
     config.setValue("rinexVersion", settings.rinexVersion);
     config.setValue("interval", settings.interval);
-    config.setValue("timePeriodSplit", settings.timePeriodSplit);
-    config.setValue("startSplitTime", settings.startSplitTime.toString(Qt::ISODate));
-    config.setValue("endSplitTime", settings.endSplitTime.toString(Qt::ISODate));
     config.setValue("sysGPSEnable", settings.sysGPSEnable);
     config.setValue("sysBDSEnable", settings.sysBDSEnable);
     config.setValue("sysGLOEnable", settings.sysGLOEnable);
@@ -53,6 +50,9 @@ void AppSettingsManagement::saveDefaultQCConfig(const QCConfigurator::QCConfigDa
     settings.setValue("sysGLOEnable", config.sysGLOEnable);
     settings.setValue("sysGALEnable", config.sysGALEnable);
     settings.setValue("sysQZSSEnable", config.sysQZSSEnable);
+    settings.setValue("sysXW1Enable", config.sysXW1Enable);
+    /**< Ephemeris mode (default/no-ephemeris/custom-file) is session-only and
+     *  intentionally NOT persisted: a restart returns to Default ephemeris. */
     settings.setValue("startTime", config.startTime.toString(Qt::ISODate));
     settings.setValue("endTime", config.endTime.toString(Qt::ISODate));
     settings.setValue("banPrn", config.banPrn);
@@ -122,12 +122,7 @@ void AppSettingsManagement::loadRinexConvertSettings()
 
     config.beginGroup("RinexSettings");
     settings.rinexVersion = config.value("rinexVersion", 304).toUInt();
-    settings.interval = config.value("interval", 0).toUInt();
-    settings.timePeriodSplit = config.value("timePeriodSplit", false).toBool();
-    settings.startSplitTime = QDateTime::fromString(
-        config.value("startSplitTime").toString(), Qt::ISODate);
-    settings.endSplitTime = QDateTime::fromString(
-        config.value("endSplitTime").toString(), Qt::ISODate);
+    settings.interval = config.value("interval", 0).toFloat();
     settings.sysGPSEnable = config.value("sysGPSEnable", true).toBool();
     settings.sysBDSEnable = config.value("sysBDSEnable", true).toBool();
     settings.sysGLOEnable = config.value("sysGLOEnable", true).toBool();
@@ -153,6 +148,9 @@ void AppSettingsManagement::loadDefaultQCConfig()
     config.sysGLOEnable = settings.value("sysGLOEnable",config.sysGLOEnable).toBool();
     config.sysGALEnable = settings.value("sysGALEnable",config.sysGALEnable).toBool();
     config.sysQZSSEnable = settings.value("sysQZSSEnable",config.sysQZSSEnable).toBool();
+    config.sysXW1Enable = settings.value("sysXW1Enable",config.sysXW1Enable).toBool();
+    /**< Legacy "noEphEnable" key is intentionally ignored: ephemeris mode is now
+     *  a session-only three-way enum (Default by default on every restart). */
     config.startTime = QDateTime::fromString(settings.value("startTime").toString(), Qt::ISODate);
     config.endTime = QDateTime::fromString(settings.value("endTime").toString(), Qt::ISODate);
     config.banPrn = settings.value("banPrn").toString();

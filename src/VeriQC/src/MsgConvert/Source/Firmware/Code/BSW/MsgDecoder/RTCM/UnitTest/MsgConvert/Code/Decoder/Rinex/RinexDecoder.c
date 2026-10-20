@@ -589,7 +589,7 @@ static int SatObsDataToObsData(OBS_DATA_SAT_T* pSatObsData, GNSS_OBS_T* pObsData
 	for (SatIndex = 0; SatIndex < pSatObsData->SatNum; SatIndex++)
 	{
 		pPerSatObsData = &pSatObsData->ObsDataPerSat[SatIndex];
-		for (PserSatObsIndex = 0; PserSatObsIndex < (MAX_FREQ_INDEX_NUM+1); PserSatObsIndex++)
+		for (PserSatObsIndex = 0; PserSatObsIndex < MAX_OBS_SIGNAL_NUM && ObsIndex < RM_RANGE_MAX_OBS_NUM; PserSatObsIndex++)
 		{
 			if (pPerSatObsData->ObsData[PserSatObsIndex].PRN)
 			{
@@ -597,6 +597,10 @@ static int SatObsDataToObsData(OBS_DATA_SAT_T* pSatObsData, GNSS_OBS_T* pObsData
 				pObsData->RangeData.ObsNum++;
 				ObsIndex++;
 			}
+		}
+		if (ObsIndex >= RM_RANGE_MAX_OBS_NUM)
+		{
+			break;
 		}
 	}
 
@@ -1448,6 +1452,7 @@ static int GetSysTimeType(char* pBuf)
 @param pBuff			[In] input rinex file data buffer
 @param Ver				[In] rinex file version
 @param pSysTimeType		[In] system time type
+@param ObsHeaderSys		[In] rinex obs file header system code type
 @param ObsType			[In] obs type
 @param pObsHeaderInfo	[Out] rinex obs file header information
 
@@ -1457,7 +1462,7 @@ static int GetSysTimeType(char* pBuf)
 @Date 2023/12/25
 @note
 **************************************************************************/
-static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeType,
+static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeType, int ObsHeaderSys, 
 	char ObsType[][MAX_NUM_OBS_TYPE][4], RINEX_OBS_HEADER_INFO_T* pObsHeaderInfo, CYCLE_BUFF_CTRL_T* pCycleBufCtrl)
 {
 	/** default codes for unknown code */
@@ -1473,7 +1478,7 @@ static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeTy
 	int DataIndex, StrIndex;
 	unsigned int SysIndex, ObsTypeIndex;
 	unsigned int ObsTypeCount, ObsTypeNum;
-	unsigned int SatIndex, FreqIndex, SatCount;
+	unsigned int SatIndex, FreqIndex;
 	int PRN, FreqChnn, SatID, WideLane[2];
 	char* pLabel = pBuff + 60;
 	char* pStr, StrBuf[4];
@@ -1751,7 +1756,14 @@ static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeTy
 		SysTimeType = GetSysTimeType(pBuff + 5);
 		if (SysTimeType < 0)
 		{
-			return -1;
+			if (ObsHeaderSys == RINEX_SYS_ALL)
+			{
+				return -1;
+			}
+			else
+			{
+				SysTimeType = *pSysTimeType;
+			}
 		}
 
 		if ((SysTimeType == SYS_TIME_TYPE_GPS) || (SysTimeType == SYS_TIME_TYPE_QZS) ||
@@ -1782,7 +1794,14 @@ static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeTy
 		SysTimeType = GetSysTimeType(pBuff + 5);
 		if (SysTimeType < 0)
 		{
-			return -1;
+			if (ObsHeaderSys == RINEX_SYS_ALL)
+			{
+				return -1;
+			}
+			else
+			{
+				SysTimeType = *pSysTimeType;
+			}
 		}
 
 		if ((SysTimeType == SYS_TIME_TYPE_GPS) || (SysTimeType == SYS_TIME_TYPE_QZS) ||
@@ -1851,7 +1870,7 @@ static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeTy
 		pPerSignalPhaseShiftInfo->PhaseShiftData = strtod(pBuff, &pBuff);
 		pPerSignalPhaseShiftInfo->SatNum = (unsigned int)strtoul(pBuff, &pBuff, 10);
 
-		for (SatIndex = SatCount = 0, StrIndex = 18; SatIndex < pPerSignalPhaseShiftInfo->SatNum; SatIndex++, StrIndex += 4)
+		for (SatIndex = 0, StrIndex = 18; SatIndex < pPerSignalPhaseShiftInfo->SatNum; SatIndex++, StrIndex += 4)
 		{
 			if (StrIndex >= 58)
 			{
@@ -1872,7 +1891,7 @@ static int DecodeObsHeader(FILE *pFile, char* pBuff, double Ver, int* pSysTimeTy
 	}
 	else if (strstr(pLabel, "GLONASS SLOT / FRQ #")) /**< Ver.3.02 */
 	{
-		for (DataIndex = 0, pStr = pBuff + 4; DataIndex < 8; DataIndex++, pStr += 8)
+		for (DataIndex = 0, pStr = pBuff + 4; DataIndex < 8; DataIndex++, pStr += 7)
 		{
 			if (sscanf(pStr, "R%2d %2d", &PRN, &FreqChnn) < 2)
 			{
@@ -2258,6 +2277,7 @@ static int ReadRinexHeader(FILE *pFile, double* pVer, char* pFileType, int* pSys
 				case 'I':
 					SystemID = RINEX_SYS_NIC;
 					SysTimeType = SYS_TIME_TYPE_NIC;
+				break;
 				case ' ':
 				case 'M': /**< mixed */
 					SystemID = RINEX_SYS_ALL;
@@ -2281,7 +2301,7 @@ static int ReadRinexHeader(FILE *pFile, double* pVer, char* pFileType, int* pSys
 			switch (FileType)
 			{
 				case 'O':
-					Result = DecodeObsHeader(pFile, TempBuf, Version, &SysTimeType, ObsType, &pRinexInfo->ObsHeaderInfo, pCycleBufCtrl);
+					Result = DecodeObsHeader(pFile, TempBuf, Version, &SysTimeType, SystemID, ObsType, &pRinexInfo->ObsHeaderInfo, pCycleBufCtrl);
 					break;
 				case 'G':
 					Result = DecodeGLONavHeader(TempBuf, Version, &pRinexInfo->GLOEphHeader);
@@ -2311,7 +2331,8 @@ static int ReadRinexHeader(FILE *pFile, double* pVer, char* pFileType, int* pSys
 			switch (FileType)
 			{
 				case 'O':
-					Result = DecodeObsHeader(pFile, TempBuf, Version, &SysTimeType, ObsType, &pRinexInfo->ObsHeaderInfo, pCycleBufCtrl);
+					Result = DecodeObsHeader(pFile, TempBuf, Version, &SysTimeType, SystemID, ObsType, &pRinexInfo->ObsHeaderInfo, pCycleBufCtrl);
+					*pSysTimeType = SysTimeType;
 					break;
 				case 'N':
 				{
@@ -2502,10 +2523,11 @@ static int DecodeObsData(RINEX_INFO_T* pRinexInfo, FILE* pFile, char* pBuff, int
 	double Val[MAX_NUM_OBS_TYPE] = { 0 };
 	unsigned char Lock[MAX_NUM_OBS_TYPE] = { 0 };
 	unsigned char Sign[MAX_NUM_OBS_TYPE] = { 0 };
-	char SatIDBuf[8] = "", SignalMax;
+	char SatIDBuf[8] = "";
 	int PRN = 0;
 	int Status = 1, Pos[MAX_NUM_OBS_TYPE], RinexSystemID = 0;
 	int StrIndex, ObsTypeIndex;
+	int SignalMax;
 	int Result;
 	unsigned int ObsIndex, DataIndex;
 	OBS_DATA_PER_SAT_T* pObsDataPerSat;
@@ -2518,9 +2540,11 @@ static int DecodeObsData(RINEX_INFO_T* pRinexInfo, FILE* pFile, char* pBuff, int
 	RM_RANGE_DATA_T* pCurRangeData;
 	unsigned int ObsNum;
 	unsigned int SatID;
-	unsigned int LockTimeFlag[MAX_FREQ_INDEX_NUM+1] = {0};
+	unsigned int LockTimeFlag[MAX_OBS_SIGNAL_NUM] = {0};
 	RINEX_OBS_HEADER_INFO_T* pObsHeaderInfo;
 	char TmpBuf[16];
+	int CharIndex;
+	int HasObsValue;
 
 	if ((!pSignalIndexInfo) || (!pSatObsData))
 	{
@@ -2586,7 +2610,21 @@ static int DecodeObsData(RINEX_INFO_T* pRinexInfo, FILE* pFile, char* pBuff, int
 		{
 			strncpy(TmpBuf, &pBuff[StrIndex], 14);
 			TmpBuf[14] = '\0';
-			Val[ObsTypeIndex] = strtod(TmpBuf, NULL) + pCurSignalIndexInfo->Shift[ObsTypeIndex];
+			HasObsValue = 0;
+			for (CharIndex = 0; CharIndex < 14; CharIndex++)
+			{
+				if ((TmpBuf[CharIndex] != ' ') && (TmpBuf[CharIndex] != '\0'))
+				{
+					HasObsValue = 1;
+					break;
+				}
+			}
+
+			Val[ObsTypeIndex] = HasObsValue ? strtod(TmpBuf, NULL) : 0.0;
+			if (HasObsValue && (pCurSignalIndexInfo->DataType[ObsTypeIndex] == 1))
+			{
+				Val[ObsTypeIndex] += pCurSignalIndexInfo->Shift[ObsTypeIndex];
+			}
 
 			TmpBuf[0] = pBuff[StrIndex + 14];
 			TmpBuf[1] = '\0';
@@ -2684,14 +2722,14 @@ static int DecodeObsData(RINEX_INFO_T* pRinexInfo, FILE* pFile, char* pBuff, int
 	SignalMax = -1;
 	for (ObsTypeIndex = 0; ObsTypeIndex < pCurSignalIndexInfo->Num; ObsTypeIndex++)
 	{
-		if (Pos[ObsTypeIndex] < 0 || fabs(Val[ObsTypeIndex]) < 1E-15)
+		if ((Pos[ObsTypeIndex] < 0) || (Pos[ObsTypeIndex] >= MAX_OBS_SIGNAL_NUM) || fabs(Val[ObsTypeIndex]) < 1E-15)
 		{
 			continue;
 		}
 
 		if (Pos[ObsTypeIndex] > SignalMax)
 		{
-			SignalMax++;
+			SignalMax = Pos[ObsTypeIndex];
 		}
 
 		SatID = PRNToMSMSatID(RMSystemID, PRN);
@@ -2816,7 +2854,7 @@ static int SetSignalIndex(int Ver, int ExSystemID, const char *pOpt,
 	int ObsDataIndex;
 	int DataIndex;
 	int Result;
-	int PosCount;
+	int PosCount = -1;
 
 	MEMSET(pSignalIndexInfo, 0xFF, sizeof(SIGNAL_INDEX_INFO_T));
 
@@ -2832,7 +2870,7 @@ static int SetSignalIndex(int Ver, int ExSystemID, const char *pOpt,
 
 		pStr = strchr(s_ObsCodes, ObsType[ObsTypeIndex][0]);
 		pSignalIndexInfo->DataType[ObsTypeIndex] = pStr ? (unsigned char)(pStr - s_ObsCodes) : 0;
-		pSignalIndexInfo->Pri[ObsTypeIndex] = (unsigned char)GetRinexCodePri(ExSystemID, pSignalIndexInfo->Freq[ObsTypeIndex], ObsType[ObsTypeIndex][3]);
+		pSignalIndexInfo->Pri[ObsTypeIndex] = (unsigned char)GetRinexCodePri(ExSystemID, pSignalIndexInfo->Freq[ObsTypeIndex], ObsType[ObsTypeIndex][2]);
 		pSignalIndexInfo->Pos[ObsTypeIndex] = -1;
 	}
 
@@ -2874,28 +2912,21 @@ static int SetSignalIndex(int Ver, int ExSystemID, const char *pOpt,
 	/** assign index for highest priority code */
 	for (ObsDataIndex = 0; ObsDataIndex < DataCount; ObsDataIndex++)
 	{
-		if (pSignalIndexInfo->Pri[ObsTypeIndex] && (pSignalIndexInfo->Pos[ObsDataIndex] < 0))
+		if (pSignalIndexInfo->Pri[ObsDataIndex] && (pSignalIndexInfo->Pos[ObsDataIndex] < 0))
 		{
-			if (ObsDataIndex == 0)
+			for (ObsTypeIndex = 0, DataIndex = -1; ObsTypeIndex < ObsDataIndex; ObsTypeIndex++)
 			{
-				pSignalIndexInfo->Pos[ObsDataIndex] = 0;
-				PosCount = 0;
+				if ((pSignalIndexInfo->SignalType[ObsTypeIndex] == pSignalIndexInfo->SignalType[ObsDataIndex]) &&
+					(pSignalIndexInfo->Pos[ObsTypeIndex] >= 0))
+				{
+					pSignalIndexInfo->Pos[ObsDataIndex] = pSignalIndexInfo->Pos[ObsTypeIndex];
+					break;
+				}
 			}
-			else
-			{
-				for (ObsTypeIndex = 0, DataIndex = -1; ObsTypeIndex < ObsDataIndex; ObsTypeIndex++)
-				{
-					if (pSignalIndexInfo->SignalType[ObsTypeIndex] == pSignalIndexInfo->SignalType[ObsDataIndex])
-					{
-						pSignalIndexInfo->Pos[ObsDataIndex] = pSignalIndexInfo->Pos[ObsTypeIndex];
-						break;
-					}
-				}
 
-				if (ObsTypeIndex >= ObsDataIndex)
-				{
-					pSignalIndexInfo->Pos[ObsTypeIndex] = ++PosCount;
-				}
+			if (ObsTypeIndex >= ObsDataIndex)
+			{
+				pSignalIndexInfo->Pos[ObsDataIndex] = ++PosCount;
 			}
 		}
 	}
@@ -2973,7 +3004,8 @@ static int ReadRinexObsBody(RINEX_INFO_T* pRinexInfo, FILE *pFile, const char* p
 			{
 				if (DecodeObsData(pRinexInfo, pFile, TempBuf, Ver, SignalIndexInfoTab, pSatObsData, pCycleBufCtrl, SysBuf[pSatObsData->SatNum], SatBuf[pSatObsData->SatNum]) < 0)
 				{
-					return -1;
+					/** return -1 */
+					pSatObsData->SatNum--;
 				}
 				pSatObsData->SatNum++;
 			}
